@@ -113,3 +113,26 @@ static void update_player_is_in_hand(player_t* player)
 		player->is_in_hand = false;
 	}
 }
+
+std::string player_t::to_string()
+{
+	std::string to_string;
+	to_string = "label = " + label + "\n";
+	if (!is_in_game)
+	{
+		to_string += "not in game";
+		return to_string;
+	}
+	to_string += "name = " + name + "\n";
+	to_string += "balance = " + std::to_string(balance) + "\n";
+	to_string += "is_in_hand = ";
+	if (is_in_hand)
+	{
+		to_string += "true";
+	}
+	else
+	{
+		to_string += "false";
+	}
+	return to_string;
+}

@@ -160,3 +160,21 @@ static void update_players(board_t* board)
 		}
 	}
 }
+
+std::string board_t::to_string()
+{
+	std::string to_string;
+	to_string = "CARDS: ";
+	for (auto* card : cards)
+	{
+		to_string += card->to_string() + " ";
+	}
+	to_string += "\n\n";
+	to_string += "PLAYERS: \n";
+	for (auto* player : players)
+	{
+		to_string += player->to_string();
+		to_string += "\n";
+	}
+	return to_string;
+}

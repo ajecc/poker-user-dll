@@ -80,6 +80,8 @@ struct player_t
 	board_stage_stats_t flop;
 	board_stage_stats_t turn;
 	board_stage_stats_t river;
+
+	std::string to_string();
 };
 
 

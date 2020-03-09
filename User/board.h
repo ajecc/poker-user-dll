@@ -14,6 +14,8 @@ struct board_t
 	std::vector<player_t*> players;
 	std::vector<player_t*> current_hand_players;
 	double_t pot;
+
+	std::string to_string();
 };
 
 board_t* create_board();

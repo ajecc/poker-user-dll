@@ -37,8 +37,9 @@ struct card_t
 {
 	color_t color;
 	rank_t rank;
+
+	std::string to_string();
 };
 
 
 card_t* get_card_from_string(const std::string& str);
-

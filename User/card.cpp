@@ -1,5 +1,6 @@
 #include <string>
 #include "card.h"
+#include "poker_exception.h"
 
 
 card_t* get_card_from_string(const std::string& str)
@@ -20,6 +21,9 @@ card_t* get_card_from_string(const std::string& str)
 	{
 		switch (card_rank)
 		{
+		case 'T':
+			card->rank = _T;
+			break;
 		case 'J':
 			card->rank = _J;
 			break;
@@ -59,4 +63,54 @@ card_t* get_card_from_string(const std::string& str)
 cleanup:
 	delete card;
 	return nullptr;
+}
+
+std::string card_t::to_string()
+{
+	std::string to_string;
+	if (rank >= _2 && rank <= _9)
+	{
+		to_string = std::to_string(rank);
+	}
+	else
+	{
+		switch (rank)
+		{
+		case _T:
+			to_string = "T";
+			break;
+		case _J:
+			to_string = "J";
+			break;
+		case _Q:
+			to_string = "Q";
+			break;
+		case _K:
+			to_string = "K";
+			break;
+		case _A:
+			to_string = "A";
+			break;
+		default:
+			throw poker_exception_t("Invalid card");
+		}
+	}
+	switch (color)
+	{
+	case H:
+		to_string += "h";
+		break;
+	case D:
+		to_string += "d";
+		break;
+	case C:
+		to_string += "c";
+		break;
+	case S:
+		to_string += "s";
+		break;
+	default:
+		throw poker_exception_t("Invalid card");
+	}
+	return to_string;
 }
