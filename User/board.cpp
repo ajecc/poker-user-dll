@@ -4,15 +4,61 @@
 #include "open_holdem_functions.h"
 #include <algorithm>
 
-static void clean_board(board_t* board);
+static void clear_board(board_t* board);
 
 static void update_cards(board_t* board);
 
 static void update_players(board_t* board);
 
 
+board_t* create_board()
+{
+	auto* board = new board_t;
+	if (nullptr == board)
+	{
+		goto cleanup;
+	}
+	for (int i = 0; i < PLAYERS_COUNT; i++)
+	{
+		auto* player = new player_t;
+		if (player == nullptr)
+		{
+			goto cleanup;
+		}
+		board->players.emplace_back(player);
+	}
+	return board;
+cleanup:
+	destroy_board(&board);
+}
+
+
+void destroy_board(board_t** board)
+{
+	if (nullptr == board)
+	{
+		return;
+	}
+	board_t* board_deref = *board;
+	if (nullptr != board_deref)
+	{
+		clear_board(board_deref);
+		for (auto* player : board_deref->players)
+		{
+			delete player;
+		}
+		delete board_deref;
+	}
+	*board = nullptr;
+}
+
+
 player_t* get_player_by_label(board_t* board, const std::string& label)
 {
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
 	for (auto* player : board->players)
 	{
 		if (label == player->label)
@@ -26,33 +72,40 @@ player_t* get_player_by_label(board_t* board, const std::string& label)
 
 void update_board(board_t* board)
 {
-	clean_board(board);
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
+	clear_board(board);
 	update_cards(board);
 }
 
 
-static void clean_board(board_t* board)
+static void clear_board(board_t* board)
 {
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
 	for (auto* card : board->cards)
 	{
 		delete card;
-	}
-	for (auto* player : board->players)
-	{
-		delete player;
 	}
 	for (auto* current_hand_player : board->current_hand_players)
 	{
 		delete current_hand_player;
 	}
 	board->cards.clear();
-	board->players.clear();
 	board->current_hand_players.clear();
 }
 
 
 static void update_cards(board_t* board)
 {
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
 	std::string cards_query_string = "c0cardfaceX";
 	for (int i = 0; i < 5; i++)
 	{
@@ -88,6 +141,10 @@ cleanup:
 
 static void update_players(board_t* board)
 {
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
 	std::string player_label = "pX";
 	for (char i = '0'; i < '6'; i++)
 	{

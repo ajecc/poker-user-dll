@@ -15,6 +15,10 @@ static void update_player_is_in_hand(player_t* player);
 
 void update_player(player_t* player)
 {
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
 	update_player_is_in_game(player);
 	if (!player->is_in_game)
 	{
@@ -28,6 +32,10 @@ void update_player(player_t* player)
 
 player_t* get_current_player(board_t* board)
 {
+	if (nullptr == board)
+	{
+		throw poker_exception_t("Board should never be nullptr");
+	}
 	std::string inactive_query_string = "pXinactive";
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++)
 	{
@@ -47,6 +55,10 @@ player_t* get_current_player(board_t* board)
 
 static void update_player_is_in_game(player_t* player)
 {
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
 	std::string query = player->label + "seated";
 	std::string query_response = scrape_table_map_region(query);
 	if (query_response == "true")
@@ -62,6 +74,10 @@ static void update_player_is_in_game(player_t* player)
 
 static void update_player_balance(player_t* player)
 {
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
 	std::string query = player->label + "query";
 	player->balance = scrape_table_map_region_numeric(query);
 }
@@ -69,6 +85,10 @@ static void update_player_balance(player_t* player)
 
 static void update_player_current_bet(player_t* player)
 {
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
 	std::string query = player->label + "bet";
 	player->current_bet = scrape_table_map_region_numeric(query);
 	// TODO: check for raise, update player aggresivity etc. 
@@ -78,6 +98,10 @@ static void update_player_current_bet(player_t* player)
 
 static void update_player_is_in_hand(player_t* player)
 {
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
 	std::string query = player->label + "cardback";
 	std::string query_response = scrape_table_map_region(query);
 	if (query_response == "true")

@@ -10,6 +10,8 @@
 #include <random>
 #include "user.h"
 #include "open_holdem_functions.h"
+#include "board.h"
+
 
 
 void __stdcall DLLUpdateOnNewFormula()
@@ -41,10 +43,20 @@ void __stdcall DLLUpdateOnHeartbeat()
 {
 }
 
+board_t* g_board;
 
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 {
+	if (nullptr == pquery)
+	{
+		return -1;
+	}
+	std::string query = std::string(pquery);
+	if (query == "dll$test")
+	{
+		
+	}
 	return 0;
 }
 
@@ -57,6 +69,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 	{
 		case DLL_PROCESS_ATTACH:
 		{
+			g_board = create_board();
 #ifdef _DEBUG
 			AllocConsole();
 			freopen_s(&file, "CONOUT$", "w", stdout);
