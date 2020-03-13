@@ -5,15 +5,13 @@
 #include "card.h"
 
 
-const int PLAYERS_COUNT = 6;
-
 struct board_t
 {
 	board_stage_t stage;
 	std::vector<card_t*> cards;
 	std::vector<player_t*> players;
 	std::vector<player_t*> current_hand_players;
-	double_t pot;
+	double_t pot = 0;
 
 	std::string to_string();
 };

@@ -37,7 +37,7 @@ player_t* get_current_player(board_t* board)
 		throw poker_exception_t("Board should never be nullptr");
 	}
 	std::string inactive_query_string = "pXinactive";
-	for (int i = 0; i < MAX_PLAYER_COUNT; i++)
+	for (int i = 0; i < PLAYERS_COUNT; i++)
 	{
 		inactive_query_string[1] = (char)(i + (int)'0');
 		std::string response = scrape_table_map_region(inactive_query_string);
@@ -116,8 +116,8 @@ static void update_player_is_in_hand(player_t* player)
 
 std::string player_t::to_string()
 {
-	std::string to_string;
-	to_string = "label = " + label + "\n";
+	std::string to_string = "label = ";
+	to_string += label + "\n";
 	if (!is_in_game)
 	{
 		to_string += "not in game";

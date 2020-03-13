@@ -190,6 +190,10 @@ std::string scrape_table_map_region(const std::string& p_region)
 {
 	int dummy;
 	char* response = ScrapeTableMapRegion(p_region.c_str(), dummy);
+	if (response == nullptr)
+	{
+		return std::string("");
+	}
 	return std::string(response);
 }
 

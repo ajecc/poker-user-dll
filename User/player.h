@@ -3,7 +3,7 @@
 #include <string>
 
 
-const int MAX_PLAYER_COUNT = 6;
+constexpr int PLAYERS_COUNT = 6;
 
 typedef int count_t;
 
@@ -57,29 +57,29 @@ struct player_t
 {
 	std::string label;  // this label might be p6, for example, but the player might be Player 1
 	std::string name;
-	double balance;
-	double current_bet;
-	double overall_agression;
-	double overall_agression_freq;
-	count_t hand_seen;
-	double overall_avg_hand_strength;
-	count_t win;
-	count_t lose;
-	count_t faceup_lose;
-	count_t faceup_win;
-	count_t bluff;
-	count_t position;  // the number of players that speak after this player
-	bool is_dealer;
-	bool is_small;
-	bool is_big;
-	bool is_in_hand;
-	bool is_in_game;  // used for folds/sitouts
-	double range[MAX_PLAYER_COUNT];  // the weakest cards this player plays in a position 
+	double balance = 0;
+	double current_bet = 0;
+	double overall_agression = 0;
+	double overall_agression_freq = 0;
+	count_t hand_seen = 0;
+	double overall_avg_hand_strength = 0;
+	count_t win = 0;
+	count_t lose = 0;
+	count_t faceup_lose = 0;
+	count_t faceup_win = 0;
+	count_t bluff = 0;
+	count_t position = 0;  // the number of players that speak after this player
+	bool is_dealer = false;
+	bool is_small = false;
+	bool is_big = false;
+	bool is_in_hand = false;
+	bool is_in_game = false;  // used for folds/sitouts
+	double range[PLAYERS_COUNT] = { 0 };  // the weakest cards this player plays in a position 
 
-	board_stage_stats_t preflop;
-	board_stage_stats_t flop;
-	board_stage_stats_t turn;
-	board_stage_stats_t river;
+	board_stage_stats_t preflop = { 0 };
+	board_stage_stats_t flop = { 0 };
+	board_stage_stats_t turn = { 0 };
+	board_stage_stats_t river = { 0 };
 
 	std::string to_string();
 };

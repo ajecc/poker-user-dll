@@ -25,11 +25,13 @@ board_t* create_board()
 		{
 			goto cleanup;
 		}
+		player->label = "p" + std::to_string(i);
 		board->players.emplace_back(player);
 	}
 	return board;
 cleanup:
 	destroy_board(&board);
+	return nullptr;
 }
 
 
@@ -78,6 +80,7 @@ void update_board(board_t* board)
 	}
 	clear_board(board);
 	update_cards(board);
+	update_players(board);
 }
 
 
@@ -107,7 +110,7 @@ static void update_cards(board_t* board)
 		throw poker_exception_t("Board should never be nullptr");
 	}
 	std::string cards_query_string = "c0cardfaceX";
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < PLAYERS_COUNT; i++)
 	{
 		cards_query_string[cards_query_string.size() - 1] = (char)(i + '0');
 		std::string card_str = scrape_table_map_region(cards_query_string);
@@ -146,7 +149,7 @@ static void update_players(board_t* board)
 		throw poker_exception_t("Board should never be nullptr");
 	}
 	std::string player_label = "pX";
-	for (char i = '0'; i < '6'; i++)
+	for (char i = '0'; i < '0' + PLAYERS_COUNT; i++)
 	{
 		player_label[1] = i;
 		player_t* player = get_player_by_label(board, player_label);

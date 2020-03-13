@@ -8,9 +8,11 @@
 #include <Windows.h>
 #include <cstdio>
 #include <random>
+#include "loguru.h"
 #include "user.h"
 #include "open_holdem_functions.h"
 #include "board.h"
+#include "debug.h"
 
 
 
@@ -55,7 +57,14 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 	std::string query = std::string(pquery);
 	if (query == "dll$test")
 	{
-		
+		try
+		{
+			update_board(g_board);
+		}
+		catch (std::exception & e)
+		{
+			LOG_F(FATAL, e.what());
+		}
 	}
 	return 0;
 }
@@ -64,29 +73,32 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 // TODO: msg larisa dupa ce termin
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) 
 {
-	FILE* file = nullptr;
+	FILE* conout = nullptr;
 	switch (ul_reason_for_call)
 	{
 		case DLL_PROCESS_ATTACH:
 		{
+			int argc = 1;
+			char argv_0[MAX_PATH];
+			DWORD dError = GetModuleFileNameA(NULL, argv_0, MAX_PATH);
+			if (dError == 0)
+			{
+				return GetLastError();
+			}
+			char* argv[2];
+			argv[0] = argv_0;
+			argv[1] = nullptr;
+			loguru::init(argc, argv);
+
 			g_board = create_board();
-#ifdef _DEBUG
-			AllocConsole();
-			freopen_s(&file, "CONOUT$", "w", stdout);
-			printf_s("The log console is running!\n");
 			InitializeOpenHoldemFunctionInterface();
-#endif
+			dll_process_attach(&conout);
 		} break;
 
 		case DLL_PROCESS_DETACH:
 		{
-#ifdef _DEBUG
-			FreeConsole();
-			if (file != nullptr)
-			{
-				fclose(file);
-			}
-#endif
+			destroy_board(&g_board);
+			dll_process_detach(conout);
 		} break;
 
 		default:
