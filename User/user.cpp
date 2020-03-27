@@ -11,8 +11,8 @@
 #include "loguru.h"
 #include "user.h"
 #include "open_holdem_functions.h"
-#include "board.h"
 #include "debug.h"
+#include "board.h"
 
 
 

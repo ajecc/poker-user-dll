@@ -1,6 +1,7 @@
 
 #include "open_holdem_functions.h"
 #include "atlstr.h"
+#include "debug.h"
 #include <cstddef>
 
 // Function signatures and pointers
@@ -189,11 +190,14 @@ void ErrorPointerNotInitialized(const char* function_name)
 std::string scrape_table_map_region(const std::string& p_region)
 {
 	int dummy;
+	DLOG(INFO, "region = %s", p_region.c_str());
 	char* response = ScrapeTableMapRegion(p_region.c_str(), dummy);
 	if (response == nullptr)
 	{
+		DLOG(INFO, "response = NULL");
 		return std::string("");
 	}
+	DLOG(INFO, "response = %s", response);
 	return std::string(response);
 }
 

@@ -65,6 +65,11 @@ cleanup:
 	return nullptr;
 }
 
+bool card_t::operator<(const card_t& other) const
+{
+	return rank < other.rank;
+}
+
 std::string card_t::to_string()
 {
 	std::string to_string;

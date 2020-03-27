@@ -177,6 +177,7 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="hand.h" />
     <ClInclude Include="loguru.h" />
+    <ClInclude Include="myself.h" />
     <ClInclude Include="open_holdem_functions.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="poker_exception.h" />

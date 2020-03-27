@@ -10,7 +10,11 @@ static void update_player_balance(player_t* player);
 
 static void update_player_current_bet(player_t* player);
 
+static void update_player_name(player_t* player);
+
 static void update_player_is_in_hand(player_t* player);
+
+
 
 
 void update_player(player_t* player)
@@ -26,6 +30,7 @@ void update_player(player_t* player)
 	}
 	update_player_balance(player);
 	update_player_current_bet(player);
+	update_player_name(player);
 	update_player_is_in_hand(player);
 }
 
@@ -78,7 +83,7 @@ static void update_player_balance(player_t* player)
 	{
 		throw poker_exception_t("Player should never be nullptr");
 	}
-	std::string query = player->label + "query";
+	std::string query = player->label + "balance";
 	player->balance = scrape_table_map_region_numeric(query);
 }
 
@@ -96,6 +101,18 @@ static void update_player_current_bet(player_t* player)
 }
 
 
+static void update_player_name(player_t* player)
+{
+	if (nullptr == player)
+	{
+		throw poker_exception_t("Player should never be nullptr");
+	}
+	std::string query = player->label + "name";
+	std::string query_response = scrape_table_map_region(query);
+	player->name = query_response;
+}
+
+
 static void update_player_is_in_hand(player_t* player)
 {
 	if (nullptr == player)
@@ -110,9 +127,20 @@ static void update_player_is_in_hand(player_t* player)
 	}
 	else
 	{
-		player->is_in_hand = false;
+		query = player->label + "cardface0";
+		query_response = scrape_table_map_region(query);
+		// TODO: make this more elegant
+		if (query_response.size() == 0 || query_response[0] == 'E')
+		{
+			player->is_in_hand = false;
+		}
+		else
+		{
+			player->is_in_hand = true;
+		}
 	}
 }
+
 
 std::string player_t::to_string()
 {
@@ -125,6 +153,7 @@ std::string player_t::to_string()
 	}
 	to_string += "name = " + name + "\n";
 	to_string += "balance = " + std::to_string(balance) + "\n";
+	to_string += "position = " + std::to_string(position) + "\n";
 	to_string += "is_in_hand = ";
 	if (is_in_hand)
 	{

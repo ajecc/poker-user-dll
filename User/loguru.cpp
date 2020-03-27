@@ -181,13 +181,13 @@ namespace loguru
 	Verbosity g_internal_verbosity = Verbosity_0;
 
 	// Preamble details
-	bool      g_preamble_date     = true;
+	bool      g_preamble_date     = false;
 	bool      g_preamble_time     = true;
-	bool      g_preamble_uptime   = true;
-	bool      g_preamble_thread   = true;
+	bool      g_preamble_uptime   = false;
+	bool      g_preamble_thread   = false;
 	bool      g_preamble_file     = true;
 	bool      g_preamble_verbose  = true;
-	bool      g_preamble_pipe     = true;
+	bool      g_preamble_pipe     = false;
 
 	static std::recursive_mutex  s_mutex;
 	static Verbosity             s_max_out_verbosity = Verbosity_OFF;
@@ -1195,13 +1195,17 @@ namespace loguru
 
 		long pos = 0;
 
+		if (g_preamble_verbose && pos < out_buff_size) {
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "[%4s]",
+			               level_buff);
+		}
 		if (g_preamble_date && pos < out_buff_size) {
 			pos += snprintf(out_buff + pos, out_buff_size - pos, "%04d-%02d-%02d ",
 				             1900 + time_info.tm_year, 1 + time_info.tm_mon, time_info.tm_mday);
 		}
 		if (g_preamble_time && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%02d:%02d:%02d.%03lld ",
-			               time_info.tm_hour, time_info.tm_min, time_info.tm_sec, ms_since_epoch % 1000);
+			pos += snprintf(out_buff + pos, out_buff_size - pos, "[%02d:%02d:%02d]",
+			               time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
 		}
 		if (g_preamble_uptime && pos < out_buff_size) {
 			pos += snprintf(out_buff + pos, out_buff_size - pos, "(%8.3fs) ",
@@ -1214,12 +1218,13 @@ namespace loguru
 		if (g_preamble_file && pos < out_buff_size) {
 			char shortened_filename[LOGURU_FILENAME_WIDTH + 1];
 			snprintf(shortened_filename, LOGURU_FILENAME_WIDTH + 1, "%s", file);
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%*s:%-5u ",
-			               LOGURU_FILENAME_WIDTH, shortened_filename, line);
-		}
-		if (g_preamble_verbose && pos < out_buff_size) {
-			pos += snprintf(out_buff + pos, out_buff_size - pos, "%4s",
-			               level_buff);
+			char* file_aux = shortened_filename;
+			while (file_aux[0] == ' ')
+			{
+				file_aux = file_aux + 1;
+			}
+			pos += snprintf(out_buff + pos, out_buff_size - pos, " %s:%-5u ",
+			                file_aux, line);
 		}
 		if (g_preamble_pipe && pos < out_buff_size) {
 			pos += snprintf(out_buff + pos, out_buff_size - pos, "| ");
@@ -1327,13 +1332,32 @@ namespace loguru
 
 	// stack_trace_skip is just if verbosity == FATAL.
 	void log_to_everywhere(int stack_trace_skip, Verbosity verbosity,
-	                       const char* file, unsigned line,
-	                       const char* prefix, const char* buff)
+		const char* file, unsigned line,
+		const char* prefix, const char* buff)
 	{
 		char preamble_buff[LOGURU_PREAMBLE_WIDTH];
 		print_preamble(preamble_buff, sizeof(preamble_buff), verbosity, file, line);
-		auto message = Message{verbosity, file, line, preamble_buff, "", prefix, buff};
+		int buff_len = strlen(buff);
+		auto* buff_newline = (char*)malloc(2 * buff_len + 10);
+		if (buff_newline == nullptr)
+		{
+			return;
+		}
+		int buff_newline_ind = 0;
+		buff_newline[buff_newline_ind++] = '\n';
+		buff_newline[buff_newline_ind++] = '\t';
+		for (int i = 0; i < buff_len; i++)
+		{
+			buff_newline[buff_newline_ind++] = buff[i];
+			if (buff[i] == '\n')
+			{
+				buff_newline[buff_newline_ind++] = '\t';
+			}
+		}
+		buff_newline[buff_newline_ind] = '\0';
+		auto message = Message{verbosity, file, line, preamble_buff, "", prefix, buff_newline};
 		log_message(stack_trace_skip + 1, message, true, true);
+		free(buff_newline);
 	}
 
 #if LOGURU_USE_FMTLIB

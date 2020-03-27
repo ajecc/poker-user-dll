@@ -2,6 +2,7 @@
 #include "poker_exception.h"
 #include "util.h"
 #include "open_holdem_functions.h"
+#include "debug.h"
 #include <algorithm>
 
 static void clear_board(board_t* board);
@@ -9,6 +10,8 @@ static void clear_board(board_t* board);
 static void update_cards(board_t* board);
 
 static void update_players(board_t* board);
+
+static void update_player_positions(board_t* board);
 
 
 board_t* create_board()
@@ -68,7 +71,10 @@ player_t* get_player_by_label(board_t* board, const std::string& label)
 			return player;
 		}
 	}
-	throw poker_exception_t("Player by label not found");
+
+	std::string error_message = "Player with label ";
+	error_message += label + " not found";
+	throw poker_exception_t(error_message);
 }
 
 
@@ -81,6 +87,44 @@ void update_board(board_t* board)
 	clear_board(board);
 	update_cards(board);
 	update_players(board);
+	update_player_positions(board);
+	DLOG(INFO, board->to_string().c_str());
+}
+
+
+player_t* get_next_player(board_t* board, player_t* player)
+{
+	std::string label = player->label;
+	label[1] = (label[1] - '0' + 1) % PLAYERS_COUNT + '0';
+	return get_player_by_label(board, label);
+}
+
+
+player_t* get_next_player_in_game(board_t* board, player_t* player)
+{
+	for (int i = 0; i < PLAYERS_COUNT + 1; i++)
+	{
+		player = get_next_player(board, player);
+		if (player->is_in_game)
+		{
+			return player;
+		}
+	}
+	throw poker_exception_t("Could not get next player in game");
+}
+
+
+player_t* get_next_player_in_hand(board_t* board, player_t* player)
+{
+	for (int i = 0; i < PLAYERS_COUNT + 1; i++)
+	{
+		player = get_next_player(board, player);
+		if (player->is_in_hand)
+		{
+			return player;
+		}
+	}
+	throw poker_exception_t("Could not get next player in hand");
 }
 
 
@@ -93,10 +137,6 @@ static void clear_board(board_t* board)
 	for (auto* card : board->cards)
 	{
 		delete card;
-	}
-	for (auto* current_hand_player : board->current_hand_players)
-	{
-		delete current_hand_player;
 	}
 	board->cards.clear();
 	board->current_hand_players.clear();
@@ -163,6 +203,86 @@ static void update_players(board_t* board)
 		}
 	}
 }
+
+
+static void update_player_positions(board_t* board)
+{
+	DLOG(INFO, "in update_player_positions");
+	for (auto* player : board->players)
+	{
+		player->is_dealer = false;
+		player->is_small = false;
+		player->is_big = false;
+	}
+	std::string dealer_label = "pX";
+	player_t* big_blind = nullptr;
+	player_t* dealer = nullptr;
+	player_t* small_blind = nullptr;
+	for (char i = '0'; i < '0' + PLAYERS_COUNT; i++)
+	{
+		dealer_label[1] = i;
+		std::string query = dealer_label + "dealer";
+		std::string query_response = scrape_table_map_region(query);
+		if (query_response == "true")
+		{
+			dealer = get_player_by_label(board, dealer_label);
+			dealer->is_dealer = true;
+			// heads up case:
+			if (board->players.size() == 2)
+			{
+				dealer->is_small = true;
+				small_blind = dealer;
+			}
+			else
+			{
+				small_blind = get_next_player_in_game(board, dealer);
+				small_blind->is_small = true;
+			}
+			big_blind = get_next_player_in_game(board, small_blind);
+			big_blind->is_big = true;
+			break;
+		}
+	}
+	if (dealer == nullptr || small_blind == nullptr || big_blind == nullptr)
+	{
+		throw poker_exception_t("Could not find dealer/small/big");
+	}
+	player_t* current_player;
+	if (board->stage == PREFLOP)
+	{
+		DLOG(INFO, "preflop");
+		current_player = get_next_player_in_hand(board, big_blind);
+	}
+	else
+	{
+		DLOG(INFO, "not preflop");
+		current_player = get_next_player_in_hand(board, dealer);
+	}
+
+	int in_front_cnt = 0;
+	player_t* in_front = get_next_player_in_hand(board, current_player);
+	while(in_front != current_player)
+	{
+		in_front_cnt++;
+		in_front = get_next_player_in_hand(board, in_front);
+	}
+	current_player->position = in_front_cnt;
+
+	player_t* stopping_point = current_player;
+	for(;;)
+	{
+		DLOG(INFO, "pos label = %s", current_player->label.c_str());
+		player_t* next_player = get_next_player_in_hand(board, current_player);
+		if (next_player == stopping_point)
+		{
+			break;
+		}
+		next_player->position = current_player->position - 1;
+		current_player = next_player;
+	} 
+	DLOG(INFO, "exit update_player_positions");
+}
+ 
 
 std::string board_t::to_string()
 {

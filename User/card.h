@@ -39,6 +39,8 @@ struct card_t
 	color_t color;
 	rank_t rank;
 
+	bool operator<(const card_t& other) const;
+
 	std::string to_string();
 };
 

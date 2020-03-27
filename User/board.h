@@ -16,6 +16,7 @@ struct board_t
 	std::string to_string();
 };
 
+
 board_t* create_board();
 
 void destroy_board(board_t** board);
@@ -23,3 +24,9 @@ void destroy_board(board_t** board);
 player_t* get_player_by_label(board_t* board, const std::string& label);
 
 void update_board(board_t* board);
+
+player_t* get_next_player(board_t* board, player_t* player);
+
+player_t* get_next_player_in_game(board_t* board, player_t* player);
+
+player_t* get_next_player_in_hand(board_t* board, player_t* player);

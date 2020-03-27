@@ -68,5 +68,8 @@
     <ClInclude Include="debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="myself.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

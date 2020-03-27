@@ -89,7 +89,4 @@ struct player_t
 player_t* get_current_player(board_t* board);
 
 void update_player(player_t* player);
-
-
-
 // TODO: make something that calculates the strength of a hand

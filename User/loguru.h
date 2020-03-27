@@ -78,6 +78,8 @@ Website: www.ilikebigbits.com
 
 */
 
+#pragma once
+
 #if defined(LOGURU_IMPLEMENTATION)
 	#error "You are defining LOGURU_IMPLEMENTATION. This is for older versions of Loguru. You should now instead include loguru.cpp (or build it and link with it)"
 #endif
@@ -116,7 +118,7 @@ Website: www.ilikebigbits.com
 
 #ifndef LOGURU_FILENAME_WIDTH
 	// Width of the column containing the file name
-	#define LOGURU_FILENAME_WIDTH 23
+	#define LOGURU_FILENAME_WIDTH 10 
 #endif
 
 #ifndef LOGURU_THREADNAME_WIDTH
