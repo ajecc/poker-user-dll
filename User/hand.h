@@ -13,5 +13,6 @@ struct hand_t
 };
 
 
+bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board);
 
 double calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board);

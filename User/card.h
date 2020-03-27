@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+
 
 enum color_t
 {
@@ -44,5 +46,7 @@ struct card_t
 	std::string to_string();
 };
 
+
+std::vector<card_t> create_all_cards();
 
 card_t* get_card_from_string(const std::string& str);

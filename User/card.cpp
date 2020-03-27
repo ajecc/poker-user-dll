@@ -2,6 +2,20 @@
 #include "card.h"
 #include "poker_exception.h"
 
+std::vector<card_t> create_all_cards()
+{
+	std::vector<card_t> all_cards;
+	for (rank_t rank = _2; rank <= _A; rank = (rank_t)((int)rank + 1))
+	{
+		for (color_t color = H; color <= S; color = (color_t)((int)color + 1))
+		{
+			card_t card = { color, rank };
+			all_cards.emplace_back(card);
+		}
+	}
+	return all_cards;
+}
+
 
 card_t* get_card_from_string(const std::string& str)
 {

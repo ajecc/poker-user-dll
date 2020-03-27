@@ -1344,8 +1344,12 @@ namespace loguru
 			return;
 		}
 		int buff_newline_ind = 0;
+// buffer overruns can never happen here
+#pragma warning(push)
+#pragma warning(disable:6386)  
 		buff_newline[buff_newline_ind++] = '\n';
 		buff_newline[buff_newline_ind++] = '\t';
+#pragma warning(pop)
 		for (int i = 0; i < buff_len; i++)
 		{
 			buff_newline[buff_newline_ind++] = buff[i];

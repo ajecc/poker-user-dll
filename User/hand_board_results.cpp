@@ -38,6 +38,7 @@ bool hand_board_result_t::operator<(const hand_board_result_t& other) const
 			return kickers[i].rank < other.kickers[i].rank;
 		}
 	}
+	return false;
 }
 
 
@@ -54,7 +55,7 @@ bool hand_board_result_t::operator>(const hand_board_result_t& other) const
 			return kickers[i].rank > other.kickers[i].rank;
 		}
 	}
-
+	return false;
 }
 
 
@@ -172,10 +173,6 @@ static bool calc_straight_flush(const std::vector<card_t>& cards, hand_board_res
 		result->strength = STRAIGHT_FLUSH;
 		result->kickers.emplace_back(kicker);
 	}
-	else
-	{
-		result->strength = INVALID_STRENGTH;
-	}
 	return have_result;
 }
 
@@ -200,7 +197,6 @@ static bool calc_quads(const std::vector<card_t>& cards, hand_board_result_t* re
 			return true;
 		}
 	}
-	result->strength = INVALID_STRENGTH;
 	return false;
 }
 
@@ -233,7 +229,6 @@ static bool calc_trips(const std::vector<card_t>& cards, hand_board_result_t* re
 			return true;
 		}
 	}
-	result->strength = INVALID_STRENGTH;
 	return false;
 }
 
@@ -260,7 +255,6 @@ static bool calc_pair(const std::vector<card_t>& cards, hand_board_result_t* res
 			return true;
 		}
 	}
-	result->strength = INVALID_STRENGTH;
 	return false;
 }
 
@@ -271,7 +265,6 @@ static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_
 	bool have_result = calc_trips(cards, &trips_result);
 	if (!have_result)
 	{
-		result->strength = INVALID_STRENGTH;
 		return false;
 	}
 	std::vector<card_t> new_cards;
@@ -286,7 +279,6 @@ static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_
 	have_result = calc_pair(new_cards, &pair_result);
 	if (!have_result)
 	{
-		result->strength = INVALID_STRENGTH;
 		return false;
 	}
 	result->strength = FULL_HOUSE;
@@ -302,7 +294,6 @@ static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t*
 	bool have_result = calc_pair(cards, &pair_result_1);
 	if (!have_result)
 	{
-		result->strength = INVALID_STRENGTH;
 		return false;
 	}
 	std::vector<card_t> new_cards;
@@ -317,7 +308,6 @@ static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t*
 	have_result = calc_pair(new_cards, &pair_result_2);
 	if (!have_result)
 	{
-		result->strength = INVALID_STRENGTH;
 		return false;
 	}
 	result->strength = TWO_PAIR;
@@ -369,10 +359,6 @@ static bool calc_straight(const std::vector<card_t>& cards, hand_board_result_t*
 		result->strength = STRAIGHT;
 		result->kickers.emplace_back(kicker);
 	}
-	else
-	{
-		result->strength = INVALID_STRENGTH;
-	}
 	return have_result;
 }
 
@@ -410,10 +396,6 @@ static bool calc_flush(std::vector<card_t> cards, hand_board_result_t* result)
 	{
 		result->strength = FLUSH;
 		result->kickers.emplace_back(kicker);
-	}
-	else
-	{
-		result->strength = INVALID_STRENGTH;
 	}
 	return have_result;
 }

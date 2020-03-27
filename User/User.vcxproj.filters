@@ -36,6 +36,9 @@
     <ClCompile Include="loguru.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hand_board_results.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user.h">
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="myself.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hand_board_result.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

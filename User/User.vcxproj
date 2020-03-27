@@ -166,6 +166,7 @@
     <ClCompile Include="board.cpp" />
     <ClCompile Include="card.cpp" />
     <ClCompile Include="hand.cpp" />
+    <ClCompile Include="hand_board_results.cpp" />
     <ClCompile Include="loguru.cpp" />
     <ClCompile Include="open_holdem_functions.cpp" />
     <ClCompile Include="player.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="card.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="hand.h" />
+    <ClInclude Include="hand_board_result.h" />
     <ClInclude Include="loguru.h" />
     <ClInclude Include="myself.h" />
     <ClInclude Include="open_holdem_functions.h" />

@@ -47,6 +47,8 @@ void __stdcall DLLUpdateOnHeartbeat()
 
 board_t* g_board;
 
+std::vector<card_t> g_all_cards;
+
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 {
@@ -91,6 +93,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 			loguru::init(argc, argv);
 
 			g_board = create_board();
+			g_all_cards = create_all_cards();
 			InitializeOpenHoldemFunctionInterface();
 			dll_process_attach(&conout);
 		} break;
