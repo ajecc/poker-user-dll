@@ -170,6 +170,7 @@
     <ClCompile Include="loguru.cpp" />
     <ClCompile Include="open_holdem_functions.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="range.cpp" />
     <ClCompile Include="user.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +184,7 @@
     <ClInclude Include="open_holdem_functions.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="poker_exception.h" />
+    <ClInclude Include="range.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

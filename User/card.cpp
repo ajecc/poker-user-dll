@@ -1,19 +1,80 @@
 #include <string>
+#include <algorithm>
+#include <cassert>
 #include "card.h"
 #include "poker_exception.h"
+#include "util.h"
 
-std::vector<card_t> create_all_cards()
+color_t& operator++(color_t& color)
 {
-	std::vector<card_t> all_cards;
-	for (rank_t rank = _2; rank <= _A; rank = (rank_t)((int)rank + 1))
+#ifdef _DEBUG
+	if (color == COLOR_COUNT)
+	{
+		throw poker_exception_t("color_t++: overflow");
+	}
+#endif
+	color = (color_t)((int)color + 1);
+	return color;
+}
+
+
+rank_t& operator++(rank_t& rank)
+{
+#ifdef _DEBUG
+	if (rank == RANK_COUNT)
+	{
+		throw poker_exception_t("rank_t++: overflow");
+	}
+#endif
+	rank = (rank_t)((int)rank + 1);
+	return rank;
+}
+
+
+bool card_t::operator<(const card_t& other) const
+{
+	if (rank == other.rank)
+	{
+		return color < other.color;
+	}
+	return rank < other.rank;
+}
+
+
+bool card_t::operator==(const card_t& other) const
+{
+	return color == other.color && rank == other.rank;
+}
+
+
+bool card_t::operator!=(const card_t& other) const
+{
+	return !(*this == other);
+}
+
+
+std::vector<card_t*> create_all_cards()
+{
+	std::vector<card_t*> all_cards;
+	for (rank_t rank = _2; rank <= _A; rank++)
 	{
 		for (color_t color = H; color <= S; color = (color_t)((int)color + 1))
 		{
-			card_t card = { color, rank };
+			card_t* card = new card_t;
+			*card = { color, rank };
 			all_cards.emplace_back(card);
 		}
 	}
 	return all_cards;
+}
+
+
+extern std::vector<card_t*> g_all_cards;
+card_t* get_card(rank_t rank, color_t color)
+{
+	int rank_to_int = (int)rank - 2;
+	int color_to_int = (int)color;
+	return g_all_cards[rank_to_int * 4 + color_to_int];
 }
 
 
@@ -79,10 +140,6 @@ cleanup:
 	return nullptr;
 }
 
-bool card_t::operator<(const card_t& other) const
-{
-	return rank < other.rank;
-}
 
 std::string card_t::to_string()
 {

@@ -13,6 +13,7 @@
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include "board.h"
+#include "hand.h"
 
 
 
@@ -47,7 +48,9 @@ void __stdcall DLLUpdateOnHeartbeat()
 
 board_t* g_board;
 
-std::vector<card_t> g_all_cards;
+std::vector<card_t*> g_all_cards;
+
+std::vector<hand_t*> g_all_hands;
 
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
@@ -94,6 +97,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 
 			g_board = create_board();
 			g_all_cards = create_all_cards();
+			g_all_hands = create_all_hands();
 			InitializeOpenHoldemFunctionInterface();
 			dll_process_attach(&conout);
 		} break;

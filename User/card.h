@@ -12,7 +12,7 @@ enum color_t
 	COLOR_COUNT
 };
 
-
+color_t& operator++(color_t& color);
 
 enum rank_t
 {
@@ -34,6 +34,7 @@ enum rank_t
 	RANK_COUNT
 };
 
+rank_t& operator++(rank_t& rank);
 
 
 struct card_t
@@ -43,10 +44,16 @@ struct card_t
 
 	bool operator<(const card_t& other) const;
 
+	bool operator==(const card_t& other) const;
+
+	bool operator!=(const card_t& other) const;
+
 	std::string to_string();
 };
 
 
-std::vector<card_t> create_all_cards();
+std::vector<card_t*> create_all_cards();
+
+card_t* get_card(rank_t rank, color_t color);
 
 card_t* get_card_from_string(const std::string& str);
