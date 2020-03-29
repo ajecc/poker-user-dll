@@ -7,6 +7,13 @@
 
 const int HAND_CARD_COUNT = 2;
 
+enum hand_action_t
+{
+	FOLD = 0,
+	CALL = 1,
+	RAISE = 2
+};
+
 
 struct hand_t
 {

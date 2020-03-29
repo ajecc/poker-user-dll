@@ -5,6 +5,10 @@
 #include "poker_exception.h"
 #include "util.h"
 
+
+extern std::vector<card_t*> g_all_cards;
+
+
 color_t& operator++(color_t& color)
 {
 #ifdef _DEBUG
@@ -69,7 +73,6 @@ std::vector<card_t*> create_all_cards()
 }
 
 
-extern std::vector<card_t*> g_all_cards;
 card_t* get_card(rank_t rank, color_t color)
 {
 	int rank_to_int = (int)rank - 2;
@@ -82,62 +85,57 @@ card_t* get_card_from_string(const std::string& str)
 {
 	if (str.size() != 2)
 	{
-		return nullptr;
+		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
 	}
-	card_t* card = new card_t;
+	card_t card;
 	char card_rank = str[0];
 	char card_color = str[1];
 
 	if (card_rank >= '2' && card_rank <= '9')
 	{
-		card->rank = (rank_t)(card_rank - '2' + 2);
+		card.rank = (rank_t)(card_rank - '2' + 2);
 	}
 	else
 	{
 		switch (card_rank)
 		{
 		case 'T':
-			card->rank = _T;
+			card.rank = _T;
 			break;
 		case 'J':
-			card->rank = _J;
+			card.rank = _J;
 			break;
 		case 'Q':
-			card->rank = _Q;
+			card.rank = _Q;
 			break;
 		case 'K':
-			card->rank = _K;
+			card.rank = _K;
 			break;
 		case 'A':
-			card->rank = _A;
+			card.rank = _A;
 			break;
 		default:
-			goto cleanup;
+			throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
 		}
 	}
 	switch (card_color)
 	{
 	case 'h':
-		card->color = H;
+		card.color = H;
 		break;
 	case 'd':
-		card->color = D;
+		card.color = D;
 		break;
 	case 'c':
-		card->color = C;
+		card.color = C;
 		break;
 	case 's':
-		card->color = S;
+		card.color = S;
 		break;
 	default:
-		goto cleanup;
+		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
 	}
-
-	return card;
-
-cleanup:
-	delete card;
-	return nullptr;
+	return get_card(card.rank, card.color);
 }
 
 

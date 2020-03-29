@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "board.h"
 #include "hand.h"
+#include "range.h"
 
 
 
@@ -51,6 +52,8 @@ board_t* g_board;
 std::vector<card_t*> g_all_cards;
 
 std::vector<hand_t*> g_all_hands;
+
+std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
 
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
@@ -98,6 +101,12 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 			g_board = create_board();
 			g_all_cards = create_all_cards();
 			g_all_hands = create_all_hands();
+
+			g_open_ranges = create_open_ranges();
+			g_facing_raise_ranges = create_facing_raise_ranges();
+			g_facing_3bet_ranges = create_facing_3bet_ranges();
+			g_facing_4bet_ranges = create_facing_4bet_ranges();
+
 			InitializeOpenHoldemFunctionInterface();
 			dll_process_attach(&conout);
 		} break;
