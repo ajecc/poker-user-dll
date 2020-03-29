@@ -5,23 +5,23 @@
 #include <algorithm>
 
 
-static bool calc_straight_flush(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_straight_flush(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_quads(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_flush(std::vector<card_t> cards, hand_board_result_t* result);
+static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result);
 
-static bool calc_straight(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_trips(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_pair(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_high_card(const std::vector<card_t>& cards, hand_board_result_t* result);
+static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
 
 
@@ -33,9 +33,9 @@ bool hand_board_result_t::operator<(const hand_board_result_t& other) const
 	}
 	for (size_t i = 0; i < kickers.size(); i++)
 	{
-		if (kickers[i].rank != other.kickers[i].rank)
+		if (kickers[i]->rank != other.kickers[i]->rank)
 		{
-			return kickers[i].rank < other.kickers[i].rank;
+			return kickers[i]->rank < other.kickers[i]->rank;
 		}
 	}
 	return false;
@@ -50,9 +50,9 @@ bool hand_board_result_t::operator>(const hand_board_result_t& other) const
 	}
 	for (size_t i = 0; i < kickers.size(); i++)
 	{
-		if (kickers[i].rank != other.kickers[i].rank)
+		if (kickers[i]->rank != other.kickers[i]->rank)
 		{
-			return kickers[i].rank > other.kickers[i].rank;
+			return kickers[i]->rank > other.kickers[i]->rank;
 		}
 	}
 	return false;
@@ -67,7 +67,7 @@ bool hand_board_result_t::operator==(const hand_board_result_t& other) const
 	}
 	for (size_t i = 0; i < kickers.size(); i++)
 	{
-		if (kickers[i].rank != other.kickers[i].rank)
+		if (kickers[i]->rank != other.kickers[i]->rank)
 		{
 			return false;
 		}
@@ -96,10 +96,10 @@ bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
 
 hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 {
-	std::vector<card_t> cards;
+	std::vector<card_t*> cards;
 	for (auto* card : board->cards)
 	{
-		cards.emplace_back(*card);
+		cards.emplace_back(card);
 	}
 	assert(cards.size() == 5);
 	cards.emplace_back(hand->cards[0]);
@@ -147,14 +147,14 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 }
 
 
-static bool calc_straight_flush(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_straight_flush(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	int consec = 1;
-	card_t kicker;
+	card_t* kicker;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
-		if (cards[i].rank == cards[i + 1].rank + 1 && cards[i].color == cards[i + 1].color)
+		if (cards[i]->rank == cards[i + 1]->rank + 1 && cards[i]->color == cards[i + 1]->color)
 		{
 			consec++;
 		}
@@ -177,12 +177,12 @@ static bool calc_straight_flush(const std::vector<card_t>& cards, hand_board_res
 }
 
 
-static bool calc_quads(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 3; i++)
 	{
-		if (cards[i].rank == cards[i + 1].rank && cards[i].rank == cards[i + 2].rank &&
-			cards[i].rank == cards[i + 3].rank)
+		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank &&
+			cards[i]->rank == cards[i + 3]->rank)
 		{
 			result->strength = QUADS;
 			result->kickers.emplace_back(cards[i]);
@@ -201,11 +201,11 @@ static bool calc_quads(const std::vector<card_t>& cards, hand_board_result_t* re
 }
 
 
-static bool calc_trips(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 2; i++)
 	{
-		if (cards[i].rank == cards[i + 1].rank && cards[i].rank == cards[i + 2].rank)
+		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank)
 		{
 			result->strength = TRIPS;
 			result->kickers.emplace_back(cards[i]);
@@ -233,11 +233,11 @@ static bool calc_trips(const std::vector<card_t>& cards, hand_board_result_t* re
 }
 
 
-static bool calc_pair(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 1; i++)
 	{
-		if (cards[i].rank == cards[i + 1].rank)
+		if (cards[i]->rank == cards[i + 1]->rank)
 		{
 			result->strength = PAIR;
 			result->kickers.emplace_back(cards[i]);
@@ -259,7 +259,7 @@ static bool calc_pair(const std::vector<card_t>& cards, hand_board_result_t* res
 }
 
 
-static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	hand_board_result_t trips_result; 
 	bool have_result = calc_trips(cards, &trips_result);
@@ -267,10 +267,10 @@ static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_
 	{
 		return false;
 	}
-	std::vector<card_t> new_cards;
+	std::vector<card_t*> new_cards;
 	for (auto& card : cards)
 	{
-		if (card.rank != trips_result.kickers[0].rank)
+		if (card->rank != trips_result.kickers[0]->rank)
 		{
 			new_cards.emplace_back(card);
 		}
@@ -288,7 +288,7 @@ static bool calc_full_house(const std::vector<card_t>& cards, hand_board_result_
 }
 
 
-static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	hand_board_result_t pair_result_1;
 	bool have_result = calc_pair(cards, &pair_result_1);
@@ -296,10 +296,10 @@ static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t*
 	{
 		return false;
 	}
-	std::vector<card_t> new_cards;
+	std::vector<card_t*> new_cards;
 	for (auto& card : cards)
 	{
-		if (card.rank != pair_result_1.kickers[0].rank)
+		if (card->rank != pair_result_1.kickers[0]->rank)
 		{
 			new_cards.emplace_back(card);
 		}
@@ -311,8 +311,9 @@ static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t*
 		return false;
 	}
 	result->strength = TWO_PAIR;
-	card_t kicker_1 = pair_result_1.kickers[0], kicker_2 = pair_result_2.kickers[0];
-	if (kicker_1.rank < kicker_2.rank)
+	card_t* kicker_1 = pair_result_1.kickers[0];
+	card_t* kicker_2 = pair_result_2.kickers[0];
+	if (kicker_1->rank < kicker_2->rank)
 	{
 		std::swap(kicker_1, kicker_2);
 	}
@@ -322,7 +323,7 @@ static bool calc_two_pair(const std::vector<card_t>& cards, hand_board_result_t*
 }
 
 
-static bool calc_high_card(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	result->strength = HIGH_CARD;
 	for (size_t i = 0; i < cards.size(); i++)
@@ -333,14 +334,14 @@ static bool calc_high_card(const std::vector<card_t>& cards, hand_board_result_t
 }
 
 
-static bool calc_straight(const std::vector<card_t>& cards, hand_board_result_t* result)
+static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
 	int consec = 1;
-	card_t kicker;
+	card_t* kicker;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
-		if (cards[i].rank == cards[i + 1].rank + 1)
+		if (cards[i]->rank == cards[i + 1]->rank + 1)
 		{
 			consec++;
 		}
@@ -363,22 +364,22 @@ static bool calc_straight(const std::vector<card_t>& cards, hand_board_result_t*
 }
 
 
-static bool calc_flush(std::vector<card_t> cards, hand_board_result_t* result)
+static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 {
-	sort(all(cards), [](const card_t& lhs, const card_t& rhs)
+	sort(all(cards), [](card_t* lhs, card_t* rhs)
 		{
-			if (lhs.color == rhs.color)
+			if (lhs->color == rhs->color)
 			{
-				return lhs.rank > rhs.rank;
+				return lhs->rank > rhs->rank;
 			}
-			return lhs.color < rhs.color;
+			return lhs->color < rhs->color;
 		});
 	int consec = 1;
-	card_t kicker;
+	card_t* kicker;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
-		if (cards[i].color == cards[i + 1].color)
+		if (cards[i]->color == cards[i + 1]->color)
 		{
 			consec++;
 		}

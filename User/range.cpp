@@ -11,7 +11,7 @@ static std::vector<std::string> get_position_map();
 static range_t* get_range_from_csv(const std::string& file_name);
 
 
-void range_t::add(hand_t* hand, hand_action_t hand_action = FOLD, double raise_prob = 0)
+void range_t::add(hand_t* hand, hand_action_t hand_action, double raise_prob)
 {
 	range_hand_t* range_hand = new range_hand_t;
 	range_hand->hand = hand;
@@ -48,7 +48,7 @@ std::vector<range_t*> create_open_ranges()
 {
 	std::vector<range_t*> ranges;
 	auto position_map = get_position_map();
-	for (position_t position = UTG; position < BB; position++)
+	for (position_t position = UTG; position < BB; ++position)
 	{
 		std::string file_name = "preflop_range\\" + position_map[position] + "_Open.csv";
 		range_t* range = get_range_from_csv(file_name);
@@ -62,9 +62,9 @@ std::vector<range_t*> create_facing_raise_ranges()
 {
 	std::vector<range_t*> ranges;
 	auto position_map = get_position_map();
-	for (position_t hero_pos = UTG; hero_pos <= BB; hero_pos++)
+	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
-		for (position_t villain_pos = UTG; villain_pos < hero_pos; villain_pos++)
+		for (position_t villain_pos = UTG; villain_pos < hero_pos; ++villain_pos)
 		{
 			std::string file_name = "preflop_range\\" + position_map[hero_pos]+
 				"_" + position_map[villain_pos] + "_Facing_Raise.csv";
@@ -80,9 +80,9 @@ std::vector<range_t*> create_facing_3bet_ranges()
 {
 	std::vector<range_t*> ranges;
 	auto position_map = get_position_map();
-	for (position_t hero_pos = UTG; hero_pos <= BB; hero_pos++)
+	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
-		for (position_t villain_pos = hero_pos + 1; villain_pos <= BB; villain_pos++)
+		for (position_t villain_pos = hero_pos + 1; villain_pos <= BB; ++villain_pos)
 		{
 			std::string file_name = "preflop_range\\" + position_map[hero_pos]+
 				"_" + position_map[villain_pos] + "_Facing_3bet.csv";
@@ -98,9 +98,9 @@ std::vector<range_t*> create_facing_4bet_ranges()
 {
 	std::vector<range_t*> ranges;
 	auto position_map = get_position_map();
-	for (position_t hero_pos = UTG; hero_pos <= BB; hero_pos++)
+	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
-		for (position_t villain_pos = UTG; villain_pos < hero_pos; villain_pos++)
+		for (position_t villain_pos = UTG; villain_pos < hero_pos; ++villain_pos)
 		{
 			std::string file_name = "preflop_range\\" + position_map[hero_pos]+
 				"_" + position_map[villain_pos] + "_Facing_4bet.csv";
@@ -172,10 +172,16 @@ static range_t* get_range_from_csv(const std::string& file_name)
 	{
 		throw poker_exception_t("get_range_from_csv: can't find file");
 	}
+	range_t* range = new range_t;
+	if (range == NULL)
+	{
+		fclose(csv);
+		throw poker_exception_t("get_range_from_csv: new range_t failed");
+	}
 	std::string cards = "XXX";
 	char hand_action;
 	int raise_percent;
-	while (fscanf(csv, "%3[^,],%c,%d", cards.c_str(), &hand_action, &raise_percent) != EOF)
+	while (fscanf(csv, "%3[^,],%c,%d", (char*)cards.c_str(), &hand_action, &raise_percent) != EOF)
 	{
 		std::string card_str;
 		card_str.push_back(cards[0]);
@@ -192,5 +198,10 @@ static range_t* get_range_from_csv(const std::string& file_name)
 			card_str.push_back('c');
 		}
 		card_t* card_rhs = get_card_from_string(card_str);
+		hand_t* hand = get_hand(card_lhs, card_rhs);
+		hand_action_t hand_action_true = get_hand_action_from_char(hand_action);
+		range->add(hand, hand_action_true, (double)raise_percent / 100);
 	}
+	fclose(csv);
+	return range;
 }

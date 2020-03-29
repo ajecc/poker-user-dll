@@ -23,7 +23,7 @@ enum hand_board_result_strength_t
 struct hand_board_result_t
 {
 	hand_board_result_strength_t strength = INVALID_STRENGTH;
-	std::vector<card_t> kickers;
+	std::vector<card_t*> kickers;
 
 	bool operator<(const hand_board_result_t& other) const;
 

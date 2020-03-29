@@ -60,7 +60,7 @@ bool card_t::operator!=(const card_t& other) const
 std::vector<card_t*> create_all_cards()
 {
 	std::vector<card_t*> all_cards;
-	for (rank_t rank = _2; rank <= _A; rank++)
+	for (rank_t rank = _2; rank <= _A; ++rank)
 	{
 		for (color_t color = H; color <= S; color = (color_t)((int)color + 1))
 		{

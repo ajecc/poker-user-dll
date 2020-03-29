@@ -19,6 +19,27 @@ static double calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* bo
 static std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t* board);
 
 
+hand_action_t get_hand_action_from_char(char hand_action_char)
+{
+	hand_action_char = tolower(hand_action_char);
+	if (hand_action_char == 'f')
+	{
+		return FOLD;
+	}
+	if (hand_action_char == 'c')
+	{
+		return CALL;
+	}
+	if (hand_action_char == 'r')
+	{
+		return RAISE;
+	}
+	std::string err_msg = "get_hand_action_from_char: invalid char: ";
+	err_msg.push_back(hand_action_char);
+	throw poker_exception_t(err_msg);
+}
+
+
 bool hand_t::operator<(const hand_t& other) const
 {
 	for (int i = 0; i < HAND_CARD_COUNT; i++)
@@ -161,7 +182,7 @@ static std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, 
 	current_cards.emplace_back(villain->cards[1]);
 	for (auto* card : board->cards)
 	{
-		current_cards.emplace_back(*card);
+		current_cards.emplace_back(card);
 	}
 	std::sort(all(current_cards), [](card_t* lhs, card_t* rhs)
 		{

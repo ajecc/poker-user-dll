@@ -14,6 +14,8 @@ enum hand_action_t
 	RAISE = 2
 };
 
+hand_action_t get_hand_action_from_char(char hand_action_char);
+
 
 struct hand_t
 {
