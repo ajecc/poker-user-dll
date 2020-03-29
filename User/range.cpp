@@ -3,6 +3,9 @@
 #include "position.h"
 #include <vector>
 #include <cassert>
+#ifdef _DEBUG
+#include <Windows.h>
+#endif
 
 extern std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
 
@@ -167,6 +170,11 @@ static std::vector<std::string> get_position_map()
 
 static range_t* get_range_from_csv(const std::string& file_name)
 {
+#ifdef _DEBUG
+	TCHAR path[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, path);
+#endif
+
 	FILE* csv = fopen(file_name.c_str(), "r");
 	if (csv == NULL)
 	{
@@ -181,7 +189,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 	std::string cards = "XXX";
 	char hand_action;
 	int raise_percent;
-	while (fscanf(csv, "%3[^,],%c,%d", (char*)cards.c_str(), &hand_action, &raise_percent) != EOF)
+	while (fscanf(csv, "%3[^,],%c,%d\n", (char*)cards.c_str(), &hand_action, &raise_percent) != EOF)
 	{
 		std::string card_str;
 		card_str.push_back(cards[0]);
@@ -189,7 +197,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		card_t* card_lhs = get_card_from_string(card_str);
 		card_str = "";
 		card_str.push_back(cards[1]);
-		if (card_str[2] == 's')
+		if (cards[2] == 's')
 		{
 			card_str.push_back('h');
 		}

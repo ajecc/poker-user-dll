@@ -8,8 +8,19 @@
 #ifdef _DEBUG
 #define DLOG DLOG_F
 
-inline void dll_process_attach(FILE** conout)
+inline void init_log(FILE** conout)
 {
+	int argc = 1;
+	char argv_0[MAX_PATH];
+	DWORD dError = GetModuleFileNameA(NULL, argv_0, MAX_PATH);
+	if (dError == 0)
+	{
+		exit(GetLastError());
+	}
+	char* argv[2];
+	argv[0] = argv_0;
+	argv[1] = nullptr;
+	loguru::init(argc, argv);
 
 	AllocConsole();
 	freopen_s(conout, "CONOUT$", "w", stdout);
@@ -28,7 +39,7 @@ inline void dll_process_attach(FILE** conout)
 }
 
 
-inline void dll_process_detach(FILE* conout)
+inline void uninit_log(FILE* conout)
 {
 	FreeConsole();
 	if (conout != nullptr)

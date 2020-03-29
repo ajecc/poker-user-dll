@@ -77,9 +77,6 @@
     <ClInclude Include="debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="myself.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hand_board_result.h">
       <Filter>Header Files</Filter>
     </ClInclude>

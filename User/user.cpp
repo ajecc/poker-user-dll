@@ -55,6 +55,18 @@ std::vector<hand_t*> g_all_hands;
 
 std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
 
+void create_globals()
+{
+	g_board = create_board();
+	g_all_cards = create_all_cards();
+	g_all_hands = create_all_hands();
+
+	g_open_ranges = create_open_ranges();
+	g_facing_raise_ranges = create_facing_raise_ranges();
+	g_facing_3bet_ranges = create_facing_3bet_ranges();
+	g_facing_4bet_ranges = create_facing_4bet_ranges();
+}
+
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 {
@@ -86,35 +98,16 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 	{
 		case DLL_PROCESS_ATTACH:
 		{
-			int argc = 1;
-			char argv_0[MAX_PATH];
-			DWORD dError = GetModuleFileNameA(NULL, argv_0, MAX_PATH);
-			if (dError == 0)
-			{
-				return GetLastError();
-			}
-			char* argv[2];
-			argv[0] = argv_0;
-			argv[1] = nullptr;
-			loguru::init(argc, argv);
-
-			g_board = create_board();
-			g_all_cards = create_all_cards();
-			g_all_hands = create_all_hands();
-
-			g_open_ranges = create_open_ranges();
-			g_facing_raise_ranges = create_facing_raise_ranges();
-			g_facing_3bet_ranges = create_facing_3bet_ranges();
-			g_facing_4bet_ranges = create_facing_4bet_ranges();
-
 			InitializeOpenHoldemFunctionInterface();
-			dll_process_attach(&conout);
+			create_globals();
+			init_log(&conout);
 		} break;
 
 		case DLL_PROCESS_DETACH:
 		{
+			// TODO: add something to destroy everything
 			destroy_board(&g_board);
-			dll_process_detach(conout);
+			uninit_log(conout);
 		} break;
 
 		default:
