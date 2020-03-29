@@ -1,0 +1,39 @@
+################################## HTML ##################################
+HTML data scraped from: https://www.pokersnowie.com/pftapp/index.html
+
+Positions, in order: UTG, HJ, CO, BTN, SB, BB
+
+There are 4 scenarios present preflop:  # TODO: maybe add squeeze
+	- open (does not include a BB range)
+        - "There has been no action in front of you and you're the first player to act"
+		- file_format: {hero_pos}_Open.html
+	- facing a raise
+        - "A player in front of you has raised to 3BB"
+        - might not be optimal for other betting sizes (2.5BB, 4BB) or when multiple players call the raising opponent
+		- file_format: {hero_pos}_{villain_pos}_Facing_Raise.html, where hero_pos < villain_pos (e.g. BTN < HJ)
+	- facing a 3bet after my raise
+        - "You acted first raising to 2.5BB, and a player has decided to pot-sized re-raise (3bet) behind you"
+        - if the player bets more than pot, it could be advisable to use the 4bet range here, even tho the player has not been 4betted
+		- file_format: {hero_pos}_{villain_pos}_Facing_3bet.html, where hero_pos > villain_pos (e.g. HJ > BTN)
+	- facing a 4bet after my raise:
+        - "A player in front of you does an initial raise to 3BB. You do a pot-sized re-raise (3bet), and he reacts by re-raising (4betting) again pot size"
+        - might consider this range even tho the villain shoved or raised less than pot size
+        - raise here from the hero = all in 
+		- file_format: {hero_pos}_{villain_pos}_Facing_4bet.html, where herpo_pos < villain_pos
+
+All of these are aproximate, as 6max NLHE has not been solved yet for preflop 
+
+
+################################## CSV ##################################
+The csv directory contains the preflop ranges converted to csv for convinience.
+
+Each row has 3 columns: 
+    - the hand (e.g AKs = Ace King suited, 67o = 6 7 off-suit)
+    - the action
+        - 'F' = fold
+        - 'C' = call
+        - 'R' = raise
+    - the raise probability
+        - this row indicates the percentage the hero should raise instead of doing the action indicated in the second row
+
+The pair of hands that are not in the csv are an automatic fold. There is no need to include them.
