@@ -65,6 +65,7 @@ std::vector<hand_t*> create_all_hands()
 			current_hand->cards[1] = g_all_cards[j];
 			// NOTE: only works for 2-card hold'em
 			current_hand->suited = (current_hand->cards[0]->color == current_hand->cards[1]->color);
+			all_hands.emplace_back(current_hand);
 		}
 	}
 	assert(std::is_sorted(all(all_hands), [](hand_t* lhs, hand_t* rhs)
@@ -81,15 +82,15 @@ hand_t* get_hand(card_t* card_1, card_t* card_2)
 	// TODO: check this !!!
 	int first_card_ind = ((int)card_1->rank - 2) * 4 + (int)card_1->color;
 	int second_card_ind = ((int)card_2->rank - 2) * 4 + (int)card_2->color;
-	if (second_card_ind > first_card_ind)
+	assert(first_card_ind != second_card_ind);
+	if (second_card_ind < first_card_ind)
 	{
 		std::swap(second_card_ind, first_card_ind);
 	}
-	return g_all_hands[
-		first_card_ind * g_all_cards.size() -
-			(first_card_ind - 1) * first_card_ind / 2 +
-			second_card_ind - first_card_ind
-	];
+	int ind = first_card_ind * (g_all_cards.size() - 1) -
+		(first_card_ind - 1) * first_card_ind / 2 +
+		second_card_ind - first_card_ind - 1;
+	return g_all_hands[ind];
 }
 
 

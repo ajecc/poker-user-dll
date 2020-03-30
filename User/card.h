@@ -17,7 +17,7 @@ color_t& operator++(color_t& color);
 enum rank_t
 {
 	pad_1,
-	pad_2,
+	_A_1,
 	_2,
 	_3,
 	_4,
@@ -43,6 +43,8 @@ struct card_t
 	rank_t rank;
 
 	bool operator<(const card_t& other) const;
+
+	bool operator>(const card_t& other) const;
 
 	bool operator==(const card_t& other) const;
 

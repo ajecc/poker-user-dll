@@ -5,14 +5,7 @@
 position_t& operator++(position_t& position)
 {
 	assert(position != INVALID_POSITION && position != POSITION_COUNT);
-	if (position == BB)
-	{
-		position = UTG;
-	}
-	else
-	{
-		position = (position_t)((int)position - 1);
-	}
+	position = (position_t)((int)position + 1);
 	return position;
 }
 
@@ -20,14 +13,7 @@ position_t& operator++(position_t& position)
 position_t& operator--(position_t& position)
 {
 	assert(position != INVALID_POSITION && position != POSITION_COUNT);
-	if (position == UTG)
-	{
-		position = BB;
-	}
-	else
-	{
-		position = (position_t)((int)position + 1);
-	}
+	position = (position_t)((int)position - 1);
 	return position;
 }
 

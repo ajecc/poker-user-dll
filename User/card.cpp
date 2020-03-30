@@ -45,6 +45,16 @@ bool card_t::operator<(const card_t& other) const
 }
 
 
+bool card_t::operator>(const card_t& other) const
+{
+	if (rank == other.rank)
+	{
+		return color > other.color;
+	}
+	return rank > other.rank;
+}
+
+
 bool card_t::operator==(const card_t& other) const
 {
 	return color == other.color && rank == other.rank;

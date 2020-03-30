@@ -35,6 +35,8 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="test_card.h" />
+    <ClInclude Include="test_hand.h" />
+    <ClInclude Include="test_hand_board_result.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
