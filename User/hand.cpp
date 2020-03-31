@@ -121,6 +121,13 @@ double calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board)
 }
 
 
+bool are_similar_hands(hand_t* lhs, hand_t* rhs)
+{
+	// TODO: add support for when cards in hand are not in ascending order. for ex: AKs should be equal to KAs
+	return lhs->cards[0]->rank == rhs->cards[0]->rank && lhs->cards[1]->rank == rhs->cards[1]->rank && lhs->suited == rhs->suited;
+}
+
+
 static double calc_prwin_vs_hand_river(hand_t* hero, hand_t* villain, board_t* board)
 {
 	if (is_hero_winner(hero, villain, board))

@@ -1,7 +1,6 @@
 #pragma once
 #include "hand.h"
 #include "position.h"
-#include <set>
 #include <vector>
 
 struct range_hand_t
@@ -18,22 +17,17 @@ struct range_hand_t
 
 struct range_t
 {
-	struct range_comp_t
-	{
-		bool operator()(const range_hand_t* lhs, const range_hand_t* rhs) const
-		{
-			return *lhs < *rhs;
-		}
-	};
-
-
-	std::set<range_hand_t*, range_comp_t> range;
+	std::vector<range_hand_t*> range;
 
 	void add(hand_t* hand, hand_action_t hand_action = FOLD, double raise_prob = 0);
 
 	void remove(hand_t* hand);
 
 	bool contains(hand_t* hand);
+
+	range_hand_t* fetch(hand_t* hand);
+
+	size_t size();
 };
 
 

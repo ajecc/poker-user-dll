@@ -5,6 +5,7 @@
 #include "test_card.h"
 #include "test_hand_board_result.h"
 #include "test_hand.h"
+#include "test_range.h"
 
 
 

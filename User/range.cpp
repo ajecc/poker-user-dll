@@ -20,30 +20,54 @@ void range_t::add(hand_t* hand, hand_action_t hand_action, double raise_prob)
 	range_hand->hand = hand;
 	range_hand->hand_action = hand_action;
 	range_hand->raise_prob = raise_prob;
-	range.insert(range_hand);
+	range.emplace_back(range_hand);
 }
 
 
 void range_t::remove(hand_t* hand)
 {
-	range_hand_t range_hand;
-	range_hand.hand = hand;
-	auto range_hand_to_erase = range.find(&range_hand);
-	if (range_hand_to_erase == range.end())
+	for(size_t i = 0; i < range.size(); ++i)
 	{
-		return;
+		if (are_similar_hands(hand, range[i]->hand))
+		{
+			std::swap(range[i], range[range.size() - 1]);
+			delete range.back();
+			range.pop_back();
+			return;
+		}
 	}
-	auto* range_hand_to_erase_val = *range_hand_to_erase;	
-	range.erase(range_hand_to_erase);
-	delete range_hand_to_erase_val;
 }
 
 
 bool range_t::contains(hand_t* hand)
 {
-	range_hand_t range_hand; 
-	range_hand.hand = hand;
-	return (range.find(&range_hand) != range.end());
+	for (size_t i = 0; i < range.size(); ++i)
+	{
+		if (are_similar_hands(hand, range[i]->hand))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+range_hand_t* range_t::fetch(hand_t* hand)
+{
+	for (size_t i = 0; i < range.size(); ++i)
+	{
+		if (are_similar_hands(hand, range[i]->hand))
+		{
+			return range[i];
+		}
+	}
+	throw poker_exception_t("range_t::fetch: hand not in range");
+}
+
+
+size_t range_t::size()
+{
+	return range.size();
 }
 
 
@@ -126,7 +150,7 @@ range_t* get_facing_raise_range(position_t hero_position, position_t villain_pos
 	int hero_position_int = (int)hero_position;
 	int villain_position_int = (int)villain_position;
 	assert(villain_position_int >= UTG && villain_position_int < hero_position_int && hero_position_int <= BB);
-	int ind = (hero_position_int - 1) * (hero_position_int - 2) / 2 + villain_position_int;
+	int ind = (hero_position_int - 1) * (hero_position_int) / 2 + villain_position_int;
 	return g_facing_raise_ranges[ind];
 }
 
@@ -150,7 +174,7 @@ range_t* get_facing_4bet_range(position_t hero_position, position_t villain_posi
 	int hero_position_int = (int)hero_position;
 	int villain_position_int = (int)villain_position;
 	assert(villain_position_int >= UTG && villain_position_int < hero_position_int && hero_position_int <= BB);
-	int ind = (hero_position_int - 1) * (hero_position_int - 2) / 2 + villain_position_int;
+	int ind = (hero_position_int - 1) * (hero_position_int) / 2 + villain_position_int;
 	return g_facing_4bet_ranges[ind];
 }
 
