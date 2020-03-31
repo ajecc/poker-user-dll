@@ -179,6 +179,24 @@ range_t* get_facing_4bet_range(position_t hero_position, position_t villain_posi
 }
 
 
+range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
+{
+	switch (bet_type)
+	{
+	case OPEN:
+		return get_open_range(hero_position);
+	case FACING_RAISE:
+		return get_facing_raise_range(hero_position, villain_position);
+	case FACING_3BET:
+		return get_facing_3bet_range(hero_position, villain_position);
+	case FACING_4BET:
+		return get_facing_4bet_range(hero_position, villain_position);
+	default:
+		throw poker_exception_t("get_range: Invalid bet_type");
+	}
+}
+
+
 static std::vector<std::string> get_position_map()
 {
 	std::vector<std::string> position_map(POSITION_COUNT);

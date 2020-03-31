@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="card.cpp" />
+    <ClCompile Include="decision.cpp" />
     <ClCompile Include="hand.cpp" />
     <ClCompile Include="hand_board_results.cpp" />
     <ClCompile Include="loguru.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="board.h" />
     <ClInclude Include="card.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="decision.h" />
     <ClInclude Include="hand.h" />
     <ClInclude Include="hand_board_result.h" />
     <ClInclude Include="loguru.h" />

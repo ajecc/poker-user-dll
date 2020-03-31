@@ -1,6 +1,7 @@
 #pragma once
 #include "hand.h"
 #include "position.h"
+#include "decision.h"
 #include <vector>
 
 struct range_hand_t
@@ -50,3 +51,5 @@ range_t* get_facing_raise_range(position_t hero_position, position_t villain_pos
 range_t* get_facing_3bet_range(position_t hero_position, position_t villain_position);
 
 range_t* get_facing_4bet_range(position_t hero_position, position_t villain_position);
+
+range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);

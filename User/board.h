@@ -3,6 +3,7 @@
 #include <vector>
 #include "player.h"
 #include "card.h"
+#include "decision.h"
 
 
 struct board_t
@@ -11,7 +12,13 @@ struct board_t
 	std::vector<card_t*> cards;
 	std::vector<player_t*> players;
 	std::vector<player_t*> current_hand_players;
-	double_t pot = 0;
+	double pot = 0;
+	// TODO: get the big_blind_sum
+	double big_blind_sum = 0;
+
+	// TODO: update this
+	board_derived_info_t* board_derived_info = nullptr;
+
 
 	std::string to_string();
 };

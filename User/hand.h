@@ -10,8 +10,9 @@ const int HAND_CARD_COUNT = 2;
 enum hand_action_t
 {
 	FOLD = 0,
-	CALL = 1,
-	RAISE = 2
+	CHECK = 1,
+	CALL = 2,
+	RAISE = 3
 };
 
 hand_action_t get_hand_action_from_char(char hand_action_char);
