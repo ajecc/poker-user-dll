@@ -3,7 +3,9 @@
 #include <vector>
 #include "player.h"
 #include "card.h"
-#include "decision.h"
+
+
+struct board_derived_info_t;
 
 
 struct board_t
@@ -15,7 +17,6 @@ struct board_t
 	double pot = 0;
 	// TODO: get the big_blind_sum
 	double big_blind_sum = 0;
-
 	// TODO: update this
 	board_derived_info_t* board_derived_info = nullptr;
 

@@ -1,6 +1,6 @@
 #include "decision.h"
 #include "util.h"
-
+#include "poker_exception.h"
 
 bet_type_t& operator++(bet_type_t& bet_type)
 {
@@ -33,18 +33,34 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 		if (!after_hero)
 		{
 			board_derived_info.villains_before_hero.emplace_back(villain);
-			if (FP_ARE_DIFFERENT(current_bet, villain->current_bet))
-			{
-				current_bet = villain->current_bet;
-				++board_derived_info.bet_type;
-			}
-			board_derived_info.secondary_villain = board_derived_info.main_villain;
-			board_derived_info.main_villain = villain;
 		}
 		else
 		{
 			board_derived_info.villains_after_hero.emplace_back(villain);
 		}
+	}
+	for (auto* villain : board_derived_info.villains_after_hero)
+	{
+		if (FP_ARE_DIFFERENT(current_bet, villain->current_bet))
+		{
+			current_bet = villain->current_bet;
+			++board_derived_info.bet_type;
+		}
+		if (current_bet != 0)
+		{
+			board_derived_info.secondary_villain = board_derived_info.main_villain;
+			board_derived_info.main_villain = villain;
+		}
+	}
+	for (auto* villain : board_derived_info.villains_before_hero)
+	{
+		if (FP_ARE_DIFFERENT(current_bet, villain->current_bet))
+		{
+			current_bet = villain->current_bet;
+			++board_derived_info.bet_type;
+		}
+		board_derived_info.secondary_villain = board_derived_info.main_villain;
+		board_derived_info.main_villain = villain;
 	}
 	board_derived_info.current_bet = current_bet;
 	return board_derived_info;
@@ -76,7 +92,14 @@ decision_t take_decision(player_t* hero, board_t* board)
 	*board_derived_info = get_board_derived_info(hero, board);
 	if (board->board_derived_info != nullptr)
 	{
-		// TODO: update the stage base on board->board_derived_info
+		if (board->board_derived_info->bet_type >= FACING_RAISE)
+		{
+			++board_derived_info->bet_type;
+		}
+		if (board->board_derived_info->bet_type >= FACING_3BET)
+		{
+			++board_derived_info->bet_type;
+		}
 		delete board->board_derived_info;
 	}
 	board->board_derived_info = board_derived_info;
@@ -92,6 +115,6 @@ decision_t take_decision(player_t* hero, board_t* board)
 	case RIVER:
 		return take_decision_river(hero, board);
 	default:
-		break;
+		throw poker_exception_t("take_decision: invalid board->stage");
 	}
 }

@@ -2,6 +2,7 @@
 #include "hand_board_result.h"
 #include "poker_exception.h"
 #include "util.h"
+#include "debug.h"
 #include <cassert>
 #include <algorithm>
 #include <iterator>
@@ -118,6 +119,38 @@ double calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board)
 		return calc_prwin_vs_hand_flop(hero, villain, board);
 	}
 	throw poker_exception_t("calc_prwin_vs_hand: can't calculate prwin for an empty/invalid board");
+}
+
+
+double calc_prwin_vs_any_hand(hand_t* hero, board_t* board)
+{
+	std::vector<card_t*> remaining_cards;
+	std::vector<card_t*> current_cards = {hero->cards[0], hero->cards[1]};
+	for (auto* card : board->cards)
+	{
+		current_cards.emplace_back(card);
+	}
+	for (auto* card : g_all_cards)
+	{
+		if (!is_in_vector(card, current_cards))
+		{
+			remaining_cards.emplace_back(card);
+		}
+	}
+	double prwin = 0, count = 0;
+	for (size_t i = 0; i < remaining_cards.size(); i++)
+	{
+		DLOG(INFO, (std::to_string(i) + "\n").c_str());
+		card_t* lhs_card = remaining_cards[i];
+		for (size_t j = i + 1; j < remaining_cards.size(); j++)
+		{
+			card_t* rhs_card = remaining_cards[j];
+			hand_t* hand = get_hand(lhs_card, rhs_card);
+			prwin += calc_prwin_vs_hand(hero, hand, board);
+			count++;
+		}
+	}
+	return prwin / count;
 }
 
 

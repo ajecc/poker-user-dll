@@ -91,6 +91,19 @@ card_t* get_card(rank_t rank, color_t color)
 }
 
 
+bool is_in_vector(card_t* card, const std::vector<card_t*>& vec)
+{
+	for (card_t* other : vec)
+	{
+		if (*card == *other)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 card_t* get_card_from_string(const std::string& str)
 {
 	if (str.size() != 2)

@@ -58,4 +58,6 @@ std::vector<card_t*> create_all_cards();
 
 card_t* get_card(rank_t rank, color_t color);
 
+bool is_in_vector(card_t* card, const std::vector<card_t*>& vec);
+
 card_t* get_card_from_string(const std::string& str);

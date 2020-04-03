@@ -34,4 +34,6 @@ bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board);
 
 double calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board);
 
+double calc_prwin_vs_any_hand(hand_t* hero, board_t* board);
+
 bool are_similar_hands(hand_t* lhs, hand_t* rhs);
