@@ -1337,7 +1337,7 @@ namespace loguru
 	{
 		char preamble_buff[LOGURU_PREAMBLE_WIDTH];
 		print_preamble(preamble_buff, sizeof(preamble_buff), verbosity, file, line);
-		int buff_len = strlen(buff);
+		size_t buff_len = strlen(buff);
 		auto* buff_newline = (char*)malloc(2 * buff_len + 10);
 		if (buff_newline == nullptr)
 		{

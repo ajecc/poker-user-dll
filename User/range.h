@@ -8,7 +8,7 @@ struct range_hand_t
 {
 	hand_t* hand;
 	hand_action_t hand_action;
-	double raise_prob;
+	float raise_prob;
 
 	bool operator<(const range_hand_t& other) const
 	{
@@ -20,7 +20,7 @@ struct range_t
 {
 	std::vector<range_hand_t*> range;
 
-	void add(hand_t* hand, hand_action_t hand_action = FOLD, double raise_prob = 0);
+	void add(hand_t* hand, hand_action_t hand_action = FOLD, float raise_prob = 0);
 
 	void remove(hand_t* hand);
 

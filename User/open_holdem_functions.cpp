@@ -6,7 +6,7 @@
 
 // Function signatures and pointers
 
-typedef double(*t_GetSymbol)(const char* name_of_single_symbol__not_expression);
+typedef float(*t_GetSymbol)(const char* name_of_single_symbol__not_expression);
 typedef void*(*t_GetPrw1326)();
 typedef char*(*t_GetHandnumber)();
 typedef char*(*t_GetPlayerName)(int chair);
@@ -202,7 +202,7 @@ std::string scrape_table_map_region(const std::string& p_region)
 }
 
 
-double scrape_table_map_region_numeric(const std::string& p_region)
+float scrape_table_map_region_numeric(const std::string& p_region)
 {
 	std::string response = scrape_table_map_region(p_region);
 	std::string clean_response = "";
@@ -217,5 +217,5 @@ double scrape_table_map_region_numeric(const std::string& p_region)
 	{
 		clean_response.push_back('0');
 	}
-	return std::stod(clean_response);
+	return std::stof(clean_response);
 }

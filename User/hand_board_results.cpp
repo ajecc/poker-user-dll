@@ -96,11 +96,7 @@ bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
 
 hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 {
-	std::vector<card_t*> cards;
-	for (auto* card : board->cards)
-	{
-		cards.emplace_back(card);
-	}
+	std::vector<card_t*> cards = board->cards;
 	assert(cards.size() == 5);
 	cards.emplace_back(hand->cards[0]);
 	cards.emplace_back(hand->cards[1]);
@@ -118,6 +114,7 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 		}
 	}
 #endif
+	// TODO: rewrite this entierly
 	hand_board_result_t result;
 	if (calc_straight_flush(cards, &result))
 	{
@@ -127,6 +124,7 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 	{
 		return result;
 	}
+	// has some impact
 	if (calc_full_house(cards, &result))
 	{
 		return result;
@@ -135,6 +133,7 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 	{
 		return result;
 	}
+	// has some impact
 	if (calc_straight(cards, &result))
 	{
 		return result;
@@ -143,6 +142,7 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 	{
 		return result;
 	}
+	// has a lot of impact on performance
 	if (calc_two_pair(cards, &result))
 	{
 		return result;

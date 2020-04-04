@@ -18,4 +18,4 @@ void InitializeOpenHoldemFunctionInterface();
 
 std::string scrape_table_map_region(const std::string& p_region);
 
-double scrape_table_map_region_numeric(const std::string& p_region);
+float scrape_table_map_region_numeric(const std::string& p_region);

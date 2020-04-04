@@ -14,7 +14,7 @@ static std::vector<std::string> get_position_map();
 static range_t* get_range_from_csv(const std::string& file_name);
 
 
-void range_t::add(hand_t* hand, hand_action_t hand_action, double raise_prob)
+void range_t::add(hand_t* hand, hand_action_t hand_action, float raise_prob)
 {
 	range_hand_t* range_hand = new range_hand_t;
 	range_hand->hand = hand;
@@ -250,7 +250,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		card_t* card_rhs = get_card_from_string(card_str);
 		hand_t* hand = get_hand(card_lhs, card_rhs);
 		hand_action_t hand_action_true = get_hand_action_from_char(hand_action);
-		range->add(hand, hand_action_true, (double)raise_percent / 100);
+		range->add(hand, hand_action_true, (float)raise_percent / 100);
 	}
 	fclose(csv);
 	return range;

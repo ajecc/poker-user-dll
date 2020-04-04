@@ -22,7 +22,7 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 	board_derived_info.bet_type = OPEN;
 
 	bool after_hero = false;
-	double current_bet = 0;
+	float current_bet = 0;
 	for (auto* villain : board->current_hand_players)
 	{
 		if (villain->label == hero->label)
