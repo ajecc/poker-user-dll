@@ -21,7 +21,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight_flush)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT_FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _5);
+	ASSERT_EQ(result.kickers[0], _5);
 
 	board.cards = {
 		get_card(_7, H),
@@ -36,7 +36,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight_flush)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT_FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _7);
+	ASSERT_EQ(result.kickers[0], _7);
 
 	board.cards = {
 		get_card(_7, H),
@@ -51,7 +51,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight_flush)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT_FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _7);
+	ASSERT_EQ(result.kickers[0], _7);
 
 	board.cards = {
 		get_card(_7, H),
@@ -66,7 +66,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight_flush)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT_FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _8);
+	ASSERT_EQ(result.kickers[0], _8);
 
 	board.cards = {
 		get_card(_2, H),
@@ -81,7 +81,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight_flush)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT_FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _A);
 }
 
 
@@ -103,7 +103,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _5);
+	ASSERT_EQ(result.kickers[0], _5);
 
 	board.cards = {
 		get_card(_7, H),
@@ -118,7 +118,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _7);
+	ASSERT_EQ(result.kickers[0], _7);
 
 	board.cards = {
 		get_card(_7, H),
@@ -133,7 +133,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _7);
+	ASSERT_EQ(result.kickers[0], _7);
 
 	board.cards = {
 		get_card(_7, C),
@@ -148,7 +148,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _8);
+	ASSERT_EQ(result.kickers[0], _8);
 
 	board.cards = {
 		get_card(_2, S),
@@ -163,7 +163,7 @@ TEST(HandBoardResult, calc_hand_board_result_straight)
 	);
 	ASSERT_EQ(result.strength, STRAIGHT);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _A);
 }
 
 
@@ -185,7 +185,7 @@ TEST(HandBoardResult, calc_hand_board_result_flush)
 	);
 	ASSERT_EQ(result.strength, FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
+	ASSERT_EQ(result.kickers[0], _T);
 
 	board.cards = {
 		get_card(_7, H),
@@ -200,7 +200,7 @@ TEST(HandBoardResult, calc_hand_board_result_flush)
 	);
 	ASSERT_EQ(result.strength, FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
+	ASSERT_EQ(result.kickers[0], _K);
 
 	board.cards = {
 		get_card(_7, H),
@@ -215,7 +215,7 @@ TEST(HandBoardResult, calc_hand_board_result_flush)
 	);
 	ASSERT_EQ(result.strength, FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _7);
+	ASSERT_EQ(result.kickers[0], _7);
 
 	board.cards = {
 		get_card(_2, H),
@@ -230,7 +230,7 @@ TEST(HandBoardResult, calc_hand_board_result_flush)
 	);
 	ASSERT_EQ(result.strength, FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _8);
+	ASSERT_EQ(result.kickers[0], _8);
 
 	board.cards = {
 		get_card(_2, H),
@@ -245,7 +245,7 @@ TEST(HandBoardResult, calc_hand_board_result_flush)
 	);
 	ASSERT_EQ(result.strength, FLUSH);
 	ASSERT_EQ(result.kickers.size(), 1);
-	ASSERT_EQ(result.kickers[0]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _A);
 }
 
 
@@ -267,8 +267,8 @@ TEST(HandBoardResult, calc_hand_board_result_quads)
 	);
 	ASSERT_EQ(result.strength, QUADS);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _4);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _4);
 
 	board.cards = {
 		get_card(_2, H),
@@ -283,8 +283,8 @@ TEST(HandBoardResult, calc_hand_board_result_quads)
 	);
 	ASSERT_EQ(result.strength, QUADS);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _A);
 
 	board.cards = {
 		get_card(_T, H),
@@ -299,8 +299,8 @@ TEST(HandBoardResult, calc_hand_board_result_quads)
 	);
 	ASSERT_EQ(result.strength, QUADS);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _A);
 
 	board.cards = {
 		get_card(_T, H),
@@ -315,8 +315,8 @@ TEST(HandBoardResult, calc_hand_board_result_quads)
 	);
 	ASSERT_EQ(result.strength, QUADS);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _K);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _K);
 }
 
 
@@ -338,8 +338,8 @@ TEST(HandBoardResult, calc_hand_board_result_full_house)
 	);
 	ASSERT_EQ(result.strength, FULL_HOUSE);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _K);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _K);
 
 	board.cards = {
 		get_card(_2, H),
@@ -354,8 +354,8 @@ TEST(HandBoardResult, calc_hand_board_result_full_house)
 	);
 	ASSERT_EQ(result.strength, FULL_HOUSE);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _T);
-	ASSERT_EQ(result.kickers[1]->rank, _2);
+	ASSERT_EQ(result.kickers[0], _T);
+	ASSERT_EQ(result.kickers[1], _2);
 
 	board.cards = {
 		get_card(_T, H),
@@ -370,8 +370,8 @@ TEST(HandBoardResult, calc_hand_board_result_full_house)
 	);
 	ASSERT_EQ(result.strength, FULL_HOUSE);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _T);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _T);
 
 	board.cards = {
 		get_card(_T, H),
@@ -386,8 +386,8 @@ TEST(HandBoardResult, calc_hand_board_result_full_house)
 	);
 	ASSERT_EQ(result.strength, FULL_HOUSE);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _A);
-	ASSERT_EQ(result.kickers[1]->rank, _K);
+	ASSERT_EQ(result.kickers[0], _A);
+	ASSERT_EQ(result.kickers[1], _K);
 
 	board.cards = {
 		get_card(_T, H),
@@ -402,8 +402,8 @@ TEST(HandBoardResult, calc_hand_board_result_full_house)
 	);
 	ASSERT_EQ(result.strength, FULL_HOUSE);
 	ASSERT_EQ(result.kickers.size(), 2);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _A);
 }
 
 
@@ -425,9 +425,9 @@ TEST(HandBoardResult, calc_hand_board_result_trips)
 	);
 	ASSERT_EQ(result.strength, TRIPS);
 	ASSERT_EQ(result.kickers.size(), 3);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _Q);
-	ASSERT_EQ(result.kickers[2]->rank, _T);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _Q);
+	ASSERT_EQ(result.kickers[2], _T);
 
 	board.cards = {
 		get_card(_2, H),
@@ -442,9 +442,9 @@ TEST(HandBoardResult, calc_hand_board_result_trips)
 	);
 	ASSERT_EQ(result.strength, TRIPS);
 	ASSERT_EQ(result.kickers.size(), 3);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _A);
-	ASSERT_EQ(result.kickers[2]->rank, _T);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _A);
+	ASSERT_EQ(result.kickers[2], _T);
 }
 
 
@@ -466,9 +466,9 @@ TEST(HandBoardResult, calc_hand_board_result_two_pair)
 	);
 	ASSERT_EQ(result.strength, TWO_PAIR);
 	ASSERT_EQ(result.kickers.size(), 3);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _T);
-	ASSERT_EQ(result.kickers[2]->rank, _Q);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _T);
+	ASSERT_EQ(result.kickers[2], _Q);
 
 	board.cards = {
 		get_card(_2, H),
@@ -483,9 +483,9 @@ TEST(HandBoardResult, calc_hand_board_result_two_pair)
 	);
 	ASSERT_EQ(result.strength, TWO_PAIR);
 	ASSERT_EQ(result.kickers.size(), 3);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _3);
-	ASSERT_EQ(result.kickers[2]->rank, _A);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _3);
+	ASSERT_EQ(result.kickers[2], _A);
 }
 
 
@@ -507,10 +507,10 @@ TEST(HandBoardResult, calc_hand_board_result_pair)
 	);
 	ASSERT_EQ(result.strength, PAIR);
 	ASSERT_EQ(result.kickers.size(), 4);
-	ASSERT_EQ(result.kickers[0]->rank, _K);
-	ASSERT_EQ(result.kickers[1]->rank, _Q);
-	ASSERT_EQ(result.kickers[2]->rank, _T);
-	ASSERT_EQ(result.kickers[3]->rank, _9);
+	ASSERT_EQ(result.kickers[0], _K);
+	ASSERT_EQ(result.kickers[1], _Q);
+	ASSERT_EQ(result.kickers[2], _T);
+	ASSERT_EQ(result.kickers[3], _9);
 }
 
 
@@ -532,10 +532,10 @@ TEST(HandBoardResult, calc_hand_board_result_high_card)
 	);
 	ASSERT_EQ(result.strength, HIGH_CARD);
 	ASSERT_EQ(result.kickers.size(), 5);
-	ASSERT_EQ(result.kickers[0]->rank, _A);
-	ASSERT_EQ(result.kickers[1]->rank, _K);
-	ASSERT_EQ(result.kickers[2]->rank, _Q);
-	ASSERT_EQ(result.kickers[3]->rank, _T);
-	ASSERT_EQ(result.kickers[4]->rank, _9);
+	ASSERT_EQ(result.kickers[0], _A);
+	ASSERT_EQ(result.kickers[1], _K);
+	ASSERT_EQ(result.kickers[2], _Q);
+	ASSERT_EQ(result.kickers[3], _T);
+	ASSERT_EQ(result.kickers[4], _9);
 }
 

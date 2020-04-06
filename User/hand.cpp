@@ -102,7 +102,7 @@ hand_t* get_hand(card_t* card_1, card_t* card_2)
 bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board)
 {
 	assert(board->cards.size() == 5);
-	auto hero_result = calc_hand_board_result(hero, board);
+	auto hero_result =  calc_hand_board_result(hero, board);
 	auto villain_result = calc_hand_board_result(villain, board);
 	return hero_result > villain_result;
 }
@@ -186,16 +186,18 @@ static float calc_prwin_vs_hand_river(hand_t* hero, hand_t* villain, board_t* bo
 
 static float calc_prwin_vs_hand_turn(hand_t* hero, hand_t* villain, board_t* board)
 {
-	auto remaining_cards = find_remaining_cards(hero, villain, board);
+	board_t board_cpy;
+	board_cpy.cards = board->cards;
+	auto remaining_cards = find_remaining_cards(hero, villain, &board_cpy);
 	int hero_wins = 0;
 	for (auto* card : remaining_cards)
 	{
-		board->cards.push_back(card);
-		if (is_hero_winner(hero, villain, board))
+		board_cpy.cards.push_back(card);
+		if (is_hero_winner(hero, villain, &board_cpy))
 		{
 			hero_wins++;
 		}
-		board->cards.pop_back();
+		board_cpy.cards.pop_back();
 	}
 	return (float)hero_wins / (float)remaining_cards.size();
 }
@@ -228,19 +230,12 @@ static float calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* boa
 
 static std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t* board)
 {
-	std::vector<card_t*> current_cards;
+	std::vector<card_t*> current_cards = board->cards;
 	current_cards.emplace_back(hero->cards[0]);
 	current_cards.emplace_back(hero->cards[1]);
 	current_cards.emplace_back(villain->cards[0]);
 	current_cards.emplace_back(villain->cards[1]);
-	for (auto* card : board->cards)
-	{
-		current_cards.emplace_back(card);
-	}
-	std::sort(all(current_cards), [](card_t* lhs, card_t* rhs)
-		{
-			return *lhs < *rhs;
-		});
+	insertion_sort(&current_cards[0], current_cards.size(), [](card_t* lhs, card_t* rhs) {return *lhs < *rhs; });
 
 	std::vector<card_t*> remaining_cards;
 	size_t current_cards_ind = 0;

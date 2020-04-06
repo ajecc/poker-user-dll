@@ -16,7 +16,7 @@ color_t& operator++(color_t& color);
 
 enum rank_t
 {
-	pad_1,
+	INVALID_RANK,
 	_A_1,
 	_2,
 	_3,
