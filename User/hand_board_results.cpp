@@ -5,6 +5,8 @@
 #include <algorithm>
 
 
+// NOTE: result should be init with 0 before calling these 
+
 static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result);
 
 static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result);
@@ -27,74 +29,41 @@ static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_
 
 bool hand_board_result_t::operator<(const hand_board_result_t& other) const
 {
-	if (strength != other.strength)
-	{
-		return strength < other.strength;
-	}
-	for (size_t i = 0; i < kickers.size(); i++)
-	{
-		if (kickers[i]->rank != other.kickers[i]->rank)
-		{
-			return kickers[i]->rank < other.kickers[i]->rank;
-		}
-	}
-	return false;
+	return *(unsigned int*)this < *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator>(const hand_board_result_t& other) const
 {
-	if (strength != other.strength)
-	{
-		return strength > other.strength;
-	}
-	for (size_t i = 0; i < kickers.size(); i++)
-	{
-		if (kickers[i]->rank != other.kickers[i]->rank)
-		{
-			return kickers[i]->rank > other.kickers[i]->rank;
-		}
-	}
-	return false;
+	return *(unsigned int*)this > *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator==(const hand_board_result_t& other) const
 {
-	if (strength != other.strength)
-	{
-		return false;
-	}
-	for (size_t i = 0; i < kickers.size(); i++)
-	{
-		if (kickers[i]->rank != other.kickers[i]->rank)
-		{
-			return false;
-		}
-	}
-	return true;
+	return *(unsigned int*)this == *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator<=(const hand_board_result_t& other) const
 {
-	return !(*this > other);
+	return *(unsigned int*)this <= *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator>=(const hand_board_result_t& other) const
 {
-	return !(*this < other);
+	return *(unsigned int*)this >= *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
 {
-	return !(*this == other);
+	return *(unsigned int*)this != *(unsigned int*)&other;
 }
 
 
-hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
+hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board)
 {
 	std::vector<card_t*> cards = board->cards;
 	assert(cards.size() == 5);
@@ -115,7 +84,7 @@ hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
 	}
 #endif
 	// TODO: rewrite this entierly
-	hand_board_result_t result;
+	hand_board_result_t result = { 0 };
 	if (calc_straight_flush(cards, &result))
 	{
 		return result;
@@ -182,7 +151,7 @@ static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t*
 			return lhs->color < rhs->color;
 		});
 	int consec = 1;
-	card_t* kicker;
+	card_t* kicker = nullptr;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
@@ -190,6 +159,10 @@ static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t*
 			&& cards[i]->color == cards[i + 1]->color)
 		{
 			consec++;
+		}
+		else if (cards[i]->rank == cards[i + 1]->rank)
+		{
+			continue;
 		}
 		else
 		{
@@ -201,10 +174,10 @@ static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t*
 			have_result = true;
 		}
 	}
-	if (have_result)
+	if (have_result && kicker != nullptr)
 	{
 		result->strength = STRAIGHT_FLUSH;
-		result->kickers.emplace_back(kicker);
+		result->kicker_0 = kicker->rank;
 	}
 	return have_result;
 }
@@ -218,14 +191,14 @@ static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* r
 			cards[i]->rank == cards[i + 3]->rank)
 		{
 			result->strength = QUADS;
-			result->kickers.emplace_back(cards[i]);
+			result->kicker_0 = cards[i]->rank;
 			if (i == 0)
 			{
-				result->kickers.emplace_back(cards[4]);
+				result->kicker_1 = cards[4]->rank;
 			}
 			else
 			{
-				result->kickers.emplace_back(cards[0]);
+				result->kicker_1 = cards[0]->rank;
 			}
 			return true;
 		}
@@ -241,22 +214,22 @@ static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* r
 		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank)
 		{
 			result->strength = TRIPS;
-			result->kickers.emplace_back(cards[i]);
+			result->kicker_0 = cards[i]->rank;
 			if (i == 0)
 			{
-				result->kickers.emplace_back(cards[3]);
-				result->kickers.emplace_back(cards[4]);
+				result->kicker_1 = cards[3]->rank;
+				result->kicker_2 = cards[4]->rank;
 			}
 			else
 			{
-				result->kickers.emplace_back(cards[0]);
+				result->kicker_1 = cards[0]->rank;
 				if (i == 1)
 				{
-					result->kickers.emplace_back(cards[4]);
+					result->kicker_2 = cards[4]->rank;
 				}
 				else
 				{
-					result->kickers.emplace_back(cards[1]);
+					result->kicker_2 = cards[1]->rank;
 				}
 			}
 			return true;
@@ -273,16 +246,33 @@ static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* re
 		if (cards[i]->rank == cards[i + 1]->rank)
 		{
 			result->strength = PAIR;
-			result->kickers.emplace_back(cards[i]);
+			result->kicker_0 = cards[i]->rank;
+			int kickers_size = 1;
 			for (int j = 0; j < (int)cards.size(); j++)
 			{
 				if (j != i && j != i + 1)
 				{
-					result->kickers.emplace_back(cards[j]);
-					if (result->kickers.size() == 4)
+					if (kickers_size == 1)
+					{
+						result->kicker_1 = cards[j]->rank;
+					}
+					else if (kickers_size == 2)
+					{
+						result->kicker_2 = cards[j]->rank;
+					}
+					else if (kickers_size == 3)
+					{
+						result->kicker_3 = cards[j]->rank;
+					}
+					else if (kickers_size == 4)
 					{
 						break;
 					}
+					else
+					{
+						throw poker_exception_t("calc_pair: invalid kicker size");
+					}
+					kickers_size++;
 				}
 			}
 			return true;
@@ -294,7 +284,7 @@ static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* re
 
 static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
-	hand_board_result_t trips_result; 
+	hand_board_result_t trips_result = { 0 };
 	bool have_result = calc_trips(cards, &trips_result);
 	if (!have_result)
 	{
@@ -303,27 +293,27 @@ static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result
 	std::vector<card_t*> new_cards;
 	for (auto& card : cards)
 	{
-		if (card->rank != trips_result.kickers[0]->rank)
+		if (card->rank != trips_result.kicker_0)
 		{
 			new_cards.emplace_back(card);
 		}
 	}
-	hand_board_result_t pair_result; 
+	hand_board_result_t pair_result = { 0 };
 	have_result = calc_pair(new_cards, &pair_result);
 	if (!have_result)
 	{
 		return false;
 	}
 	result->strength = FULL_HOUSE;
-	result->kickers.emplace_back(trips_result.kickers[0]);
-	result->kickers.emplace_back(pair_result.kickers[0]);
+	result->kicker_0 = trips_result.kicker_0;
+	result->kicker_1 = pair_result.kicker_0;
 	return true;
 }
 
 
 static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
-	hand_board_result_t pair_result_1;
+	hand_board_result_t pair_result_1 = { 0 };
 	bool have_result = calc_pair(cards, &pair_result_1);
 	if (!have_result)
 	{
@@ -332,27 +322,27 @@ static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t
 	std::vector<card_t*> new_cards;
 	for (auto& card : cards)
 	{
-		if (card->rank != pair_result_1.kickers[0]->rank)
+		if (card->rank != pair_result_1.kicker_0)
 		{
 			new_cards.emplace_back(card);
 		}
 	}
-	hand_board_result_t pair_result_2;
+	hand_board_result_t pair_result_2 = { 0 };
 	have_result = calc_pair(new_cards, &pair_result_2);
 	if (!have_result)
 	{
 		return false;
 	}
 	result->strength = TWO_PAIR;
-	card_t* kicker_1 = pair_result_1.kickers[0];
-	card_t* kicker_2 = pair_result_2.kickers[0];
-	if (kicker_1->rank < kicker_2->rank)
+	rank_t kicker_1 = pair_result_1.kicker_0;
+	rank_t kicker_2 = pair_result_2.kicker_0;
+	if (kicker_1 < kicker_2)
 	{
 		std::swap(kicker_1, kicker_2);
 	}
-	result->kickers.emplace_back(kicker_1);
-	result->kickers.emplace_back(kicker_2);
-	result->kickers.emplace_back(pair_result_2.kickers[1]);
+	result->kicker_0 = kicker_1;
+	result->kicker_1 = kicker_2;
+	result->kicker_2 = pair_result_2.kicker_1;
 	return result;
 }
 
@@ -362,7 +352,26 @@ static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_
 	result->strength = HIGH_CARD;
 	for (size_t i = 0; i < std::min((size_t)5, cards.size()); i++)
 	{
-		result->kickers.emplace_back(cards[i]);
+		if (i == 0)
+		{
+			result->kicker_0 = cards[i]->rank;
+		}
+		else if (i == 1)
+		{
+			result->kicker_1 = cards[i]->rank;
+		}
+		else if (i == 2)
+		{
+			result->kicker_2 = cards[i]->rank;
+		}
+		else if (i == 3)
+		{
+			result->kicker_3 = cards[i]->rank;
+		}
+		else if (i == 4)
+		{
+			result->kicker_4 = cards[i]->rank;
+		}
 	}
 	return true;
 }
@@ -389,13 +398,17 @@ static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t
 		cards_normalized.push_back(&small_ace);
 	}
 	int consec = 1;
-	card_t* kicker;
+	card_t* kicker = nullptr;
 	bool have_result = false;
 	for (int i = (int)cards_normalized.size() - 2; i >= 0; i--)
 	{
 		if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank + 1)
 		{
 			consec++;
+		}
+		else if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank)
+		{
+			continue;
 		}
 		else
 		{
@@ -407,10 +420,10 @@ static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t
 			have_result = true;
 		}
 	}
-	if (have_result)
+	if (have_result && kicker != nullptr)
 	{
 		result->strength = STRAIGHT;
-		result->kickers.emplace_back(kicker);
+		result->kicker_0 = kicker->rank;
 	}
 	return have_result;
 }
@@ -427,7 +440,7 @@ static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 			return lhs->color < rhs->color;
 		});
 	int consec = 1;
-	card_t* kicker;
+	card_t* kicker = nullptr;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
@@ -445,10 +458,10 @@ static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 			have_result = true;
 		}
 	}
-	if (have_result)
+	if (have_result && kicker != nullptr)
 	{
 		result->strength = FLUSH;
-		result->kickers.emplace_back(kicker);
+		result->kicker_0 = kicker->rank;
 	}
 	return have_result;
 }

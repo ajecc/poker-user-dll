@@ -102,8 +102,8 @@ hand_t* get_hand(card_t* card_1, card_t* card_2)
 bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board)
 {
 	assert(board->cards.size() == 5);
-	auto hero_result = calc_hand_board_result(hero, board);
-	auto villain_result = calc_hand_board_result(villain, board);
+	auto hero_result = calc_hand_board_result_uncached(hero, board);
+	auto villain_result = calc_hand_board_result_uncached(villain, board);
 	return hero_result > villain_result;
 }
 
