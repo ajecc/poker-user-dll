@@ -15,6 +15,7 @@
 #include "board.h"
 #include "hand.h"
 #include "range.h"
+#include "hand_board_result.h"
 
 
 
@@ -55,6 +56,8 @@ std::vector<hand_t*> g_all_hands;
 
 std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
 
+hand_board_result_t* g_all_hand_board_results;
+
 void create_globals()
 {
 	g_board = create_board();
@@ -65,6 +68,8 @@ void create_globals()
 	g_facing_raise_ranges = create_facing_raise_ranges();
 	g_facing_3bet_ranges = create_facing_3bet_ranges();
 	g_facing_4bet_ranges = create_facing_4bet_ranges();
+
+	g_all_hand_board_results = create_all_hand_board_results();
 }
 
 // Handling the lookup of dll$symbols

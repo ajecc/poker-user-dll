@@ -3718,7 +3718,7 @@ NEW STUFF:
   [THF]
 
 BUG FIXES:
-- Common cards were wrongly set to player's cards
+- common cards were wrongly set to player's cards
   [Nik0]
 - Userchair not initialized in CSymbolenginePokerval, causing wrong pokerval to be computed.
   [Nik0]
@@ -5360,7 +5360,7 @@ v1.8.0 2008-03-29
 NEW STUFF:
 - New symbol s$potmethod is now available.  This is used to determine the appropriate
   site interpretation for the contents of c0pot0.  s$potmethod can be set to these values:
-  - 1: (default, legacy) Common pot
+  - 1: (default, legacy) common pot
   - 2: (new) Total pot, including current bets and side bets  (Thanks, Nick Coldhand)
   (quiqsilver)
   
@@ -6331,7 +6331,7 @@ BUG FIXES:
   "sym.playersplayingbits" to "sym.playersdealtbits".  (Thanks, cidertime) 
   (CSymbols::calc_playersfriendsopponents)
 - profile.cpp, check_window_match - titletext0-9 was not being handled properly. (Thanks, BillW)
-- Common card information was not being passed to DLL until userchair was identified.
+- common card information was not being passed to DLL until userchair was identified.
   (CGlobal::capture_state)  (Thanks, TheHighFish)
 - Enabling of "Keyboard" item on a Bring window's system menu was not working for non-English
   Windows Operating Systems / newer Bring versions, due to the different sorting order of the 

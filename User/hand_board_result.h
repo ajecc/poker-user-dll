@@ -4,6 +4,9 @@
 #include "board.h"
 #include <vector>
 
+#define ALL_HAND_BOARD_RESULT_CACHED_SHARED_NAME "Global\\ALL_HAND_BOARD_RESULT_CACHED_SHARED"
+#define ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME "all_hand_board_result.cache"
+
 
 enum hand_board_result_strength_t
 {
@@ -44,3 +47,7 @@ struct hand_board_result_t
 
 
 hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board);
+
+hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board);
+
+hand_board_result_t* create_all_hand_board_results();

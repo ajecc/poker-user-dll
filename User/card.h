@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#define NUMBER_OF_CARDS 52
 
 enum color_t
 {
@@ -53,8 +54,14 @@ struct card_t
 	std::string to_string();
 };
 
+card_t& operator++(card_t& card);
+
 
 std::vector<card_t*> create_all_cards();
+
+int get_card_index(const rank_t& rank, const color_t& color);
+
+int get_card_index(card_t* card);
 
 card_t* get_card(rank_t rank, color_t color);
 

@@ -1,9 +1,18 @@
 #include "hand_board_result.h"
 #include "poker_exception.h"
 #include "util.h"
+#include "loguru.h"
 #include <cassert>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <Windows.h>
+#ifdef min
+#undef min
+#endif
 
+
+extern hand_board_result_t* g_all_hand_board_results;
 
 // NOTE: result should be init with 0 before calling these 
 
@@ -24,6 +33,10 @@ static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t
 static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
 
 static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static void create_all_hand_board_results_cache();
+
+static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<card_t*>& cards);
 
 
 
@@ -83,7 +96,6 @@ hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board
 		}
 	}
 #endif
-	// TODO: rewrite this entierly
 	hand_board_result_t result = { 0 };
 	if (calc_straight_flush(cards, &result))
 	{
@@ -128,6 +140,105 @@ hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board
 }
 
 
+hand_board_result_t* create_all_hand_board_results()
+{
+	if (!std::filesystem::exists(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME))
+	{
+		create_all_hand_board_results_cache();
+	}
+	// NOTE: fits in DWORD (comb(52,7) ~= 10**8)
+	DWORD file_size = (DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME);
+	// TODO: find a way to free this handle
+	HANDLE all_hand_board_results_map = OpenFileMappingA(
+		FILE_MAP_READ,
+		FALSE,
+		ALL_HAND_BOARD_RESULT_CACHED_SHARED_NAME
+	);
+	if (all_hand_board_results_map == NULL)
+	{
+		DWORD error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND)
+		{
+			HANDLE cached_handle = CreateFileA(
+				ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME,
+				GENERIC_ALL,
+				FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				NULL
+			);
+			if (cached_handle == INVALID_HANDLE_VALUE)
+			{
+				throw std::runtime_error("create_all_hand_board_results: CreateFileA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			all_hand_board_results_map = CreateFileMappingA(
+				cached_handle,
+				NULL,
+				PAGE_READWRITE,
+				0,
+				file_size,
+				ALL_HAND_BOARD_RESULT_CACHED_SHARED_NAME
+			);
+			CloseHandle(cached_handle);
+			if (all_hand_board_results_map == NULL)
+			{
+				error = GetLastError();
+				throw std::runtime_error("create_all_hand_board_results: CreateFileMappingA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			LOG_F(INFO, "Successfully created the shared memory region");
+		}
+		else
+		{
+			throw std::runtime_error("create_all_hand_board_results: OpenFileMappingA failed with last err-code=" 
+				+ std::to_string(error));
+		}
+	}
+	hand_board_result_t* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
+		all_hand_board_results_map,
+		FILE_MAP_READ,
+		0,
+		0,
+		(DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME)
+	);
+	if (all_hand_board_results == NULL)
+	{
+		throw std::runtime_error("create_all_hand_board_results: MapViewOfFile failed with last err-code=" 
+			+ std::to_string(GetLastError()));
+	}
+	LOG_F(INFO, "Successfully opened shared memory region");
+	return all_hand_board_results;
+}
+
+
+hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
+{
+	static constexpr auto comb = comb_t<NUMBER_OF_CARDS, 7>();
+	// TODO: maybe calculate results with a board that is not full as well
+	assert(board->cards.size() == 5);
+	card_t cards[7];
+	for(int i = 0; i < (int)board->cards.size(); i++)
+	{
+		cards[i] = *board->cards[i];
+	}
+	cards[5] = *hand->cards[0];
+	cards[6] = *hand->cards[1];
+	insertion_sort(cards, 7, [](const card_t& lhs, const card_t& rhs) { return lhs < rhs; });
+	int hand_board_result_index = 0;
+	int last_card_index = -1;
+	for (int i = 0; i < 7; i++)
+	{
+		int current_card_index = get_card_index(&cards[i]);
+		hand_board_result_index += comb.comb[NUMBER_OF_CARDS - last_card_index - 1][7 - i] -
+			comb.comb[NUMBER_OF_CARDS - current_card_index][7 - i];
+		last_card_index = current_card_index;
+	}
+	return g_all_hand_board_results[hand_board_result_index];
+}
+
+
 static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 {
 	card_t small_aces[] = { {H, _A_1}, {D, _A_1}, {C, _A_1}, {S, _A_1} };
@@ -159,10 +270,6 @@ static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t*
 			&& cards[i]->color == cards[i + 1]->color)
 		{
 			consec++;
-		}
-		else if (cards[i]->rank == cards[i + 1]->rank)
-		{
-			continue;
 		}
 		else
 		{
@@ -464,4 +571,52 @@ static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 		result->kicker_0 = kicker->rank;
 	}
 	return have_result;
+}
+
+
+static void create_all_hand_board_results_cache()
+{
+	std::ofstream cache;
+	cache.open(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME, std::ofstream::out | std::ofstream::binary);
+	std::vector<card_t*> cards;
+	create_all_hand_board_results_cache_aux(cache, cards);
+	cache.close();
+}
+
+
+static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<card_t*>& cards)
+{
+	if (cards.size() == 7)
+	{
+		board_t board;
+		for (int i = 0; i < 5; i++)
+		{
+			board.cards.push_back(cards[i]);
+		}
+		hand_t* hand = get_hand(cards[5], cards[6]);
+		hand_board_result_t result = calc_hand_board_result_uncached(hand, &board);
+		cache.write((char*)&result, sizeof(hand_board_result_t));
+		return;
+	}
+	card_t new_card = *get_card(_2, H);
+	if (!cards.empty())
+	{
+		new_card = *cards.back();
+		if (new_card == *get_card(_A, S))
+		{
+			return;
+		}
+		++new_card;
+	}
+	for (;;)
+	{
+		cards.push_back(&new_card);
+		create_all_hand_board_results_cache_aux(cache, cards);
+		cards.pop_back();
+		if (new_card == *get_card(_A, S))
+		{
+			return;
+		}
+		++new_card;
+	}
 }
