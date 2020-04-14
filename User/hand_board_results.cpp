@@ -1,654 +1,622 @@
 #include "hand_board_result.h"
 #include "poker_exception.h"
 #include "util.h"
+#include "loguru.h"
 #include <cassert>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <Windows.h>
+#ifdef min
+#undef min
+#endif
 
 
-// TODO: fix some of these, im sure some are broken in edge cases
+extern hand_board_result_t* g_all_hand_board_results;
 
-//static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result);
-//
-//static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result);
-//
-//static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
-//
-//static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result);
+// NOTE: result should be init with 0 before calling these 
+
+static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result);
+
+static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result);
+
+static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result);
+
+static void create_all_hand_board_results_cache();
+
+static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<card_t*>& cards);
 
 
 
 bool hand_board_result_t::operator<(const hand_board_result_t& other) const
 {
-	if (strength != other.strength)
-	{
-		return strength < other.strength;
-	}
-	for (size_t i = 0; i < kickers.size(); i++)
-	{
-		if (kickers[i] != other.kickers[i])
-		{
-			return kickers[i] < other.kickers[i];
-		}
-	}
-	return false;
+	return *(unsigned int*)this < *(unsigned int*)&other;
 }
 
 
 bool hand_board_result_t::operator>(const hand_board_result_t& other) const
 {
-	if (strength != other.strength)
-	{
-		return strength > other.strength;
-	}
-	for (size_t i = 0; i < kickers.size(); i++)
-	{
-		if (kickers[i] != other.kickers[i])
+	return *(unsigned int*)this > *(unsigned int*)&other;
+}
+
+
+bool hand_board_result_t::operator==(const hand_board_result_t& other) const
+{
+	return *(unsigned int*)this == *(unsigned int*)&other;
+}
+
+
+bool hand_board_result_t::operator<=(const hand_board_result_t& other) const
+{
+	return *(unsigned int*)this <= *(unsigned int*)&other;
+}
+
+
+bool hand_board_result_t::operator>=(const hand_board_result_t& other) const
+{
+	return *(unsigned int*)this >= *(unsigned int*)&other;
+}
+
+
+bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
+{
+	return *(unsigned int*)this != *(unsigned int*)&other;
+}
+
+
+hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board)
+{
+	std::vector<card_t*> cards = board->cards;
+	assert(cards.size() == 5);
+	cards.emplace_back(hand->cards[0]);
+	cards.emplace_back(hand->cards[1]);
+	std::sort(all(cards), [](card_t* lhs, card_t* rhs)
 		{
-			return kickers[i] > other.kickers[i];
+			return *lhs > * rhs;
+		});
+#ifdef _DEBUG
+	for (int i = 1; i < (int)cards.size(); i++)
+	{
+		if (*(cards[i]) == *(cards[i - 1]))
+		{
+			throw poker_exception_t("calc_hand_board_result: duplicates in hand/board ("  +
+			cards[i]->to_string() + ", " + cards[i - 1]->to_string() + ")");
+		}
+	}
+#endif
+	hand_board_result_t result = { 0 };
+	if (calc_straight_flush(cards, &result))
+	{
+		return result;
+	}
+	if (calc_quads(cards, &result))
+	{
+		return result;
+	}
+	// has some impact
+	if (calc_full_house(cards, &result))
+	{
+		return result;
+	}
+	if (calc_flush(cards, &result))
+	{
+		return result;
+	}
+	// has some impact
+	if (calc_straight(cards, &result))
+	{
+		return result;
+	}
+	if (calc_trips(cards, &result))
+	{
+		return result;
+	}
+	// has a lot of impact on performance
+	if (calc_two_pair(cards, &result))
+	{
+		return result;
+	}
+	if (calc_pair(cards, &result))
+	{
+		return result;
+	}
+	if (calc_high_card(cards, &result))
+	{
+		return result;
+	}
+	throw poker_exception_t("calc_hand_board_result: calc_high_card should return true");
+}
+
+
+hand_board_result_t* create_all_hand_board_results()
+{
+	if (!std::filesystem::exists(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME))
+	{
+		create_all_hand_board_results_cache();
+	}
+	// NOTE: fits in DWORD (comb(52,7) ~= 10**8)
+	DWORD file_size = (DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME);
+	// TODO: find a way to free this handle
+	HANDLE all_hand_board_results_map = OpenFileMappingA(
+		FILE_MAP_READ,
+		FALSE,
+		ALL_HAND_BOARD_RESULT_CACHED_SHARED_NAME
+	);
+	if (all_hand_board_results_map == NULL)
+	{
+		DWORD error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND)
+		{
+			HANDLE cached_handle = CreateFileA(
+				ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME,
+				GENERIC_ALL,
+				FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				NULL
+			);
+			if (cached_handle == INVALID_HANDLE_VALUE)
+			{
+				throw std::runtime_error("create_all_hand_board_results: CreateFileA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			all_hand_board_results_map = CreateFileMappingA(
+				cached_handle,
+				NULL,
+				PAGE_READWRITE,
+				0,
+				file_size,
+				ALL_HAND_BOARD_RESULT_CACHED_SHARED_NAME
+			);
+			CloseHandle(cached_handle);
+			if (all_hand_board_results_map == NULL)
+			{
+				error = GetLastError();
+				throw std::runtime_error("create_all_hand_board_results: CreateFileMappingA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			LOG_F(INFO, "Successfully created the shared memory region");
+		}
+		else
+		{
+			throw std::runtime_error("create_all_hand_board_results: OpenFileMappingA failed with last err-code=" 
+				+ std::to_string(error));
+		}
+	}
+	hand_board_result_t* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
+		all_hand_board_results_map,
+		FILE_MAP_READ,
+		0,
+		0,
+		(DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME)
+	);
+	if (all_hand_board_results == NULL)
+	{
+		throw std::runtime_error("create_all_hand_board_results: MapViewOfFile failed with last err-code=" 
+			+ std::to_string(GetLastError()));
+	}
+	LOG_F(INFO, "Successfully opened shared memory region");
+	return all_hand_board_results;
+}
+
+
+hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
+{
+	static constexpr auto comb = comb_t<NUMBER_OF_CARDS, 7>();
+	// TODO: maybe calculate results with a board that is not full as well
+	assert(board->cards.size() == 5);
+	card_t cards[7];
+	for(int i = 0; i < (int)board->cards.size(); i++)
+	{
+		cards[i] = *board->cards[i];
+	}
+	cards[5] = *hand->cards[0];
+	cards[6] = *hand->cards[1];
+	insertion_sort(cards, 7, [](const card_t& lhs, const card_t& rhs) { return lhs < rhs; });
+	int hand_board_result_index = 0;
+	int last_card_index = -1;
+	for (int i = 0; i < 7; i++)
+	{
+		int current_card_index = get_card_index(&cards[i]);
+		hand_board_result_index += comb.comb[NUMBER_OF_CARDS - last_card_index - 1][7 - i] -
+			comb.comb[NUMBER_OF_CARDS - current_card_index][7 - i];
+		last_card_index = current_card_index;
+	}
+	return g_all_hand_board_results[hand_board_result_index];
+}
+
+
+static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result)
+{
+	card_t small_aces[] = { {H, _A_1}, {D, _A_1}, {C, _A_1}, {S, _A_1} };
+	for (int i = 0; ; i++)
+	{
+		if (cards[i]->rank == _A)
+		{
+			cards.push_back(&small_aces[(int)cards[i]->color]);
+		}
+		else
+		{
+			break;
+		}
+	}
+	std::sort(all(cards), [](card_t* lhs, card_t* rhs)
+		{
+			if (lhs->color == rhs->color)
+			{
+				return lhs->rank > rhs->rank;
+			}
+			return lhs->color < rhs->color;
+		});
+	int consec = 1;
+	card_t* kicker = nullptr;
+	bool have_result = false;
+	for (int i = (int)cards.size() - 2; i >= 0; i--)
+	{
+		if (cards[i]->rank == cards[i + 1]->rank + 1
+			&& cards[i]->color == cards[i + 1]->color)
+		{
+			consec++;
+		}
+		else
+		{
+			consec = 1;
+		}
+		if (consec >= 5)
+		{
+			kicker = cards[i];
+			have_result = true;
+		}
+	}
+	if (have_result && kicker != nullptr)
+	{
+		result->strength = STRAIGHT_FLUSH;
+		result->kicker_0 = kicker->rank;
+	}
+	return have_result;
+}
+
+
+static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result)
+{
+	for (int i = 0; i < (int)cards.size() - 3; i++)
+	{
+		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank &&
+			cards[i]->rank == cards[i + 3]->rank)
+		{
+			result->strength = QUADS;
+			result->kicker_0 = cards[i]->rank;
+			if (i == 0)
+			{
+				result->kicker_1 = cards[4]->rank;
+			}
+			else
+			{
+				result->kicker_1 = cards[0]->rank;
+			}
+			return true;
 		}
 	}
 	return false;
 }
 
 
-bool hand_board_result_t::operator==(const hand_board_result_t& other) const
+static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
-	if (strength != other.strength)
+	for (int i = 0; i < (int)cards.size() - 2; i++)
+	{
+		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank)
+		{
+			result->strength = TRIPS;
+			result->kicker_0 = cards[i]->rank;
+			if (i == 0)
+			{
+				result->kicker_1 = cards[3]->rank;
+				result->kicker_2 = cards[4]->rank;
+			}
+			else
+			{
+				result->kicker_1 = cards[0]->rank;
+				if (i == 1)
+				{
+					result->kicker_2 = cards[4]->rank;
+				}
+				else
+				{
+					result->kicker_2 = cards[1]->rank;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+
+static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
+{
+	for (int i = 0; i < (int)cards.size() - 1; i++)
+	{
+		if (cards[i]->rank == cards[i + 1]->rank)
+		{
+			result->strength = PAIR;
+			result->kicker_0 = cards[i]->rank;
+			int kickers_size = 1;
+			for (int j = 0; j < (int)cards.size(); j++)
+			{
+				if (j != i && j != i + 1)
+				{
+					if (kickers_size == 1)
+					{
+						result->kicker_1 = cards[j]->rank;
+					}
+					else if (kickers_size == 2)
+					{
+						result->kicker_2 = cards[j]->rank;
+					}
+					else if (kickers_size == 3)
+					{
+						result->kicker_3 = cards[j]->rank;
+					}
+					else if (kickers_size == 4)
+					{
+						break;
+					}
+					else
+					{
+						throw poker_exception_t("calc_pair: invalid kicker size");
+					}
+					kickers_size++;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+
+static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result)
+{
+	hand_board_result_t trips_result = { 0 };
+	bool have_result = calc_trips(cards, &trips_result);
+	if (!have_result)
 	{
 		return false;
 	}
-	for (size_t i = 0; i < kickers.size(); i++)
+	std::vector<card_t*> new_cards;
+	for (auto& card : cards)
 	{
-		if (kickers[i] != other.kickers[i])
+		if (card->rank != trips_result.kicker_0)
 		{
-			return false;
+			new_cards.emplace_back(card);
+		}
+	}
+	hand_board_result_t pair_result = { 0 };
+	have_result = calc_pair(new_cards, &pair_result);
+	if (!have_result)
+	{
+		return false;
+	}
+	result->strength = FULL_HOUSE;
+	result->kicker_0 = trips_result.kicker_0;
+	result->kicker_1 = pair_result.kicker_0;
+	return true;
+}
+
+
+static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
+{
+	hand_board_result_t pair_result_1 = { 0 };
+	bool have_result = calc_pair(cards, &pair_result_1);
+	if (!have_result)
+	{
+		return false;
+	}
+	std::vector<card_t*> new_cards;
+	for (auto& card : cards)
+	{
+		if (card->rank != pair_result_1.kicker_0)
+		{
+			new_cards.emplace_back(card);
+		}
+	}
+	hand_board_result_t pair_result_2 = { 0 };
+	have_result = calc_pair(new_cards, &pair_result_2);
+	if (!have_result)
+	{
+		return false;
+	}
+	result->strength = TWO_PAIR;
+	rank_t kicker_1 = pair_result_1.kicker_0;
+	rank_t kicker_2 = pair_result_2.kicker_0;
+	if (kicker_1 < kicker_2)
+	{
+		std::swap(kicker_1, kicker_2);
+	}
+	result->kicker_0 = kicker_1;
+	result->kicker_1 = kicker_2;
+	result->kicker_2 = pair_result_2.kicker_1;
+	return result;
+}
+
+
+static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result)
+{
+	result->strength = HIGH_CARD;
+	for (size_t i = 0; i < std::min((size_t)5, cards.size()); i++)
+	{
+		if (i == 0)
+		{
+			result->kicker_0 = cards[i]->rank;
+		}
+		else if (i == 1)
+		{
+			result->kicker_1 = cards[i]->rank;
+		}
+		else if (i == 2)
+		{
+			result->kicker_2 = cards[i]->rank;
+		}
+		else if (i == 3)
+		{
+			result->kicker_3 = cards[i]->rank;
+		}
+		else if (i == 4)
+		{
+			result->kicker_4 = cards[i]->rank;
 		}
 	}
 	return true;
 }
 
 
-bool hand_board_result_t::operator<=(const hand_board_result_t& other) const
+static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result)
 {
-	return !(*this > other);
+	std::vector<card_t*> cards_normalized;
+	for (auto* i : cards)
+	{
+		if (cards_normalized.empty())
+		{
+			cards_normalized.push_back(i);
+			continue;
+		}
+		if (cards_normalized.back()->rank != i->rank)
+		{
+			cards_normalized.push_back(i);
+		}
+	}
+	card_t small_ace = { H, _A_1 };
+	if (cards_normalized[0]->rank == _A)
+	{
+		cards_normalized.push_back(&small_ace);
+	}
+	int consec = 1;
+	card_t* kicker = nullptr;
+	bool have_result = false;
+	for (int i = (int)cards_normalized.size() - 2; i >= 0; i--)
+	{
+		if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank + 1)
+		{
+			consec++;
+		}
+		else if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank)
+		{
+			continue;
+		}
+		else
+		{
+			consec = 1;
+		}
+		if (consec >= 5)
+		{
+			kicker = cards_normalized[i];
+			have_result = true;
+		}
+	}
+	if (have_result && kicker != nullptr)
+	{
+		result->strength = STRAIGHT;
+		result->kicker_0 = kicker->rank;
+	}
+	return have_result;
 }
 
 
-bool hand_board_result_t::operator>=(const hand_board_result_t& other) const
+static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
 {
-	return !(*this < other);
+	std::sort(all(cards), [](card_t* lhs, card_t* rhs)
+		{
+			if (lhs->color == rhs->color)
+			{
+				return lhs->rank > rhs->rank;
+			}
+			return lhs->color < rhs->color;
+		});
+	int consec = 1;
+	card_t* kicker = nullptr;
+	bool have_result = false;
+	for (int i = (int)cards.size() - 2; i >= 0; i--)
+	{
+		if (cards[i]->color == cards[i + 1]->color)
+		{
+			consec++;
+		}
+		else
+		{
+			consec = 1;
+		}
+		if (consec >= 5)
+		{
+			kicker = cards[i];
+			have_result = true;
+		}
+	}
+	if (have_result && kicker != nullptr)
+	{
+		result->strength = FLUSH;
+		result->kicker_0 = kicker->rank;
+	}
+	return have_result;
 }
 
 
-bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
+static void create_all_hand_board_results_cache()
 {
-	return !(*this == other);
+	std::ofstream cache;
+	cache.open(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME, std::ofstream::out | std::ofstream::binary);
+	std::vector<card_t*> cards;
+	create_all_hand_board_results_cache_aux(cache, cards);
+	cache.close();
 }
 
 
-hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board)
+static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<card_t*>& cards)
 {
-	// NOTE: this is a critical secion of the code
-	// it might look messy, but it moves fast and quite a bit of effort
-	// has been made to here. Do not change to make it more readable
-	hand_board_result_t result;
-	card_t* cards[7];
-	int idx = 0;
-	bool inserted_left = false, inserted_right = false;
-	auto* left_card = hand->cards[0];
-	auto* right_card = hand->cards[1];
-
-	rank_t max_pair_rank = INVALID_RANK, sec_max_pair_rank = INVALID_RANK, current_pair_rank = INVALID_RANK;
-	int max_pair_size = 0, sec_max_pair_size = 0, current_pair_size = 0;
-	rank_t max_consec_rank = INVALID_RANK, current_consec_rank = INVALID_RANK;
-	int max_consec = 0, current_consec = 0;
-	bool have_potential_small_straight = false;
-
-	int color_count[COLOR_COUNT] = { 0 };
-	int max_color_rank[COLOR_COUNT] = { INVALID_RANK };
-	int consec_color = 0;
-	rank_t straight_flush = INVALID_RANK;
-	rank_t flush = INVALID_RANK;
-	bool have_potential_small_straight_flush = false;
-	color_t potential_small_straight_color = COLOR_COUNT;
-
-	auto update = [&]()
+	if (cards.size() == 7)
 	{
-		if (current_pair_rank != cards[idx]->rank)
+		board_t board;
+		for (int i = 0; i < 5; i++)
 		{
-			if (max_pair_size <= current_pair_size)
-			{
-				sec_max_pair_rank = max_pair_rank;
-				sec_max_pair_size = max_pair_size;
-				max_pair_rank = current_pair_rank;
-				max_pair_size = current_pair_size;
-			}
-			else if (sec_max_pair_size <= current_pair_size)
-			{
-				sec_max_pair_rank = current_pair_rank;
-				sec_max_pair_size = current_pair_size;
-			}
-			current_pair_rank = cards[idx]->rank;
-			current_pair_size = 1;
+			board.cards.push_back(cards[i]);
 		}
-		else
-		{
-			current_pair_size++;
-		}
-		if ((int)cards[idx]->rank == (int)current_consec_rank + 1)
-		{
-			current_consec_rank = cards[idx]->rank;
-			current_consec++;
-			if (cards[idx]->rank == _5 && current_consec == 4)
-			{
-				have_potential_small_straight = true;
-				potential_small_straight_color = cards[idx]->color;
-			}
-		}
-		else if (cards[idx]->rank != current_consec_rank)
-		{
-			if (current_consec >= max_consec)
-			{
-				max_consec = current_consec;
-				max_consec_rank = current_consec_rank;
-			}
-			current_consec_rank = cards[idx]->rank;
-			current_consec = 1;
-		}
-		if (max_color_rank[(int)cards[idx]->color] + 1 == cards[idx]->rank)
-		{
-			consec_color++;
-			if (consec_color >= 5)
-			{
-				straight_flush = cards[idx]->rank;
-			}
-			else if (consec_color == 4 && cards[idx]->rank)
-			{
-				have_potential_small_straight_flush = true;
-			}
-		}
-		else
-		{
-			consec_color = 1;
-		}
-		color_count[(int)cards[idx]->color]++;
-		if (color_count[(int)cards[idx]->color] >= 5)
-		{
-			flush = cards[idx]->rank;
-		}
-	};
-	for(int i = 0; i < (int)board->cards.size(); i++)
-	{
-		auto* card = board->cards[i];
-		if (!inserted_left)
-		{
-			if (*card < *left_card)
-			{
-				cards[idx] = card;
-			}
-			else
-			{
-				cards[idx] = left_card;
-				inserted_left = true;
-				i--;
-			}
-		}
-		else if (!inserted_right)
-		{
-			if (*card < *right_card)
-			{
-				cards[idx] = card;
-			}
-			else
-			{
-				cards[idx] = right_card;
-				inserted_right = true;
-				i--;
-			}
-		}
-		else
-		{
-			cards[idx] = card;
-		}
-		update();
-		idx++;
+		hand_t* hand = get_hand(cards[5], cards[6]);
+		hand_board_result_t result = calc_hand_board_result_uncached(hand, &board);
+		cache.write((char*)&result, sizeof(hand_board_result_t));
+		return;
 	}
-	if (!inserted_left)
+	card_t new_card = *get_card(_2, H);
+	if (!cards.empty())
 	{
-		cards[idx] = left_card;
-		update();
-		idx++;
-	}
-	if (!inserted_right)
-	{
-		cards[idx] = right_card;
-		update();
-	}
-	if (straight_flush != INVALID_RANK)
-	{
-		result.strength = STRAIGHT_FLUSH;
-		result.kickers.emplace_back(straight_flush);
-		return result;
-	}
-	if (have_potential_small_straight_flush && max_color_rank[(int)potential_small_straight_color] == _A)
-	{
-		result.strength = STRAIGHT_FLUSH;
-		result.kickers.emplace_back(_A);
-		return result;
-	}
-	if (max_pair_size <= current_pair_size)
-	{
-		sec_max_pair_rank = max_pair_rank;
-		sec_max_pair_size = max_pair_size;
-		max_pair_rank = current_pair_rank;
-		max_pair_size = current_pair_size;
-	}
-	else if (sec_max_pair_size <= current_pair_size)
-	{
-		sec_max_pair_rank = current_pair_rank;
-		sec_max_pair_size = current_pair_size;
-	}
-	if (current_consec >= max_consec)
-	{
-		max_consec = current_consec;
-		max_consec_rank = current_consec_rank;
-	}
-	if (max_pair_size == 4)
-	{
-		result.strength = QUADS;
-		result.kickers.emplace_back(max_pair_rank);
-		if (cards[6]->rank != max_pair_rank)
+		new_card = *cards.back();
+		if (new_card == *get_card(_A, S))
 		{
-			result.kickers.emplace_back(cards[6]->rank);
+			return;
 		}
-		else
+		++new_card;
+	}
+	for (;;)
+	{
+		cards.push_back(&new_card);
+		create_all_hand_board_results_cache_aux(cache, cards);
+		cards.pop_back();
+		if (new_card == *get_card(_A, S))
 		{
-			result.kickers.emplace_back(cards[2]->rank);
+			return;
 		}
-		return result;
+		++new_card;
 	}
-	if (max_pair_size == 3 && sec_max_pair_size >= 2)
-	{
-		result.strength = FULL_HOUSE;
-		result.kickers.emplace_back(max_pair_rank);
-		result.kickers.emplace_back(sec_max_pair_rank);
-		return result;
-	}
-	if (flush != INVALID_RANK)
-	{
-		result.strength = FLUSH;
-		result.kickers.emplace_back(flush);
-		return result;
-	}
-	if (max_consec >= 5)
-	{
-		result.strength = STRAIGHT;
-		result.kickers.emplace_back(max_consec_rank);
-		return result;
-	}
-	if (have_potential_small_straight && cards[6]->rank == _A)
-	{
-		result.strength = STRAIGHT;
-		result.kickers.emplace_back(_5);
-		return result;
-	}
-	if (max_pair_size == 3)
-	{
-		result.strength = TRIPS;
-		result.kickers.emplace_back(max_pair_rank);
-		result.kickers.emplace_back(sec_max_pair_rank);
-		if (cards[5]->rank != max_pair_rank)
-		{
-			result.kickers.emplace_back(cards[5]->rank);
-		}
-		else
-		{
-			result.kickers.emplace_back(cards[2]->rank);
-		}
-		return result;
-	}
-	if (max_pair_size == 2 && sec_max_pair_size == 2)
-	{
-		result.strength = TWO_PAIR;
-		result.kickers.emplace_back(max_pair_rank);
-		result.kickers.emplace_back(sec_max_pair_rank);
-		if (cards[6]->rank != max_pair_rank)
-		{
-			result.kickers.emplace_back(cards[6]->rank);
-		}
-		else if (cards[4]->rank != sec_max_pair_rank)
-		{
-			result.kickers.emplace_back(cards[4]->rank);
-		}
-		else
-		{
-			result.kickers.emplace_back(cards[2]->rank);
-		}
-		return result;
-	}
-	if (max_pair_size == 2)
-	{
-		result.strength = PAIR;
-		result.kickers.emplace_back(max_pair_rank);
-		result.kickers.emplace_back(sec_max_pair_rank);
-		for (int i = 6; i >= 0 && result.kickers.size() < 4; i--)
-		{
-			if (cards[i]->rank != max_pair_rank && cards[i]->rank != sec_max_pair_rank)
-			{
-				result.kickers.emplace_back(cards[i]->rank);
-			}
-		}
-		return result;
-	}
-	result.strength = HIGH_CARD;
-	for (int i = 6; i >= 2; i--)
-	{
-		result.kickers.emplace_back(cards[i]->rank);
-	}
-	return result;
 }
-
-
-//static bool calc_straight_flush(std::vector<card_t*> cards, hand_board_result_t* result)
-//{
-//	card_t small_aces[] = { {H, _A_1}, {D, _A_1}, {C, _A_1}, {S, _A_1} };
-//	for (int i = 0; ; i++)
-//	{
-//		if (cards[i]->rank == _A)
-//		{
-//			cards.push_back(&small_aces[(int)cards[i]->color]);
-//		}
-//		else
-//		{
-//			break;
-//		}
-//	}
-//	std::sort(all(cards), [](card_t* lhs, card_t* rhs)
-//		{
-//			if (lhs->color == rhs->color)
-//			{
-//				return lhs->rank > rhs->rank;
-//			}
-//			return lhs->color < rhs->color;
-//		});
-//	int consec = 1;
-//	card_t* kicker;
-//	bool have_result = false;
-//	for (int i = (int)cards.size() - 2; i >= 0; i--)
-//	{
-//		if (cards[i]->rank == cards[i + 1]->rank + 1
-//			&& cards[i]->color == cards[i + 1]->color)
-//		{
-//			consec++;
-//		}
-//		else
-//		{
-//			consec = 1;
-//		}
-//		if (consec >= 5)
-//		{
-//			kicker = cards[i];
-//			have_result = true;
-//		}
-//	}
-//	if (have_result)
-//	{
-//		result->strength = STRAIGHT_FLUSH;
-//		result->kickers.emplace_back(kicker);
-//	}
-//	return have_result;
-//}
-//
-//
-//static bool calc_quads(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	for (int i = 0; i < (int)cards.size() - 3; i++)
-//	{
-//		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank &&
-//			cards[i]->rank == cards[i + 3]->rank)
-//		{
-//			result->strength = QUADS;
-//			result->kickers.emplace_back(cards[i]);
-//			if (i == 0)
-//			{
-//				result->kickers.emplace_back(cards[4]);
-//			}
-//			else
-//			{
-//				result->kickers.emplace_back(cards[0]);
-//			}
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-//
-//
-//static bool calc_trips(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	for (int i = 0; i < (int)cards.size() - 2; i++)
-//	{
-//		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank)
-//		{
-//			result->strength = TRIPS;
-//			result->kickers.emplace_back(cards[i]);
-//			if (i == 0)
-//			{
-//				result->kickers.emplace_back(cards[3]);
-//				result->kickers.emplace_back(cards[4]);
-//			}
-//			else
-//			{
-//				result->kickers.emplace_back(cards[0]);
-//				if (i == 1)
-//				{
-//					result->kickers.emplace_back(cards[4]);
-//				}
-//				else
-//				{
-//					result->kickers.emplace_back(cards[1]);
-//				}
-//			}
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-//
-//
-//static bool calc_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	for (int i = 0; i < (int)cards.size() - 1; i++)
-//	{
-//		if (cards[i]->rank == cards[i + 1]->rank)
-//		{
-//			result->strength = PAIR;
-//			result->kickers.emplace_back(cards[i]);
-//			for (int j = 0; j < (int)cards.size(); j++)
-//			{
-//				if (j != i && j != i + 1)
-//				{
-//					result->kickers.emplace_back(cards[j]);
-//					if (result->kickers.size() == 4)
-//					{
-//						break;
-//					}
-//				}
-//			}
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-//
-//
-//static bool calc_full_house(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	hand_board_result_t trips_result; 
-//	bool have_result = calc_trips(cards, &trips_result);
-//	if (!have_result)
-//	{
-//		return false;
-//	}
-//	std::vector<card_t*> new_cards;
-//	for (auto& card : cards)
-//	{
-//		if (card->rank != trips_result.kickers[0]->rank)
-//		{
-//			new_cards.emplace_back(card);
-//		}
-//	}
-//	hand_board_result_t pair_result; 
-//	have_result = calc_pair(new_cards, &pair_result);
-//	if (!have_result)
-//	{
-//		return false;
-//	}
-//	result->strength = FULL_HOUSE;
-//	result->kickers.emplace_back(trips_result.kickers[0]);
-//	result->kickers.emplace_back(pair_result.kickers[0]);
-//	return true;
-//}
-//
-//
-//static bool calc_two_pair(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	hand_board_result_t pair_result_1;
-//	bool have_result = calc_pair(cards, &pair_result_1);
-//	if (!have_result)
-//	{
-//		return false;
-//	}
-//	std::vector<card_t*> new_cards;
-//	for (auto& card : cards)
-//	{
-//		if (card->rank != pair_result_1.kickers[0]->rank)
-//		{
-//			new_cards.emplace_back(card);
-//		}
-//	}
-//	hand_board_result_t pair_result_2;
-//	have_result = calc_pair(new_cards, &pair_result_2);
-//	if (!have_result)
-//	{
-//		return false;
-//	}
-//	result->strength = TWO_PAIR;
-//	card_t* kicker_1 = pair_result_1.kickers[0];
-//	card_t* kicker_2 = pair_result_2.kickers[0];
-//	if (kicker_1->rank < kicker_2->rank)
-//	{
-//		std::swap(kicker_1, kicker_2);
-//	}
-//	result->kickers.emplace_back(kicker_1);
-//	result->kickers.emplace_back(kicker_2);
-//	result->kickers.emplace_back(pair_result_2.kickers[1]);
-//	return result;
-//}
-//
-//
-//static bool calc_high_card(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	result->strength = HIGH_CARD;
-//	for (size_t i = 0; i < std::min((size_t)5, cards.size()); i++)
-//	{
-//		result->kickers.emplace_back(cards[i]);
-//	}
-//	return true;
-//}
-//
-//
-//static bool calc_straight(const std::vector<card_t*>& cards, hand_board_result_t* result)
-//{
-//	std::vector<card_t*> cards_normalized;
-//	for (auto* i : cards)
-//	{
-//		if (cards_normalized.empty())
-//		{
-//			cards_normalized.push_back(i);
-//			continue;
-//		}
-//		if (cards_normalized.back()->rank != i->rank)
-//		{
-//			cards_normalized.push_back(i);
-//		}
-//	}
-//	card_t small_ace = { H, _A_1 };
-//	if (cards_normalized[0]->rank == _A)
-//	{
-//		cards_normalized.push_back(&small_ace);
-//	}
-//	int consec = 1;
-//	card_t* kicker;
-//	bool have_result = false;
-//	for (int i = (int)cards_normalized.size() - 2; i >= 0; i--)
-//	{
-//		if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank + 1)
-//		{
-//			consec++;
-//		}
-//		else
-//		{
-//			consec = 1;
-//		}
-//		if (consec >= 5)
-//		{
-//			kicker = cards_normalized[i];
-//			have_result = true;
-//		}
-//	}
-//	if (have_result)
-//	{
-//		result->strength = STRAIGHT;
-//		result->kickers.emplace_back(kicker);
-//	}
-//	return have_result;
-//}
-//
-//
-//static bool calc_flush(std::vector<card_t*> cards, hand_board_result_t* result)
-//{
-//	std::sort(all(cards), [](card_t* lhs, card_t* rhs)
-//		{
-//			if (lhs->color == rhs->color)
-//			{
-//				return lhs->rank > rhs->rank;
-//			}
-//			return lhs->color < rhs->color;
-//		});
-//	int consec = 1;
-//	card_t* kicker;
-//	bool have_result = false;
-//	for (int i = (int)cards.size() - 2; i >= 0; i--)
-//	{
-//		if (cards[i]->color == cards[i + 1]->color)
-//		{
-//			consec++;
-//		}
-//		else
-//		{
-//			consec = 1;
-//		}
-//		if (consec >= 5)
-//		{
-//			kicker = cards[i];
-//			have_result = true;
-//		}
-//	}
-//	if (have_result)
-//	{
-//		result->strength = FLUSH;
-//		result->kickers.emplace_back(kicker);
-//	}
-//	return have_result;
-//}

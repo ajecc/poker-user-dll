@@ -25,40 +25,24 @@ void insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
 }
 
 
-template<typename T, typename F>
-void bubble_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
+template<int N, int K>
+struct comb_t 
 {
-	for (int i = 0; i < (int)to_sort_size - 1; i++)
+	constexpr comb_t() : comb()
 	{
-		bool swapped = false;
-		for (int j = 0; j < (int)to_sort_size - i - 1; j++)
+		comb[1][0] = comb[1][1] = 1;
+		for (int i = 2; i < N + 1; i++)
 		{
-			if (!cmp_func(to_sort[j], to_sort[j + 1]))
+			comb[i][0] = 1;
+			if (i < K + 1)
 			{
-				std::swap(to_sort[j], to_sort[j + 1]);
-				swapped = true;
+				comb[i][i] = 1;
+			}
+			for (int j = 1; j < i && j < K + 1; j++)
+			{
+				comb[i][j] = comb[i - 1][j - 1] + comb[i - 1][j];
 			}
 		}
-		if (!swapped)
-		{
-			break;
-		}
 	}
-}
-
-
-template<typename T>
-void insertion_sort(T* to_sort, const size_t& to_sort_size)
-{
-	for (size_t i = 1; i < to_sort_size; i++)
-	{
-		T key = to_sort[i];
-		int j = i - 1;
-		while (j >= 0 && to_sort[j] > key)
-		{
-			to_sort[j + 1] = to_sort[j];
-			j--;
-		}
-		to_sort[j + 1] = key;
-	}
-}
+	unsigned int comb[N + 1][K + 1];
+};

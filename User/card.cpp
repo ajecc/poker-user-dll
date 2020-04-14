@@ -67,6 +67,22 @@ bool card_t::operator!=(const card_t& other) const
 }
 
 
+card_t& operator++(card_t& card)
+{
+	assert(card != *get_card(_A, S));
+	if (card.color != S)
+	{
+		++card.color;
+	}
+	else
+	{
+		card.color = H;
+		++card.rank;
+	}
+	return card;
+}
+
+
 std::vector<card_t*> create_all_cards()
 {
 	std::vector<card_t*> all_cards;
@@ -83,11 +99,23 @@ std::vector<card_t*> create_all_cards()
 }
 
 
-card_t* get_card(rank_t rank, color_t color)
+int get_card_index(const rank_t& rank, const color_t& color)
 {
 	int rank_to_int = (int)rank - 2;
 	int color_to_int = (int)color;
-	return g_all_cards[rank_to_int * 4 + color_to_int];
+	return rank_to_int * 4 + color_to_int;
+}
+
+
+int get_card_index(card_t* card)
+{
+	return get_card_index(card->rank, card->color);
+}
+
+
+card_t* get_card(rank_t rank, color_t color)
+{
+	return g_all_cards[get_card_index(rank, color)];
 }
 
 
