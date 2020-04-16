@@ -132,7 +132,7 @@ bool is_in_vector(card_t* card, const std::vector<card_t*>& vec)
 }
 
 
-card_t* get_card_from_string(const std::string& str)
+card_t* get_card(const std::string& str)
 {
 	if (str.size() != 2)
 	{

@@ -154,7 +154,7 @@ static void update_cards(board_t* board)
 	{
 		cards_query_string[cards_query_string.size() - 1] = (char)(i + '0');
 		std::string card_str = scrape_table_map_region(cards_query_string);
-		card_t* card = get_card_from_string(card_str);
+		card_t* card = get_card(card_str);
 		if (card == nullptr)
 		{
 			goto cleanup;

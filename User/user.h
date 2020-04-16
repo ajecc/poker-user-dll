@@ -27,8 +27,6 @@
 #define EXE_IMPLEMENTS extern "C" __declspec(dllexport)
 #endif
 
-// Functions implemented and exported by the DLL,
-// imported by OpenHoldem
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery);
 DLL_IMPLEMENTS void __stdcall DLLUpdateOnNewFormula();
 DLL_IMPLEMENTS void __stdcall DLLUpdateOnConnection();
@@ -37,8 +35,11 @@ DLL_IMPLEMENTS void __stdcall DLLUpdateOnNewRound();
 DLL_IMPLEMENTS void __stdcall DLLUpdateOnMyTurn();
 DLL_IMPLEMENTS void __stdcall DLLUpdateOnHeartbeat();
 
-// Please refer to the file OpenHoldemFunctions.h
-// for functios that get exported by OpenHoldem
-// and are available at the DLL-level.
 
+/*
+Creates the globals to be used throughout the program.
+Should be called only once, in attachement.
+*/
 void create_globals();
+
+// TODO: add destroy_globals

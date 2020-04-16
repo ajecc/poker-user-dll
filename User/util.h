@@ -8,6 +8,16 @@
 #define FP_ARE_DIFFERENT(LHS, RHS) (abs((LHS) - (RHS)) >= EPS)
 
 
+/*
+Sort the given array with insertion sort.
+This is useful for small arrays (< 10 elements).
+
+Parameters: OUT T* to_sort -- the array to sort.
+			IN size_t to_sort_size -- the size of this array
+			IN F cmp_func -- the compare function used to sort the array
+
+Returns: none
+*/
 template<typename T, typename F>
 void insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
 {
@@ -25,6 +35,11 @@ void insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
 }
 
 
+/*
+Generates at compile time combinations up to comb(N, K).
+Simply instantiate this structure, and the comb field returns
+the combinations.
+*/
 template<int N, int K>
 struct comb_t 
 {

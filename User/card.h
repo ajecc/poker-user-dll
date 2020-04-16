@@ -57,14 +57,70 @@ struct card_t
 card_t& operator++(card_t& card);
 
 
-std::vector<card_t*> create_all_cards();
 
+/*
+Fetches the index of a card, as it is found in the vector returned by
+create_all_cards.
+
+Parameters: IN rank_t rank -- the rank of the card
+			IN color_t color -- the color of the card
+
+Returns: int -- the index of the card
+*/
 int get_card_index(const rank_t& rank, const color_t& color);
 
+
+/*
+Fetches the index of a card, as it is found in the vector returned by
+create_all_cards.
+
+Parameters: IN card_t* card -- pointer to the card to find the index of
+
+Returns: int -- the index of the card
+*/
 int get_card_index(card_t* card);
 
+
+/*
+Gets the card based on rank and color. This is fetched from the vector
+return by create_all_cards.  
+
+Parameters: IN rank_t rank -- the rank of the card
+			IN color_t color -- the color of the card
+
+Returns: card_t* -- the pointer to the card. This SHOULD NOT be freed.
+*/
 card_t* get_card(rank_t rank, color_t color);
 
+
+/*
+Gets the card, but from string form. Works in the same way as get_card.
+The string has for {RANK}{COLOR}. Eg: Ah, 6s.
+
+Returns: card_t* -- the pointer to the card, that shouldn't be freed.
+*/
+card_t* get_card(const std::string& str);
+
+
+/*
+Checks if a card is in a vector, based on its value, not address.
+
+Parameters: IN card_t* card -- the card
+			IN std::vector<card_t*> vec -- the vector that contains various cards
+
+Returns: bool -- true if is found in the vector and false otherwise.
+*/
 bool is_in_vector(card_t* card, const std::vector<card_t*>& vec);
 
-card_t* get_card_from_string(const std::string& str);
+
+/*
+Creates all possible combinations of cards. The vector returned by this is a global one.
+Cards can be fetched using get_card.
+This functions should only be called at attachment.
+
+Parameters: none
+
+Return: std::vector<card_t*> -- the vector that contains all the cards.
+								Should not be used explicitly (use get_card instead)
+*/
+std::vector<card_t*> create_all_cards();

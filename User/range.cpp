@@ -14,6 +14,16 @@ static std::vector<std::string> get_position_map();
 static range_t* get_range_from_csv(const std::string& file_name);
 
 
+
+range_t::~range_t()
+{
+	for (auto* range_hand : range)
+	{
+		delete range_hand;
+	}
+}
+
+
 void range_t::add(hand_t* hand, hand_action_t hand_action, float raise_prob)
 {
 	range_hand_t* range_hand = new range_hand_t;
@@ -68,6 +78,17 @@ range_hand_t* range_t::fetch(hand_t* hand)
 size_t range_t::size()
 {
 	return range.size();
+}
+
+
+range_t* copy_range(range_t* range)
+{
+	range_t* new_range = new range_t;
+	for (auto* range_hand : range->range)
+	{
+		new_range->add(range_hand->hand, range_hand->hand_action, range_hand->raise_prob);
+	}
+	return new_range;
 }
 
 
@@ -139,6 +160,24 @@ std::vector<range_t*> create_facing_4bet_ranges()
 }
 
 
+range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
+{
+	switch (bet_type)
+	{
+	case OPEN:
+		return get_open_range(hero_position);
+	case FACING_RAISE:
+		return get_facing_raise_range(hero_position, villain_position);
+	case FACING_3BET:
+		return get_facing_3bet_range(hero_position, villain_position);
+	case FACING_4BET:
+		return get_facing_4bet_range(hero_position, villain_position);
+	default:
+		throw poker_exception_t("get_range: Invalid bet_type");
+	}
+}
+
+
 range_t* get_open_range(position_t hero_position)
 {
 	return g_open_ranges[hero_position];
@@ -177,25 +216,6 @@ range_t* get_facing_4bet_range(position_t hero_position, position_t villain_posi
 	int ind = (hero_position_int - 1) * (hero_position_int) / 2 + villain_position_int;
 	return g_facing_4bet_ranges[ind];
 }
-
-
-range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
-{
-	switch (bet_type)
-	{
-	case OPEN:
-		return get_open_range(hero_position);
-	case FACING_RAISE:
-		return get_facing_raise_range(hero_position, villain_position);
-	case FACING_3BET:
-		return get_facing_3bet_range(hero_position, villain_position);
-	case FACING_4BET:
-		return get_facing_4bet_range(hero_position, villain_position);
-	default:
-		throw poker_exception_t("get_range: Invalid bet_type");
-	}
-}
-
 
 static std::vector<std::string> get_position_map()
 {
@@ -236,7 +256,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		std::string card_str;
 		card_str.push_back(cards[0]);
 		card_str.push_back('h');
-		card_t* card_lhs = get_card_from_string(card_str);
+		card_t* card_lhs = get_card(card_str);
 		card_str = "";
 		card_str.push_back(cards[1]);
 		if (cards[2] == 's')
@@ -247,7 +267,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		{
 			card_str.push_back('c');
 		}
-		card_t* card_rhs = get_card_from_string(card_str);
+		card_t* card_rhs = get_card(card_str);
 		hand_t* hand = get_hand(card_lhs, card_rhs);
 		hand_action_t hand_action_true = get_hand_action_from_char(hand_action);
 		range->add(hand, hand_action_true, (float)raise_percent / 100);
@@ -255,3 +275,5 @@ static range_t* get_range_from_csv(const std::string& file_name)
 	fclose(csv);
 	return range;
 }
+
+

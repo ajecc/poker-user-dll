@@ -2,8 +2,8 @@
 
 #include <string>
 
+#define PLAYERS_COUNT 6
 
-constexpr int PLAYERS_COUNT = 6;
 
 typedef int count_t;
 
@@ -55,7 +55,13 @@ struct board_stage_stats_t
 
 struct player_t 
 {
-	std::string label;  // this label might be p6, for example, but the player might be Player 1
+	/*
+	Labes have the structure pX, where X is a number.
+	This label might be p6, for example, but the player might be Player 1,
+	i.e. the label does not correspond with the position of the player.
+	Labels are ordered clockwise.
+	*/
+	std::string label;  
 	std::string name;
 	float balance = 0;
 	float current_bet = 0;
@@ -68,13 +74,16 @@ struct player_t
 	count_t faceup_lose = 0;
 	count_t faceup_win = 0;
 	count_t bluff = 0;
-	count_t position = 0;  // the number of players that speak after this player
+	// the number of players that speak after this player
+	count_t position = 0;  
 	bool is_dealer = false;
 	bool is_small = false;
 	bool is_big = false;
 	bool is_in_hand = false;
-	bool is_in_game = false;  // used for folds/sitouts
-	float range[PLAYERS_COUNT] = { 0 };  // the weakest cards this player plays in a position 
+	// used for folds/sitouts
+	bool is_in_game = false;  
+	// the weakest cards this player plays in a position 
+	float range[PLAYERS_COUNT] = { 0 };  
 
 	board_stage_stats_t preflop = { 0 };
 	board_stage_stats_t flop = { 0 };
@@ -85,8 +94,11 @@ struct player_t
 };
 
 
+/*
+Updates the player given, using the api exposed by OpenHoldem.
 
-player_t* get_current_player(board_t* board);
+Parameters: OUT player_t* player -- the player to update
 
+Returns: none 
+*/
 void update_player(player_t* player);
-// TODO: make something that calculates the strength of a hand

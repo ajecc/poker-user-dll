@@ -187,11 +187,11 @@ void ErrorPointerNotInitialized(const char* function_name)
 	);
 }
 
-std::string scrape_table_map_region(const std::string& p_region)
+std::string scrape_table_map_region(const std::string& region)
 {
 	int dummy;
-	DLOG(INFO, "region = %s", p_region.c_str());
-	char* response = ScrapeTableMapRegion(p_region.c_str(), dummy);
+	DLOG(INFO, "region = %s", region.c_str());
+	char* response = ScrapeTableMapRegion(region.c_str(), dummy);
 	if (response == nullptr)
 	{
 		DLOG(INFO, "response = NULL");
@@ -202,9 +202,9 @@ std::string scrape_table_map_region(const std::string& p_region)
 }
 
 
-float scrape_table_map_region_numeric(const std::string& p_region)
+float scrape_table_map_region_numeric(const std::string& region)
 {
-	std::string response = scrape_table_map_region(p_region);
+	std::string response = scrape_table_map_region(region);
 	std::string clean_response = "";
 	for (const auto& c : response)
 	{

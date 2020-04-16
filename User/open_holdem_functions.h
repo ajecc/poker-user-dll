@@ -4,6 +4,9 @@
 #include <string>
 
 
+/*
+OpenHoldem functions.
+*/
 double __stdcall GetSymbol(const char* name_of_single_symbol__not_expression);
 void*  __stdcall GetPrw1326();
 char*  __stdcall GetHandnumber();
@@ -16,6 +19,24 @@ void   WriteLog(char* format, ...);
 
 void InitializeOpenHoldemFunctionInterface();
 
-std::string scrape_table_map_region(const std::string& p_region);
 
-float scrape_table_map_region_numeric(const std::string& p_region);
+/*
+Wrapper for ScrapeTableMapRegion.
+Uses std::strings instead of char*.
+
+Parameters: IN string region -- the region (as defined by OpenHoldem)
+
+Returns: float -- the corresponding string at that region
+*/
+std::string scrape_table_map_region(const std::string& region);
+
+
+/*
+Scrapes the region and returns the number that corresponds to that region.
+In case nothing is found at that region, 0 is returned.
+
+Parameters: IN string region -- the region (as defined by OpenHoldem)
+
+Returns: float -- the corresponding number at that region
+*/
+float scrape_table_map_region_numeric(const std::string& region);

@@ -7,9 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include <future>
-#include <mutex>
 
-static std::mutex g_mutex;
 
 extern std::vector<card_t*> g_all_cards;
 
@@ -68,7 +66,6 @@ std::vector<hand_t*> create_all_hands()
 			auto* current_hand = new hand_t;
 			current_hand->cards[0] = g_all_cards[i];
 			current_hand->cards[1] = g_all_cards[j];
-			// NOTE: only works for 2-card hold'em
 			current_hand->suited = (current_hand->cards[0]->color == current_hand->cards[1]->color);
 			all_hands.emplace_back(current_hand);
 		}
@@ -84,7 +81,6 @@ std::vector<hand_t*> create_all_hands()
 
 hand_t* get_hand(card_t* card_1, card_t* card_2)
 {
-	// TODO: check this !!!
 	int first_card_ind = ((int)card_1->rank - 2) * 4 + (int)card_1->color;
 	int second_card_ind = ((int)card_2->rank - 2) * 4 + (int)card_2->color;
 	assert(first_card_ind != second_card_ind);
@@ -104,7 +100,7 @@ bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board)
 	assert(board->cards.size() == 5);
 	auto hero_result =  calc_hand_board_result(hero, board);
 	auto villain_result = calc_hand_board_result(villain, board);
-	return hero_result > villain_result;
+	return hero_result >= villain_result;
 }
 
 
