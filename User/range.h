@@ -22,6 +22,9 @@ struct range_hand_t
 };
 
 
+void apply_raise_prob(range_hand_t* range_hand);
+
+
 struct range_t
 {
 	std::vector<range_hand_t*> range;

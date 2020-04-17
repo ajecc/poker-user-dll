@@ -1,6 +1,7 @@
 #include "range.h"
 #include "poker_exception.h"
 #include "position.h"
+#include "util.h"
 #include <vector>
 #include <cassert>
 #ifdef _DEBUG
@@ -13,6 +14,15 @@ static std::vector<std::string> get_position_map();
 
 static range_t* get_range_from_csv(const std::string& file_name);
 
+
+void apply_raise_prob(range_hand_t* range_hand)
+{
+	if (range_hand->raise_prob > gen_rand())
+	{
+		range_hand->hand_action = RAISE;
+		range_hand->raise_prob = 1;
+	}
+}
 
 
 range_t::~range_t()

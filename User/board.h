@@ -14,10 +14,9 @@ struct board_t
 	std::vector<card_t*> cards;
 	std::vector<player_t*> players;
 	std::vector<player_t*> current_hand_players;
+	player_t* hero;
 	float pot = 0;
-	// TODO: get the big_blind_sum
 	float big_blind_sum = 0;
-	// TODO: update this
 	board_derived_info_t* board_derived_info = nullptr;
 
 	std::string to_string();

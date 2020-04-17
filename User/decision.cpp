@@ -1,6 +1,7 @@
 #include "decision.h"
 #include "util.h"
 #include "poker_exception.h"
+#include "range.h"
 
 bet_type_t& operator++(bet_type_t& bet_type)
 {
@@ -66,10 +67,43 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 	return board_derived_info;
 }
 
+
 decision_t take_decision_preflop(player_t* hero, board_t* board)
 {
-	return {};
+	board_derived_info_t* board_derived_info = board->board_derived_info;
+	hero->range = copy_range(get_range(
+		hero->position,
+		board_derived_info->main_villain->position,
+		board_derived_info->bet_type
+	));
+	if (!hero->range->contains(hero->hand))
+	{
+		return decision_t{ FOLD };
+	}
+	range_hand_t range_hand = *hero->range->fetch(hero->hand);
+	apply_raise_prob(&range_hand);
+	float to_raise_sum = 0;
+	if (range_hand.hand_action == RAISE)
+	{
+		if (board_derived_info->bet_type == FACING_4BET)
+		{
+			to_raise_sum = hero->balance;
+		}
+		else if (board_derived_info->bet_type == OPEN)
+		{
+			// bet 3 + number of limpers BBs
+			to_raise_sum = board->big_blind_sum * 
+				(3 + board_derived_info->villains_before_hero.size());
+		}
+		else
+		{
+			// let's say we bet 65% of the pot otherwise
+			to_raise_sum = 0.65f * board->pot; 
+		}
+	}
+	return decision_t{ range_hand.hand_action, to_raise_sum };
 }
+
 
 decision_t take_decision_flop(player_t* hero, board_t* board)
 {

@@ -1,4 +1,6 @@
 #pragma once
+#include <random>
+#include <chrono>
 
 #define all(X) (X).begin(), (X).end()
 
@@ -61,3 +63,13 @@ struct comb_t
 	}
 	unsigned int comb[N + 1][K + 1];
 };
+
+
+float gen_rand(float lower_bound = 0, float upper_bound = 1)
+{
+	static std::mt19937_64 rng_generator(
+		std::chrono::steady_clock::now().time_since_epoch().count()
+	);
+	return std::uniform_real_distribution<float>
+		(lower_bound, upper_bound)(rng_generator);
+}

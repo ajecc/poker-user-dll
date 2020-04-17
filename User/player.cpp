@@ -2,6 +2,7 @@
 #include "board.h"
 #include "open_holdem_functions.h"
 #include "poker_exception.h"
+#include "hand.h"
 
 
 static void update_player_is_in_game(player_t* player);
@@ -14,6 +15,7 @@ static void update_player_name(player_t* player);
 
 static void update_player_is_in_hand(player_t* player);
 
+static void update_player_cards(player_t* player);
 
 
 
@@ -119,6 +121,22 @@ static void update_player_is_in_hand(player_t* player)
 }
 
 
+static void update_player_cards(player_t* player)
+{
+	std::string query = player->label + "cardface0";
+	std::string query_response = scrape_table_map_region(query);
+	card_t* card_0 = get_card(query_response);
+	query = player->label + "cardface1";
+	query_response = scrape_table_map_region(query);
+	card_t* card_1 = get_card(query_response);
+	if (*card_0 > *card_1)
+	{
+		std::swap(card_0, card_1);
+	}
+	player->hand = get_hand(card_0, card_1);
+}
+
+
 std::string player_t::to_string()
 {
 	std::string to_string = "label = ";
@@ -130,7 +148,7 @@ std::string player_t::to_string()
 	}
 	to_string += "name = " + name + "\n";
 	to_string += "balance = " + std::to_string(balance) + "\n";
-	to_string += "position = " + std::to_string(position) + "\n";
+	to_string += "in_front = " + std::to_string(in_front) + "\n";
 	to_string += "is_in_hand = ";
 	if (is_in_hand)
 	{

@@ -79,6 +79,7 @@ std::vector<hand_t*> create_all_hands()
 }
 
 
+// TODO: modify this to card_0, card_1
 hand_t* get_hand(card_t* card_1, card_t* card_2)
 {
 	int first_card_ind = ((int)card_1->rank - 2) * 4 + (int)card_1->color;

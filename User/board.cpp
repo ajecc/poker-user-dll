@@ -13,6 +13,10 @@ static void update_players(board_t* board);
 
 static void update_player_positions(board_t* board);
 
+static void update_big_blind_sum(board_t* board);
+
+static void update_pot(board_t* board);
+
 
 board_t* create_board()
 {
@@ -88,6 +92,8 @@ void update_board(board_t* board)
 	update_cards(board);
 	update_players(board);
 	update_player_positions(board);
+	update_big_blind_sum(board);
+	update_pot(board);
 	DLOG(INFO, board->to_string().c_str());
 }
 
@@ -266,7 +272,7 @@ static void update_player_positions(board_t* board)
 		in_front_cnt++;
 		in_front = get_next_player_in_hand(board, in_front);
 	}
-	current_player->position = in_front_cnt;
+	current_player->in_front = in_front_cnt;
 
 	player_t* stopping_point = current_player;
 	for(;;)
@@ -277,12 +283,55 @@ static void update_player_positions(board_t* board)
 		{
 			break;
 		}
-		next_player->position = current_player->position - 1;
+		next_player->in_front = current_player->in_front - 1;
 		current_player = next_player;
 	} 
+	for (auto* player : board->current_hand_players)
+	{
+		if (player->is_dealer)
+		{
+			player->position = BTN;
+		}
+		else if (player->is_small)
+		{
+			player->position = SB;
+		}
+		else if (player->is_big)
+		{
+			player->position = BB;
+		}
+		else if (player->in_front == 3)
+		{
+			player->position = CO;
+		}
+		else if (player->in_front == 4)
+		{
+			player->position = HJ;
+		}
+		else if (player->in_front == 5)
+		{
+			player->position = UTG;
+		}
+		else
+		{
+			throw poker_exception_t("update_player_positions: could not find position");
+		}
+	}
 	DLOG(INFO, "exit update_player_positions");
 }
- 
+
+
+static void update_big_blind_sum(board_t* board)
+{
+	board->big_blind_sum = (float)GetSymbol("bblind");
+}
+
+
+static void update_pot(board_t* board)
+{
+	board->pot = (float)GetSymbol("pot");
+}
+
 
 std::string board_t::to_string()
 {

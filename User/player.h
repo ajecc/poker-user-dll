@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "position.h"
 
 #define PLAYERS_COUNT 6
 
@@ -8,6 +9,11 @@
 typedef int count_t;
 
 struct board_t;
+
+struct hand_t;
+
+struct range_t;
+
 
 enum board_stage_t 
 {
@@ -75,15 +81,17 @@ struct player_t
 	count_t faceup_win = 0;
 	count_t bluff = 0;
 	// the number of players that speak after this player
-	count_t position = 0;  
+	count_t in_front = 0;  
+	position_t position = INVALID_POSITION;
 	bool is_dealer = false;
 	bool is_small = false;
 	bool is_big = false;
 	bool is_in_hand = false;
 	// used for folds/sitouts
 	bool is_in_game = false;  
-	// the weakest cards this player plays in a position 
-	float range[PLAYERS_COUNT] = { 0 };  
+	range_t* range;
+	// TODO: find this
+	hand_t* hand;
 
 	board_stage_stats_t preflop = { 0 };
 	board_stage_stats_t flop = { 0 };
