@@ -31,6 +31,8 @@ struct decision_t
 {
 	hand_action_t action;
 	float sum;
+
+	std::string to_string();
 };
 
 

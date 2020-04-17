@@ -1,6 +1,5 @@
 #include "board.h"
 #include "poker_exception.h"
-#include "util.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include <algorithm>

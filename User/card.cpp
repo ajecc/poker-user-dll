@@ -3,7 +3,6 @@
 #include <cassert>
 #include "card.h"
 #include "poker_exception.h"
-#include "util.h"
 
 
 extern std::vector<card_t*> g_all_cards;

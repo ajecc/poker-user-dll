@@ -21,7 +21,7 @@ Parameters: OUT T* to_sort -- the array to sort.
 Returns: none
 */
 template<typename T, typename F>
-void insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
+inline void insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
 {
 	for (size_t i = 1; i < to_sort_size; i++)
 	{
@@ -65,7 +65,7 @@ struct comb_t
 };
 
 
-float gen_rand(float lower_bound = 0, float upper_bound = 1)
+inline float generate_random(float lower_bound = 0, float upper_bound = 1)
 {
 	static std::mt19937_64 rng_generator(
 		std::chrono::steady_clock::now().time_since_epoch().count()

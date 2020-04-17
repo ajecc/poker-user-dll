@@ -17,7 +17,7 @@ static range_t* get_range_from_csv(const std::string& file_name);
 
 void apply_raise_prob(range_hand_t* range_hand)
 {
-	if (range_hand->raise_prob > gen_rand())
+	if (range_hand->raise_prob > generate_random())
 	{
 		range_hand->hand_action = RAISE;
 		range_hand->raise_prob = 1;

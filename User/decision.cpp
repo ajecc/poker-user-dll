@@ -1,7 +1,8 @@
 #include "decision.h"
-#include "util.h"
 #include "poker_exception.h"
 #include "range.h"
+#include "debug.h"
+#include "util.h"
 
 bet_type_t& operator++(bet_type_t& bet_type)
 {
@@ -70,6 +71,7 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 
 decision_t take_decision_preflop(player_t* hero, board_t* board)
 {
+	DLOG(INFO, "started taking PREFLOP decision");
 	board_derived_info_t* board_derived_info = board->board_derived_info;
 	hero->range = copy_range(get_range(
 		hero->position,
@@ -78,7 +80,7 @@ decision_t take_decision_preflop(player_t* hero, board_t* board)
 	));
 	if (!hero->range->contains(hero->hand))
 	{
-		return decision_t{ FOLD };
+		return decision_t{ FOLD, 0 };
 	}
 	range_hand_t range_hand = *hero->range->fetch(hero->hand);
 	apply_raise_prob(&range_hand);
@@ -107,18 +109,24 @@ decision_t take_decision_preflop(player_t* hero, board_t* board)
 
 decision_t take_decision_flop(player_t* hero, board_t* board)
 {
-	return {};
+	DLOG(INFO, "started taking FLOP decision");
+	return {FOLD, 0};
 }
+
 
 decision_t take_decision_turn(player_t* hero, board_t* board)
 {
-	return {};
+	DLOG(INFO, "started taking TURN decision");
+	return {FOLD, 0};
 }
+
 
 decision_t take_decision_river(player_t* hero, board_t* board)
 {
-	return {};
+	DLOG(INFO, "started taking RIVER decision");
+	return {FOLD, 0};
 }
+
 
 decision_t take_decision(player_t* hero, board_t* board)
 {
@@ -151,4 +159,29 @@ decision_t take_decision(player_t* hero, board_t* board)
 	default:
 		throw poker_exception_t("take_decision: invalid board->stage");
 	}
+}
+
+
+std::string decision_t::to_string()
+{
+	std::string res = "";
+	switch (action)
+	{
+	case FOLD:
+		res += "FOLD, ";
+		break;
+	case CHECK:
+		res += "CHECK, ";
+		break;
+	case CALL:
+		res += "CALL, ";
+		break;
+	case RAISE:
+		res += "RAISE, ";
+		break;
+	default:
+		throw poker_exception_t("decision::to_string: invalid action");
+	}
+	res += std::to_string(sum);
+	return res;
 }

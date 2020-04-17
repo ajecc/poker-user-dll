@@ -16,47 +16,23 @@
 #include "hand.h"
 #include "range.h"
 #include "hand_board_result.h"
+#include "decision.h"
+
+void __stdcall DLLUpdateOnNewFormula() {}
+void __stdcall DLLUpdateOnConnection() {}
+void __stdcall DLLUpdateOnHandreset () {}
+void __stdcall DLLUpdateOnNewRound  () {}
+void __stdcall DLLUpdateOnMyTurn    () {}
+void __stdcall DLLUpdateOnHeartbeat () {}
 
 
-
-void __stdcall DLLUpdateOnNewFormula()
-{
-}
-
-
-void __stdcall DLLUpdateOnConnection()
-{
-}
-
-
-void __stdcall DLLUpdateOnHandreset()
-{
-}
-
-
-void __stdcall DLLUpdateOnNewRound()
-{
-}
-
-
-void __stdcall DLLUpdateOnMyTurn()
-{
-}
-
-
-void __stdcall DLLUpdateOnHeartbeat() 
-{
-}
-
+// GLOBALS
 board_t* g_board;
-
 std::vector<card_t*> g_all_cards;
-
 std::vector<hand_t*> g_all_hands;
-
 std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
-
 hand_board_result_t* g_all_hand_board_results;
+
 
 void create_globals()
 {
@@ -70,7 +46,9 @@ void create_globals()
 	g_facing_4bet_ranges = create_facing_4bet_ranges();
 
 	g_all_hand_board_results = create_all_hand_board_results();
+	LOG_F(INFO, "Created all globals successfully");
 }
+
 
 // Handling the lookup of dll$symbols
 DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
@@ -85,6 +63,8 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 		try
 		{
 			update_board(g_board);
+			auto decision = take_decision(g_board->hero, g_board);
+			LOG_F(INFO, decision.to_string().c_str());
 		}
 		catch (std::exception & e)
 		{
@@ -104,8 +84,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 		case DLL_PROCESS_ATTACH:
 		{
 			InitializeOpenHoldemFunctionInterface();
-			create_globals();
 			init_log(&conout);
+			create_globals();
 		} break;
 
 		case DLL_PROCESS_DETACH:
