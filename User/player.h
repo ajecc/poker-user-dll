@@ -17,10 +17,11 @@ struct range_t;
 
 enum board_stage_t 
 {
-	PREFLOP,
-	FLOP,
-	TURN,
-	RIVER,
+	INVALID_BOARD_STAGE = -1,
+	PREFLOP = 0,
+	FLOP = 1,
+	TURN = 2,
+	RIVER = 3,
 	BOARD_STAGE_COUNT
 };
 

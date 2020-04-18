@@ -22,7 +22,6 @@ struct board_derived_info_t
 	player_t* secondary_villain;
 	float pot;
 	float current_bet;
-	
 	// NOTE: this can be expanded nicely 
 };
 

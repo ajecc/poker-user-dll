@@ -46,7 +46,7 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 		if (FP_ARE_DIFFERENT(current_bet, villain->current_bet))
 		{
 			current_bet = villain->current_bet;
-			++board_derived_info.bet_type;
+			board_derived_info.bet_type = FACING_RAISE;
 		}
 		if (current_bet != 0)
 		{
@@ -59,7 +59,7 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 		if (FP_ARE_DIFFERENT(current_bet, villain->current_bet))
 		{
 			current_bet = villain->current_bet;
-			++board_derived_info.bet_type;
+			board_derived_info.bet_type = FACING_RAISE;
 		}
 		board_derived_info.secondary_villain = board_derived_info.main_villain;
 		board_derived_info.main_villain = villain;
@@ -136,11 +136,14 @@ decision_t take_decision(player_t* hero, board_t* board)
 	{
 		if (board->board_derived_info->bet_type >= FACING_RAISE)
 		{
-			++board_derived_info->bet_type;
-		}
-		if (board->board_derived_info->bet_type >= FACING_3BET)
-		{
-			++board_derived_info->bet_type;
+			if (contains(board_derived_info->villains_before_hero, board_derived_info->main_villain))
+			{
+				board->board_derived_info->bet_type = FACING_3BET;
+			}
+			else
+			{
+				board->board_derived_info->bet_type = FACING_4BET;
+			}
 		}
 		delete board->board_derived_info;
 	}

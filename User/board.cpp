@@ -2,6 +2,7 @@
 #include "poker_exception.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
+#include "decision.h"
 #include <algorithm>
 
 static void clear_board(board_t* board);
@@ -15,6 +16,8 @@ static void update_player_positions(board_t* board);
 static void update_big_blind_sum(board_t* board);
 
 static void update_pot(board_t* board);
+
+static void update_hero(board_t* board);
 
 
 board_t* create_board()
@@ -87,12 +90,19 @@ void update_board(board_t* board)
 	{
 		throw poker_exception_t("Board should never be nullptr");
 	}
+	auto prev_stage = board->stage;
 	clear_board(board);
 	update_cards(board);
 	update_players(board);
 	update_player_positions(board);
 	update_big_blind_sum(board);
 	update_pot(board);
+	update_hero(board);
+	if (prev_stage != board->stage)
+	{
+		delete board->board_derived_info;
+		board->board_derived_info = nullptr;
+	}
 	DLOG(INFO, board->to_string().c_str());
 }
 
@@ -285,35 +295,38 @@ static void update_player_positions(board_t* board)
 		next_player->in_front = current_player->in_front - 1;
 		current_player = next_player;
 	} 
-	for (auto* player : board->current_hand_players)
+	if (board->stage == PREFLOP)
 	{
-		if (player->is_dealer)
+		for (auto* player : board->current_hand_players)
 		{
-			player->position = BTN;
-		}
-		else if (player->is_small)
-		{
-			player->position = SB;
-		}
-		else if (player->is_big)
-		{
-			player->position = BB;
-		}
-		else if (player->in_front == 3)
-		{
-			player->position = CO;
-		}
-		else if (player->in_front == 4)
-		{
-			player->position = HJ;
-		}
-		else if (player->in_front == 5)
-		{
-			player->position = UTG;
-		}
-		else
-		{
-			throw poker_exception_t("update_player_positions: could not find position");
+			if (player->is_dealer)
+			{
+				player->position = BTN;
+			}
+			else if (player->is_small)
+			{
+				player->position = SB;
+			}
+			else if (player->is_big)
+			{
+				player->position = BB;
+			}
+			else if (player->in_front == 3)
+			{
+				player->position = CO;
+			}
+			else if (player->in_front == 4)
+			{
+				player->position = HJ;
+			}
+			else if (player->in_front == 5)
+			{
+				player->position = UTG;
+			}
+			else
+			{
+				throw poker_exception_t("update_player_positions: could not find position");
+			}
 		}
 	}
 	DLOG(INFO, "exit update_player_positions");
@@ -329,6 +342,12 @@ static void update_big_blind_sum(board_t* board)
 static void update_pot(board_t* board)
 {
 	board->pot = (float)GetSymbol("pot");
+}
+
+
+static void update_hero(board_t* board)
+{
+	board->hero = get_player_by_label(board, "p2");
 }
 
 

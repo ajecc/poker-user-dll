@@ -83,6 +83,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 	{
 		case DLL_PROCESS_ATTACH:
 		{
+			//__debugbreak();
 			InitializeOpenHoldemFunctionInterface();
 			init_log(&conout);
 			create_globals();

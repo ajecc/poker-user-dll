@@ -34,6 +34,7 @@ void update_player(player_t* player)
 	update_player_current_bet(player);
 	update_player_name(player);
 	update_player_is_in_hand(player);
+	update_player_cards(player);
 }
 
 
@@ -129,6 +130,10 @@ static void update_player_cards(player_t* player)
 	query = player->label + "cardface1";
 	query_response = scrape_table_map_region(query);
 	card_t* card_1 = get_card(query_response);
+	if (card_0 == nullptr || card_1 == nullptr)
+	{
+		return;
+	}
 	if (*card_0 > *card_1)
 	{
 		std::swap(card_0, card_1);

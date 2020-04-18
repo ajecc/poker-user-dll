@@ -73,3 +73,10 @@ inline float generate_random(float lower_bound = 0, float upper_bound = 1)
 	return std::uniform_real_distribution<float>
 		(lower_bound, upper_bound)(rng_generator);
 }
+
+
+template<typename T1, typename T2>
+inline bool contains(T1 container, T2 elem)
+{
+	return std::find(all(container), elem) != container.end();
+}

@@ -133,6 +133,10 @@ bool is_in_vector(card_t* card, const std::vector<card_t*>& vec)
 
 card_t* get_card(const std::string& str)
 {
+	if (str.empty())
+	{
+		return nullptr;
+	}
 	if (str.size() != 2)
 	{
 		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
@@ -165,7 +169,7 @@ card_t* get_card(const std::string& str)
 			card.rank = _A;
 			break;
 		default:
-			throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
+			throw poker_exception_t("get_card: invalid string (" + str + ")");
 		}
 	}
 	switch (card_color)
@@ -183,7 +187,7 @@ card_t* get_card(const std::string& str)
 		card.color = S;
 		break;
 	default:
-		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
+		throw poker_exception_t("get_card: invalid string (" + str + ")");
 	}
 	return get_card(card.rank, card.color);
 }

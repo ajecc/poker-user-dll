@@ -98,7 +98,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
+      <EnableUAC>true</EnableUAC>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
