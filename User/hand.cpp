@@ -3,6 +3,7 @@
 #include "poker_exception.h"
 #include "util.h"
 #include "debug.h"
+#include "board_derived_info.h"
 #include <cassert>
 #include <algorithm>
 #include <iterator>
@@ -19,7 +20,6 @@ static float calc_prwin_vs_hand_turn(hand_t* hero, hand_t* villain, board_t* boa
 
 static float calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* board);
 
-static std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t* board);
 
 
 hand_action_t get_hand_action_from_char(char hand_action_char)
@@ -224,29 +224,3 @@ static float calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* boa
 	return (float)hero_wins / (float)(remaining_cards_size * (remaining_cards_size - 1) / 2);
 }
 
-
-static std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t* board)
-{
-	std::vector<card_t*> current_cards = board->cards;
-	current_cards.emplace_back(hero->cards[0]);
-	current_cards.emplace_back(hero->cards[1]);
-	current_cards.emplace_back(villain->cards[0]);
-	current_cards.emplace_back(villain->cards[1]);
-	insertion_sort(&current_cards[0], current_cards.size(), [](card_t* lhs, card_t* rhs) {return *lhs < *rhs; });
-
-	std::vector<card_t*> remaining_cards;
-	size_t current_cards_ind = 0;
-	for (size_t i = 0; i < g_all_cards.size(); i++)
-	{
-		if (current_cards_ind < current_cards.size() && 
-			g_all_cards[i] == current_cards[current_cards_ind])
-		{
-			current_cards_ind++;
-		}
-		else
-		{
-			remaining_cards.emplace_back(g_all_cards[i]);
-		}
-	}
-	return remaining_cards;
-}

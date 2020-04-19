@@ -48,6 +48,9 @@
     <ClCompile Include="decision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="board_derived_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user.h">
@@ -90,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="decision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="board_derived_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

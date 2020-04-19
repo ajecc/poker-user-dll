@@ -1,7 +1,7 @@
 #pragma once
 #include "hand.h"
 #include "position.h"
-#include "decision.h"
+#include "board_derived_info.h"
 #include <vector>
 
 

@@ -2,7 +2,7 @@
 #include "poker_exception.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
-#include "decision.h"
+#include "board_derived_info.h"
 #include <algorithm>
 
 static void clear_board(board_t* board);
