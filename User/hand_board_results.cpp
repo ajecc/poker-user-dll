@@ -12,7 +12,7 @@
 #endif
 
 
-extern hand_board_result_t* g_all_hand_board_results;
+extern const hand_board_result_t* g_all_hand_board_results;
 
 // NOTE: result should be init with 0 before calling these 
 
@@ -140,7 +140,7 @@ hand_board_result_t calc_hand_board_result_uncached(const hand_t* hand, board_t*
 }
 
 
-hand_board_result_t* create_all_hand_board_results()
+const hand_board_result_t* create_all_hand_board_results()
 {
 	if (!std::filesystem::exists(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME))
 	{
@@ -197,7 +197,7 @@ hand_board_result_t* create_all_hand_board_results()
 				+ std::to_string(error));
 		}
 	}
-	hand_board_result_t* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
+	const hand_board_result_t* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
 		all_hand_board_results_map,
 		FILE_MAP_READ,
 		0,

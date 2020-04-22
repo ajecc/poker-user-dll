@@ -32,7 +32,7 @@ board_t* g_board;
 std::vector<const card_t*> g_all_cards;
 std::vector<const hand_t*> g_all_hands;
 std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
-hand_board_result_t* g_all_hand_board_results;
+const hand_board_result_t* g_all_hand_board_results;
 
 
 void create_globals()
