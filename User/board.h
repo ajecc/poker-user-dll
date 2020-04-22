@@ -13,6 +13,10 @@ struct board_t
 	board_stage_t stage = INVALID_BOARD_STAGE;
 	std::vector<const card_t*> cards;
 	std::vector<player_t*> players;
+	/*
+	Players in current_hand_players are ordered in according to their position.
+	Preflop, UTG would be the first and BB the last, flop+ SB first and BTN last.
+	*/
 	std::vector<player_t*> current_hand_players;
 	player_t* hero;
 	float pot = 0;

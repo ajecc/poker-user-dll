@@ -89,4 +89,4 @@ Returns: hand_board_result_t* -- a pointer to a memory region that contains the 
 								This memory region should not be dirrectly accessed.
 								Use calc_hand_board_result for this.
 */
-hand_board_result_t* create_all_hand_board_results();
+const hand_board_result_t* create_all_hand_board_results();

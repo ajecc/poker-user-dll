@@ -3,6 +3,7 @@
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include "board_derived_info.h"
+#include "util.h"
 #include <cassert>
 #include <algorithm>
 
@@ -13,6 +14,8 @@ static void update_cards(board_t* board);
 static void update_players(board_t* board);
 
 static void update_player_positions(board_t* board);
+
+static void update_current_hand_players(board_t* board);
 
 static void update_big_blind_sum(board_t* board);
 
@@ -96,6 +99,7 @@ void update_board(board_t* board)
 	update_cards(board);
 	update_players(board);
 	update_player_positions(board);
+	update_current_hand_players(board);
 	update_big_blind_sum(board);
 	update_pot(board);
 	update_hero(board);
@@ -207,13 +211,6 @@ static void update_players(board_t* board)
 		player_t* player = get_player_by_label(board, player_label);
 		update_player(player);
 	}
-	for (auto* player : board->players)
-	{
-		if (player->is_in_hand)
-		{
-			board->current_hand_players.emplace_back(player);
-		}
-	}
 }
 
 
@@ -322,6 +319,48 @@ static void update_player_positions(board_t* board)
 		utg->position = UTG;
 		hj->position = HJ;
 		co->position = CO;
+	}
+}
+
+
+static void update_current_hand_players(board_t* board)
+{
+	std::vector<player_t*> all_players = board->players;
+	if (board->stage == PREFLOP)
+	{
+		std::sort(all(all_players), [](const player_t* lhs, const player_t* rhs)
+			{
+				return lhs->position < rhs->position;
+			});
+	}
+	else
+	{
+		std::sort(all(all_players), [](const player_t* lhs, const player_t* rhs)
+			{
+				int lhs_position = (int)lhs->position;
+				int rhs_position = (int)rhs->position;
+				static const auto update_val = [](int* to_update)
+				{
+					if (*to_update == (int)SB)
+					{
+						*to_update = -(int)POSITION_COUNT;
+					}
+					else if (*to_update == (int)BB)
+					{
+						*to_update = -(int)POSITION_COUNT + 1;
+					}
+				};
+				update_val(&lhs_position);
+				update_val(&rhs_position);
+				return lhs_position < rhs_position;
+			});
+	}
+	for (auto* player : all_players)
+	{
+		if (player->is_in_game)
+		{
+			board->current_hand_players.emplace_back(player);
+		}
 	}
 }
 

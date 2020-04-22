@@ -266,11 +266,6 @@ static std::vector<std::string> get_position_map()
 
 static range_t* get_range_from_csv(const std::string& file_name)
 {
-#ifdef _DEBUG
-	TCHAR path[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, path);
-#endif
-
 	FILE* csv = fopen(file_name.c_str(), "r");
 	if (csv == NULL)
 	{

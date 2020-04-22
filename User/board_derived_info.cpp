@@ -25,7 +25,6 @@ bet_type_t& operator++(bet_type_t& bet_type)
 
 board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 {
-	// TODO: make sure the board is updated properly (by that I mean the order of the players)
 	board_derived_info_t board_derived_info;
 	get_villains_info(hero, board, &board_derived_info);
 	if (board->stage == TURN)
