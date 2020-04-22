@@ -61,4 +61,3 @@ inline void dll_process_detach(FILE* conout)
 }
 #define DLOG(verbosity, arg) (void)verbosity;void(arg); 
 #endif
-

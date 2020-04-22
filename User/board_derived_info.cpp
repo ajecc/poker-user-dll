@@ -126,6 +126,13 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 		board_derived_info->main_villain = villain;
 	}
 	board_derived_info->current_bet = current_bet;
+	if (board_derived_info->bet_type == FACING_RAISE &&
+		board->stage == PREFLOP &&
+		board_derived_info->main_villain != nullptr &&
+		board_derived_info->main_villain->current_bet == board->big_blind_sum)
+	{
+		board_derived_info->bet_type = OPEN;
+	}
 }
 
 

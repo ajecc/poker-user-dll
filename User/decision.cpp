@@ -38,6 +38,7 @@ decision_t take_decision_preflop(player_t* hero, board_t* board)
 		board_derived_info->main_villain->position,
 		board_derived_info->bet_type
 	));
+	DLOG(INFO, "got range");
 	if (!hero->range->contains(hero->hand))
 	{
 		return decision_t{ FOLD, 0 };
@@ -131,6 +132,7 @@ decision_t take_decision_flop(player_t* hero, board_t* board)
 		{
 			return { CALL, 0 };
 		}
+		return { FOLD, 0 };
 	}
 	else if (board->board_derived_info->bet_type == FACING_3BET ||
 		board->board_derived_info->bet_type == FACING_4BET)
@@ -167,7 +169,8 @@ decision_t take_decision(player_t* hero, board_t* board)
 	*board_derived_info = get_board_derived_info(hero, board);
 	if (board->board_derived_info != nullptr)
 	{
-		if (board->board_derived_info->bet_type >= FACING_RAISE)
+		if (board->board_derived_info->bet_type >= FACING_RAISE &&
+			board_derived_info->bet_type >= FACING_RAISE)
 		{
 			if (contains(board_derived_info->villains_before_hero, board_derived_info->main_villain))
 			{

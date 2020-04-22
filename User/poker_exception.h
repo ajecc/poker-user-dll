@@ -12,7 +12,7 @@ public:
 	explicit poker_exception_t(const std::string& message) : message(message) 
 	{
 #ifdef _DEBUG
-		DLOG(INFO, "Exception encountered. Breaking...");
+		DLOG(INFO, ("Exception encountered (" + message + "). Breaking...").c_str());
 		__debugbreak();
 #endif
 	}

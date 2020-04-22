@@ -154,6 +154,7 @@ std::string player_t::to_string()
 	to_string += "name = " + name + "\n";
 	to_string += "balance = " + std::to_string(balance) + "\n";
 	to_string += "in_front = " + std::to_string(in_front) + "\n";
+	to_string += "position = " + std::to_string(position) + "\n";
 	to_string += "is_in_hand = ";
 	if (is_in_hand)
 	{

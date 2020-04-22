@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <cstdio>
 #include <random>
+#include <excpt.h>
 #include "loguru.h"
 #include "user.h"
 #include "open_holdem_functions.h"
@@ -66,7 +67,7 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 			auto decision = take_decision(g_board->hero, g_board);
 			LOG_F(INFO, decision.to_string().c_str());
 		}
-		catch (std::exception & e)
+		catch(std::exception& e)
 		{
 			LOG_F(FATAL, e.what());
 		}

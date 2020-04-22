@@ -1015,3 +1015,27 @@ TEST(HandBoardResult, calc_hand_board_result_high_card)
 	ASSERT_EQ(result.kicker_4, _9);
 }
 
+
+TEST(HandBoardResult, various_crashes)
+{
+	board_t board;
+	hand_board_result_t result;
+
+	board.cards = {
+		get_card(_T, C),
+		get_card(_4, S),
+		get_card(_A, D),
+		get_card(_2, C),
+		get_card(_2, S)
+	};
+	result = calc_hand_board_result(
+		get_hand(get_card(_J, S), get_card(_Q, H)),
+		&board
+	);
+	ASSERT_EQ(result.strength, PAIR);
+	ASSERT_EQ(result.kicker_0, _2);
+	ASSERT_EQ(result.kicker_1, _A);
+	ASSERT_EQ(result.kicker_2, _Q);
+	ASSERT_EQ(result.kicker_3, _J);
+}
+

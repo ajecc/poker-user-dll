@@ -148,6 +148,7 @@ hand_board_result_t* create_all_hand_board_results()
 	}
 	// NOTE: fits in DWORD (comb(52,7) ~= 10**8)
 	DWORD file_size = (DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME);
+	DLOG(INFO, ("Shared memory file size = " + std::to_string(file_size)).c_str());
 	// TODO: find a way to free this handle
 	HANDLE all_hand_board_results_map = OpenFileMappingA(
 		FILE_MAP_READ,
@@ -201,7 +202,7 @@ hand_board_result_t* create_all_hand_board_results()
 		FILE_MAP_READ,
 		0,
 		0,
-		(DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME)
+		file_size	
 	);
 	if (all_hand_board_results == NULL)
 	{

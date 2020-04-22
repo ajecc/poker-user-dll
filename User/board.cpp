@@ -3,6 +3,7 @@
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include "board_derived_info.h"
+#include <cassert>
 #include <algorithm>
 
 static void clear_board(board_t* board);
@@ -297,39 +298,35 @@ static void update_player_positions(board_t* board)
 	} 
 	if (board->stage == PREFLOP)
 	{
-		for (auto* player : board->current_hand_players)
+		small_blind->position = SB;
+		big_blind->position = BB;
+		if (dealer->is_small)
 		{
-			if (player->is_dealer)
-			{
-				player->position = BTN;
-			}
-			else if (player->is_small)
-			{
-				player->position = SB;
-			}
-			else if (player->is_big)
-			{
-				player->position = BB;
-			}
-			else if (player->in_front == 3)
-			{
-				player->position = CO;
-			}
-			else if (player->in_front == 4)
-			{
-				player->position = HJ;
-			}
-			else if (player->in_front == 5)
-			{
-				player->position = UTG;
-			}
-			else
-			{
-				throw poker_exception_t("update_player_positions: could not find position");
-			}
+			return;
 		}
+		dealer->position = BTN;
+		player_t* utg = get_next_player_in_game(board, big_blind);
+		player_t* hj = get_next_player_in_game(board, utg);
+		player_t* co = get_next_player_in_game(board, hj);
+		if (utg == dealer)
+		{
+			return;
+		}
+		if (hj == dealer)
+		{
+			utg->position = CO;
+			return;
+		}
+		if (co == dealer)
+		{
+			utg->position = HJ;
+			hj->position = CO;
+			return;
+		}
+		utg->position = UTG;
+		hj->position = HJ;
+		co->position = CO;
 	}
-	DLOG(INFO, "exit update_player_positions");
 }
 
 
@@ -364,7 +361,7 @@ std::string board_t::to_string()
 	for (auto* player : players)
 	{
 		to_string += player->to_string();
-		to_string += "\n";
+		to_string += "\n\n";
 	}
 	return to_string;
 }
