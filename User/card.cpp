@@ -5,7 +5,7 @@
 #include "poker_exception.h"
 
 
-extern std::vector<card_t*> g_all_cards;
+extern std::vector<const card_t*> g_all_cards;
 
 
 color_t& operator++(color_t& color)
@@ -82,19 +82,19 @@ card_t& operator++(card_t& card)
 }
 
 
-std::vector<card_t*> create_all_cards()
+std::vector<const card_t*> create_all_cards()
 {
 	std::vector<card_t*> all_cards;
 	for (rank_t rank = _2; rank <= _A; ++rank)
 	{
-		for (color_t color = H; color <= S; color = (color_t)((int)color + 1))
+		for (color_t color = H; color <= S; ++color)
 		{
 			card_t* card = new card_t;
 			*card = { color, rank };
 			all_cards.emplace_back(card);
 		}
 	}
-	return all_cards;
+	return std::vector<const card_t*>(all_cards.begin(), all_cards.end());
 }
 
 
@@ -106,21 +106,21 @@ int get_card_index(const rank_t& rank, const color_t& color)
 }
 
 
-int get_card_index(card_t* card)
+int get_card_index(const card_t* card)
 {
 	return get_card_index(card->rank, card->color);
 }
 
 
-card_t* get_card(rank_t rank, color_t color)
+const card_t* get_card(rank_t rank, color_t color)
 {
 	return g_all_cards[get_card_index(rank, color)];
 }
 
 
-bool is_in_vector(card_t* card, const std::vector<card_t*>& vec)
+bool is_in_vector(const card_t* card, const std::vector<const card_t*>& vec)
 {
-	for (card_t* other : vec)
+	for (const card_t* other : vec)
 	{
 		if (*card == *other)
 		{
@@ -131,7 +131,7 @@ bool is_in_vector(card_t* card, const std::vector<card_t*>& vec)
 }
 
 
-card_t* get_card(const std::string& str)
+const card_t* get_card(const std::string& str)
 {
 	if (str.empty())
 	{
@@ -193,7 +193,7 @@ card_t* get_card(const std::string& str)
 }
 
 
-std::string card_t::to_string()
+std::string card_t::to_string() const
 {
 	std::string to_string;
 	if (rank >= _2 && rank <= _9)

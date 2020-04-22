@@ -62,7 +62,7 @@ Parameters: IN hand_t* hand -- the hand to calculate the result for
 
 Returns: hand_board_result_t
 */
-hand_board_result_t calc_hand_board_result_uncached(hand_t* hand, board_t* board);
+hand_board_result_t calc_hand_board_result_uncached(const hand_t* hand, board_t* board);
 
 
 /*
@@ -75,7 +75,7 @@ Parameters: IN hand_t* hand -- the hand to calculate the result for
 
 Returns: hand_board_result_t
 */
-hand_board_result_t calc_hand_board_result(hand_t* hand, board_t* board);
+hand_board_result_t calc_hand_board_result(const hand_t* hand, board_t* board);
 
 
 /*

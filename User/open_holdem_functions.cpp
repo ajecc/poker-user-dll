@@ -208,7 +208,7 @@ float scrape_table_map_region_numeric(const std::string& region)
 	std::string clean_response = "";
 	for (const auto& c : response)
 	{
-		if (c >= '0' || c <= '9' || c == '.')
+		if ((c >= '0' && c <= '9') || c == '.')
 		{
 			clean_response += c;
 		}

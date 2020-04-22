@@ -91,8 +91,7 @@ struct player_t
 	// used for folds/sitouts
 	bool is_in_game = false;  
 	range_t* range;
-	// TODO: find this
-	hand_t* hand;
+	const hand_t* hand;
 
 	board_stage_stats_t preflop = { 0 };
 	board_stage_stats_t flop = { 0 };

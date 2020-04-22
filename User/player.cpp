@@ -126,10 +126,10 @@ static void update_player_cards(player_t* player)
 {
 	std::string query = player->label + "cardface0";
 	std::string query_response = scrape_table_map_region(query);
-	card_t* card_0 = get_card(query_response);
+	const card_t* card_0 = get_card(query_response);
 	query = player->label + "cardface1";
 	query_response = scrape_table_map_region(query);
-	card_t* card_1 = get_card(query_response);
+	const card_t* card_1 = get_card(query_response);
 	if (card_0 == nullptr || card_1 == nullptr)
 	{
 		return;

@@ -10,15 +10,15 @@
 #include <future>
 
 
-extern std::vector<card_t*> g_all_cards;
+extern std::vector<const card_t*> g_all_cards;
 
-extern std::vector<hand_t*> g_all_hands;
+extern std::vector<const hand_t*> g_all_hands;
 
-static float calc_prwin_vs_hand_river(hand_t* hero, hand_t* villain, board_t* board);
+static float calc_prwin_vs_hand_river(const hand_t* hero, const hand_t* villain, board_t* board);
 
-static float calc_prwin_vs_hand_turn(hand_t* hero, hand_t* villain, board_t* board);
+static float calc_prwin_vs_hand_turn(const hand_t* hero, const hand_t* villain, board_t* board);
 
-static float calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* board);
+static float calc_prwin_vs_hand_flop(const hand_t* hero, const hand_t* villain, board_t* board);
 
 
 
@@ -56,9 +56,9 @@ bool hand_t::operator<(const hand_t& other) const
 }
 
 
-std::vector<hand_t*> create_all_hands()
+std::vector<const hand_t*> create_all_hands()
 {
-	std::vector<hand_t*> all_hands;
+	std::vector<const hand_t*> all_hands;
 	for (size_t i = 0; i < g_all_cards.size(); i++)
 	{
 		for (size_t j = i + 1; j < g_all_cards.size(); j++)
@@ -70,7 +70,7 @@ std::vector<hand_t*> create_all_hands()
 			all_hands.emplace_back(current_hand);
 		}
 	}
-	assert(std::is_sorted(all(all_hands), [](hand_t* lhs, hand_t* rhs)
+	assert(std::is_sorted(all(all_hands), [](const hand_t* lhs, const hand_t* rhs)
 		{
 			return *lhs < *rhs;
 		}
@@ -80,7 +80,7 @@ std::vector<hand_t*> create_all_hands()
 
 
 // TODO: modify this to card_0, card_1
-hand_t* get_hand(card_t* card_1, card_t* card_2)
+const hand_t* get_hand(const card_t* card_1, const card_t* card_2)
 {
 	int first_card_ind = ((int)card_1->rank - 2) * 4 + (int)card_1->color;
 	int second_card_ind = ((int)card_2->rank - 2) * 4 + (int)card_2->color;
@@ -96,7 +96,7 @@ hand_t* get_hand(card_t* card_1, card_t* card_2)
 }
 
 
-bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board)
+bool is_hero_winner(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	assert(board->cards.size() == 5);
 	auto hero_result =  calc_hand_board_result(hero, board);
@@ -105,7 +105,7 @@ bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board)
 }
 
 
-float calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board)
+float calc_prwin_vs_hand(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	if(board->cards.size() == 3)
 	{
@@ -123,10 +123,10 @@ float calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board)
 }
 
 
-float calc_prwin_vs_any_hand(hand_t* hero, board_t* board)
+float calc_prwin_vs_any_hand(const hand_t* hero, board_t* board)
 {
-	std::vector<card_t*> remaining_cards;
-	std::vector<card_t*> current_cards = {hero->cards[0], hero->cards[1]};
+	std::vector<const card_t*> remaining_cards;
+	std::vector<const card_t*> current_cards = {hero->cards[0], hero->cards[1]};
 	for (auto* card : board->cards)
 	{
 		current_cards.emplace_back(card);
@@ -142,12 +142,12 @@ float calc_prwin_vs_any_hand(hand_t* hero, board_t* board)
 	std::vector<std::future<float>> prwin_futures;
 	for (size_t i = 0; i < remaining_cards.size(); i++)
 	{
-		card_t* lhs_card = remaining_cards[i];
+		const card_t* lhs_card = remaining_cards[i];
 		float res = 0;
 		for (size_t j = i + 1; j < remaining_cards.size(); j++)
 		{
-			card_t* rhs_card = remaining_cards[j];
-			hand_t* hand = get_hand(lhs_card, rhs_card);
+			const card_t* rhs_card = remaining_cards[j];
+			const hand_t* hand = get_hand(lhs_card, rhs_card);
 			prwin_futures.push_back(std::async(std::launch::async, calc_prwin_vs_hand, hero, hand, board));
 		}
 		count += remaining_cards.size() - i - 1;
@@ -160,7 +160,7 @@ float calc_prwin_vs_any_hand(hand_t* hero, board_t* board)
 }
 
 
-bool are_similar_hands(hand_t* lhs, hand_t* rhs)
+bool are_similar_hands(const hand_t* lhs, const hand_t* rhs)
 {
 	// TODO: add support for when cards in hand are not in ascending order. for ex: AKs should be equal to KAs
 	return lhs->cards[0]->rank == rhs->cards[0]->rank && 
@@ -168,7 +168,7 @@ bool are_similar_hands(hand_t* lhs, hand_t* rhs)
 }
 
 
-static float calc_prwin_vs_hand_river(hand_t* hero, hand_t* villain, board_t* board)
+static float calc_prwin_vs_hand_river(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	if (is_hero_winner(hero, villain, board))
 	{
@@ -181,7 +181,7 @@ static float calc_prwin_vs_hand_river(hand_t* hero, hand_t* villain, board_t* bo
 }
 
 
-static float calc_prwin_vs_hand_turn(hand_t* hero, hand_t* villain, board_t* board)
+static float calc_prwin_vs_hand_turn(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	board_t board_cpy;
 	board_cpy.cards = board->cards;
@@ -200,7 +200,7 @@ static float calc_prwin_vs_hand_turn(hand_t* hero, hand_t* villain, board_t* boa
 }
 
 
-static float calc_prwin_vs_hand_flop(hand_t* hero, hand_t* villain, board_t* board)
+static float calc_prwin_vs_hand_flop(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	board_t board_cpy;
 	board_cpy.cards = board->cards;

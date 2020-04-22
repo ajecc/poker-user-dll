@@ -8,7 +8,7 @@
 #include <Windows.h>
 #endif
 
-extern std::vector<range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
+extern std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
 
 static std::vector<std::string> get_position_map();
 
@@ -34,7 +34,7 @@ range_t::~range_t()
 }
 
 
-void range_t::add(hand_t* hand, hand_action_t hand_action, float raise_prob)
+void range_t::add(const hand_t* hand, hand_action_t hand_action, float raise_prob)
 {
 	range_hand_t* range_hand = new range_hand_t;
 	range_hand->hand = hand;
@@ -44,7 +44,7 @@ void range_t::add(hand_t* hand, hand_action_t hand_action, float raise_prob)
 }
 
 
-void range_t::remove(hand_t* hand)
+void range_t::remove(const hand_t* hand)
 {
 	for(size_t i = 0; i < range.size(); ++i)
 	{
@@ -59,7 +59,7 @@ void range_t::remove(hand_t* hand)
 }
 
 
-bool range_t::contains(hand_t* hand)
+bool range_t::contains(const hand_t* hand)
 {
 	for (size_t i = 0; i < range.size(); ++i)
 	{
@@ -72,7 +72,7 @@ bool range_t::contains(hand_t* hand)
 }
 
 
-range_hand_t* range_t::fetch(hand_t* hand)
+range_hand_t* range_t::fetch(const hand_t* hand)
 {
 	for (size_t i = 0; i < range.size(); ++i)
 	{
@@ -91,7 +91,7 @@ size_t range_t::size()
 }
 
 
-range_t* copy_range(range_t* range)
+range_t* copy_range(const range_t* range)
 {
 	range_t* new_range = new range_t;
 	for (auto* range_hand : range->range)
@@ -102,9 +102,9 @@ range_t* copy_range(range_t* range)
 }
 
 
-std::vector<range_t*> create_open_ranges()
+std::vector<const range_t*> create_open_ranges()
 {
-	std::vector<range_t*> ranges;
+	std::vector<const range_t*> ranges;
 	auto position_map = get_position_map();
 	for (position_t position = UTG; position < BB; ++position)
 	{
@@ -116,9 +116,9 @@ std::vector<range_t*> create_open_ranges()
 }
 
 
-std::vector<range_t*> create_facing_raise_ranges()
+std::vector<const range_t*> create_facing_raise_ranges()
 {
-	std::vector<range_t*> ranges;
+	std::vector<const range_t*> ranges;
 	auto position_map = get_position_map();
 	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
@@ -134,9 +134,9 @@ std::vector<range_t*> create_facing_raise_ranges()
 }
 
 
-std::vector<range_t*> create_facing_3bet_ranges()
+std::vector<const range_t*> create_facing_3bet_ranges()
 {
-	std::vector<range_t*> ranges;
+	std::vector<const range_t*> ranges;
 	auto position_map = get_position_map();
 	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
@@ -152,9 +152,9 @@ std::vector<range_t*> create_facing_3bet_ranges()
 }
 
 
-std::vector<range_t*> create_facing_4bet_ranges()
+std::vector<const range_t*> create_facing_4bet_ranges()
 {
-	std::vector<range_t*> ranges;
+	std::vector<const range_t*> ranges;
 	auto position_map = get_position_map();
 	for (position_t hero_pos = UTG; hero_pos <= BB; ++hero_pos)
 	{
@@ -170,7 +170,7 @@ std::vector<range_t*> create_facing_4bet_ranges()
 }
 
 
-range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
+const range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
 {
 	DLOG(INFO, ("getting range for: hero=" + std::to_string(hero_position) + 
 		" villain=" + std::to_string(villain_position) +
@@ -212,13 +212,13 @@ range_t* get_range(position_t hero_position, position_t villain_position, bet_ty
 }
 
 
-range_t* get_open_range(position_t hero_position)
+const range_t* get_open_range(position_t hero_position)
 {
 	return g_open_ranges[hero_position];
 }
 
 
-range_t* get_facing_raise_range(position_t hero_position, position_t villain_position)
+const range_t* get_facing_raise_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;
 	int villain_position_int = (int)villain_position;
@@ -228,7 +228,7 @@ range_t* get_facing_raise_range(position_t hero_position, position_t villain_pos
 }
 
 
-range_t* get_facing_3bet_range(position_t hero_position, position_t villain_position)
+const range_t* get_facing_3bet_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;
 	int villain_position_int = (int)villain_position;
@@ -242,7 +242,7 @@ range_t* get_facing_3bet_range(position_t hero_position, position_t villain_posi
 }
 
 
-range_t* get_facing_4bet_range(position_t hero_position, position_t villain_position)
+const range_t* get_facing_4bet_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;
 	int villain_position_int = (int)villain_position;
@@ -290,7 +290,7 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		std::string card_str;
 		card_str.push_back(cards[0]);
 		card_str.push_back('h');
-		card_t* card_lhs = get_card(card_str);
+		const card_t* card_lhs = get_card(card_str);
 		card_str = "";
 		card_str.push_back(cards[1]);
 		if (cards[2] == 's')
@@ -301,8 +301,8 @@ static range_t* get_range_from_csv(const std::string& file_name)
 		{
 			card_str.push_back('c');
 		}
-		card_t* card_rhs = get_card(card_str);
-		hand_t* hand = get_hand(card_lhs, card_rhs);
+		const card_t* card_rhs = get_card(card_str);
+		const hand_t* hand = get_hand(card_lhs, card_rhs);
 		hand_action_t hand_action_true = get_hand_action_from_char(hand_action);
 		range->add(hand, hand_action_true, (float)raise_percent / 100);
 	}

@@ -4,7 +4,7 @@
 #include <set>
 
 
-extern std::vector<card_t*> g_all_cards;
+extern std::vector<const card_t*> g_all_cards;
 
 
 static void get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info);
@@ -45,9 +45,9 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 }
 
 
-std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t* board)
+std::vector<const card_t*> find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board)
 {
-	std::vector<card_t*> current_cards = board->cards;
+	std::vector<const card_t*> current_cards = board->cards;
 	if (hero != nullptr)
 	{
 		current_cards.emplace_back(hero->cards[0]);
@@ -58,9 +58,10 @@ std::vector<card_t*> find_remaining_cards(hand_t* hero, hand_t* villain, board_t
 		current_cards.emplace_back(villain->cards[0]);
 		current_cards.emplace_back(villain->cards[1]);
 	}
-	insertion_sort(&current_cards[0], current_cards.size(), [](card_t* lhs, card_t* rhs) {return *lhs < *rhs; });
+	insertion_sort(&current_cards[0], current_cards.size(), 
+		[](const card_t* lhs, const card_t* rhs) {return *lhs < *rhs; });
 
-	std::vector<card_t*> remaining_cards;
+	std::vector<const card_t*> remaining_cards;
 	size_t current_cards_ind = 0;
 	for (size_t i = 0; i < g_all_cards.size(); i++)
 	{
@@ -139,11 +140,11 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 {
 	// TODO: maybe optimizee this
-	std::set<card_t*> draws;
-	std::vector<card_t*> cards = board->cards;
-	std::vector<card_t*> remaining_cards = find_remaining_cards(nullptr, nullptr, board);
+	std::set<const card_t*> draws;
+	std::vector<const card_t*> cards = board->cards;
+	std::vector<const card_t*> remaining_cards = find_remaining_cards(nullptr, nullptr, board);
 	count_t colors_count[COLOR_COUNT] = { 0 };
-	for (auto* card : cards)
+	for (const auto* card : cards)
 	{
 		colors_count[(int)card->color]++;
 	}
@@ -162,7 +163,7 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 	}
 	card_t small_aces[4];
 	count_t aces_count = 0;
-	for (auto* card : board->cards)
+	for (const auto* card : board->cards)
 	{
 		if (card->rank == _A)
 		{
@@ -171,7 +172,7 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 			aces_count++;
 		}
 	}
-	std::sort(all(cards), [](card_t* lhs, card_t* rhs) {return *lhs < *rhs; });
+	std::sort(all(cards), [](const card_t* lhs, const card_t* rhs) {return *lhs < *rhs; });
 	card_t invalid_card{ H, INVALID_RANK };
 	cards.push_back(&invalid_card);
 	count_t consec = 1;
@@ -238,7 +239,7 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 		}
 	}
 
-	std::vector<card_t*>& to_add =
+	std::vector<const card_t*>& to_add =
 		(board->stage == FLOP ?
 		board_derived_info->villain_draws_flop :
 		board_derived_info->villain_draws_turn);

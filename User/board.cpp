@@ -150,10 +150,6 @@ static void clear_board(board_t* board)
 	{
 		throw poker_exception_t("Board should never be nullptr");
 	}
-	for (auto* card : board->cards)
-	{
-		delete card;
-	}
 	board->cards.clear();
 	board->current_hand_players.clear();
 }
@@ -170,7 +166,7 @@ static void update_cards(board_t* board)
 	{
 		cards_query_string[cards_query_string.size() - 1] = (char)(i + '0');
 		std::string card_str = scrape_table_map_region(cards_query_string);
-		card_t* card = get_card(card_str);
+		const card_t* card = get_card(card_str);
 		if (card == nullptr)
 		{
 			goto cleanup;
@@ -193,7 +189,7 @@ cleanup:
 		board->stage = RIVER;
 		break;
 	default:
-		throw new poker_exception_t("Can't determine board stage...");
+		throw poker_exception_t("Can't determine board stage...");
 	}
 }
 

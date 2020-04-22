@@ -11,7 +11,7 @@ struct board_derived_info_t;
 struct board_t
 {
 	board_stage_t stage = INVALID_BOARD_STAGE;
-	std::vector<card_t*> cards;
+	std::vector<const card_t*> cards;
 	std::vector<player_t*> players;
 	std::vector<player_t*> current_hand_players;
 	player_t* hero;

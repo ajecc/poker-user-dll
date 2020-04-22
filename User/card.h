@@ -51,7 +51,7 @@ struct card_t
 
 	bool operator!=(const card_t& other) const;
 
-	std::string to_string();
+	std::string to_string() const;
 };
 
 card_t& operator++(card_t& card);
@@ -78,7 +78,7 @@ Parameters: IN card_t* card -- pointer to the card to find the index of
 
 Returns: int -- the index of the card
 */
-int get_card_index(card_t* card);
+int get_card_index(const card_t* card);
 
 
 /*
@@ -90,7 +90,7 @@ Parameters: IN rank_t rank -- the rank of the card
 
 Returns: card_t* -- the pointer to the card. This SHOULD NOT be freed.
 */
-card_t* get_card(rank_t rank, color_t color);
+const card_t* get_card(rank_t rank, color_t color);
 
 
 /*
@@ -99,7 +99,7 @@ The string has for {RANK}{COLOR}. Eg: Ah, 6s.
 
 Returns: card_t* -- the pointer to the card, that shouldn't be freed.
 */
-card_t* get_card(const std::string& str);
+const card_t* get_card(const std::string& str);
 
 
 /*
@@ -110,7 +110,7 @@ Parameters: IN card_t* card -- the card
 
 Returns: bool -- true if is found in the vector and false otherwise.
 */
-bool is_in_vector(card_t* card, const std::vector<card_t*>& vec);
+bool is_in_vector(const card_t* card, const std::vector<const card_t*>& vec);
 
 
 /*
@@ -123,4 +123,4 @@ Parameters: none
 Return: std::vector<card_t*> -- the vector that contains all the cards.
 								Should not be used explicitly (use get_card instead)
 */
-std::vector<card_t*> create_all_cards();
+std::vector<const card_t*> create_all_cards();

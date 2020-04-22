@@ -28,7 +28,7 @@ hand_action_t get_hand_action_from_char(char hand_action_char);
 
 struct hand_t
 {
-	card_t* cards[HAND_CARD_COUNT];
+	const card_t* cards[HAND_CARD_COUNT];
 	bool suited;
 
 	bool operator<(const hand_t& other) const;
@@ -44,7 +44,7 @@ Parameters: IN card_t* card_1
 Returns: hand_t* -- pointer to the hand that contains the cards, fetched from 
 					g_all_hands. Should not be freed.
 */
-hand_t* get_hand(card_t* card_1, card_t* card_2);
+const hand_t* get_hand(const card_t* card_1, const card_t* card_2);
 
 
 /*
@@ -57,7 +57,7 @@ Parameters: IN hand_t* hero -- hero's hand
 Returns: bool -- true if the hero is the winner and false otherwise.
 				In case of draw, the hero is also considered a winner.
 */
-bool is_hero_winner(hand_t* hero, hand_t* villain, board_t* board);
+bool is_hero_winner(const hand_t* hero, const hand_t* villain, board_t* board);
 
 
 /*
@@ -70,7 +70,7 @@ Parameters: IN hand_t* hero -- hero's hand
 
 Returns: float -- the chance that the hero wins. Value is between [0, 1].
 */
-float calc_prwin_vs_hand(hand_t* hero, hand_t* villain, board_t* board);
+float calc_prwin_vs_hand(const hand_t* hero, const hand_t* villain, board_t* board);
 
 
 /*
@@ -82,7 +82,7 @@ Parameters: IN hand_t* hero -- hero's hand
 
 Returns: float -- the chance that the hero wins. Value is between [0, 1].
 */
-float calc_prwin_vs_any_hand(hand_t* hero, board_t* board);
+float calc_prwin_vs_any_hand(const hand_t* hero, board_t* board);
 
 
 /*
@@ -94,7 +94,7 @@ Parameters: IN hand_t* lhs -- the first hand
 
 Returns: bool - true if similar, false otherwise
 */
-bool are_similar_hands(hand_t* lhs, hand_t* rhs);
+bool are_similar_hands(const hand_t* lhs, const hand_t* rhs);
 
 
 /*
@@ -107,4 +107,4 @@ Parameters: none
 Return: std::vector<hand_t*> -- the vector that contains all the hands.
 								Should not be used explicitly (use get_hand instead)
 */
-std::vector<hand_t*> create_all_hands();
+std::vector<const hand_t*> create_all_hands();
