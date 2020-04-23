@@ -1,8 +1,7 @@
-// NOTE: Required OpenHoldem version: 12.1.6 ?? 
+// NOTE: Required OpenHoldem version: 12.1.6 
 
-// Needs to be defined here, before #include "user.h"
-// to generate proper export- and inport-definitions
-#define USER_DLL
+// NOTE: this needs to be at the top
+#define USER_DLL 
 
 #include <conio.h>
 #include <Windows.h>
@@ -113,7 +112,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserve
 	{
 		case DLL_PROCESS_ATTACH:
 		{
-			//__debugbreak();
 			InitializeOpenHoldemFunctionInterface();
 			init_log(&conout);
 			create_globals();

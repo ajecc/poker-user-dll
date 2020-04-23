@@ -40,20 +40,21 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 			board->board_derived_info->bet_type = FACING_4BET;
 		}
 	}
-	//if (board->stage == TURN && board->board_derived_info != nullptr)
-	//{
-	//	__debugbreak();
-	//	board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
-	//}
-	//else if (board->stage == RIVER && board->board_derived_info != nullptr)
-	//{
-	//	board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
-	//	board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
-	//}
-	//if (board->stage == FLOP || board->stage == TURN)
-	//{
-	//	get_villain_draws(board, &board_derived_info);
-	//}
+	// FIXME: board->board_derived_info->villain_draws_flop becomes null somehow... 
+	if (board->stage == TURN && board->board_derived_info != nullptr)
+	{
+		__debugbreak();
+		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+	}
+	else if (board->stage == RIVER && board->board_derived_info != nullptr)
+	{
+		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+		board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
+	}
+	if (board->stage == FLOP || board->stage == TURN)
+	{
+		get_villain_draws(board, &board_derived_info);
+	}
 	return board_derived_info;
 }
 

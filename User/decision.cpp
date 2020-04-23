@@ -241,7 +241,8 @@ static void sanitize_decision(decision_t* decision, board_t* board)
 		}
 		break;
 	case CALL:
-		if (FP_ARE_EQUAL(board->board_derived_info->current_bet, 0))
+		if (FP_ARE_EQUAL(board->board_derived_info->current_bet, 0) ||
+			FP_ARE_EQUAL(board->board_derived_info->current_bet, board->hero->current_bet))
 		{
 			decision->action = CHECK;
 		}

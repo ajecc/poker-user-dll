@@ -19,7 +19,7 @@ z$targetsize       1024  600
 s$H0type                    fuzzy
 s$betsizeconfirmationmethod Click Bet
 s$betsizedeletionmethod     Delete
-s$betsizeinterpretationmethod 1
+s$betsizeinterpretationmethod 2
 s$betsizeselectionmethod    Dbl Click
 s$c0limits                  ^L
 s$nchairs                   10
