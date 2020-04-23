@@ -1,0 +1,25 @@
+##dll##
+WHEN f$check Check FORCE
+WHEN f$call Call FORCE
+WHEN f$raise Return f$betsize FORCE
+Fold FORCE
+
+
+##f$beep##
+dll$beep
+
+
+##f$check##
+dll$check
+
+
+##f$call##
+dll$call
+
+
+##f$raise##
+dll$raise
+
+
+##f$betsize##
+dll$betsize

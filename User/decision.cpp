@@ -6,6 +6,7 @@
 #include "board_derived_info.h"
 #ifdef min
 #undef min
+#undef max
 #endif
 
 // TODO: find appropriate values for these
@@ -27,6 +28,8 @@
 
 
 static bool is_board_wet_flop(board_t* board);
+
+static void sanitize_decision(decision_t* decision, board_t* board);
 
 
 decision_t take_decision_preflop(player_t* hero, board_t* board)
@@ -169,35 +172,30 @@ decision_t take_decision(player_t* hero, board_t* board)
 	*board_derived_info = get_board_derived_info(hero, board);
 	if (board->board_derived_info != nullptr)
 	{
-		if (board->board_derived_info->bet_type >= FACING_RAISE &&
-			board_derived_info->bet_type >= FACING_RAISE)
-		{
-			if (contains(board_derived_info->villains_before_hero, board_derived_info->main_villain))
-			{
-				board->board_derived_info->bet_type = FACING_3BET;
-			}
-			else
-			{
-				board->board_derived_info->bet_type = FACING_4BET;
-			}
-		}
 		delete board->board_derived_info;
 	}
 	board->board_derived_info = board_derived_info;
 
+	decision_t decision;
 	switch (board->stage)
 	{
 	case PREFLOP:
-		return take_decision_preflop(hero, board);
+		decision = take_decision_preflop(hero, board);
+		break;
 	case FLOP:
-		return take_decision_flop(hero, board);
+		decision = take_decision_flop(hero, board);
+		break;
 	case TURN:
-		return take_decision_turn(hero, board);
+		decision = take_decision_turn(hero, board);
+		break;
 	case RIVER:
-		return take_decision_river(hero, board);
+		decision = take_decision_river(hero, board);
+		break;
 	default:
 		throw poker_exception_t("take_decision: invalid board->stage");
 	}
+	sanitize_decision(&decision, board);
+	return decision;
 }
 
 
@@ -231,3 +229,26 @@ std::string decision_t::to_string()
 	return res;
 }
 
+
+static void sanitize_decision(decision_t* decision, board_t* board)
+{
+	switch (decision->action)
+	{
+	case CHECK:
+		if (FP_ARE_DIFFERENT(board->board_derived_info->current_bet, 0))
+		{
+			decision->action = FOLD;
+		}
+		break;
+	case CALL:
+		if (FP_ARE_EQUAL(board->board_derived_info->current_bet, 0))
+		{
+			decision->action = CHECK;
+		}
+		break;
+	case RAISE:
+		decision->sum = std::max(decision->sum, board->big_blind_sum);
+		decision->sum = std::min(decision->sum, board->hero->balance);
+		// TODO: elaborate this
+	}
+}

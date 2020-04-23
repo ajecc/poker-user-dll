@@ -59,20 +59,49 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 		return -1;
 	}
 	std::string query = std::string(pquery);
-	if (query == "dll$test")
+	static decision_t decision = {};
+	if (query == "dll$beep")
 	{
 		try
 		{
 			update_board(g_board);
-			auto decision = take_decision(g_board->hero, g_board);
+			decision = take_decision(g_board->hero, g_board);
 			LOG_F(INFO, decision.to_string().c_str());
 		}
 		catch(std::exception& e)
 		{
 			LOG_F(FATAL, e.what());
 		}
+		return 0;
 	}
-	return 0;
+	else if (query == "dll$check")
+	{
+		return (decision.action == CHECK || decision.action == FOLD);
+	}
+	else if (query == "dll$call")
+	{
+		return decision.action == CALL;
+	}
+	else if (query == "dll$bet")
+	{
+		return decision.action == RAISE;
+	}
+	else if (query == "dll$raise")
+	{
+		return decision.action == RAISE;
+	}
+	else if (query == "dll$betsize")
+	{
+		LOG_F(INFO, "in dll$betsize (%f)", decision.sum);
+		if (g_board->stage == PREFLOP)
+		{
+			// NOTE: I have no idea why, but OpenHoldem bets 1 blind less than I tell it to??
+			decision.sum += g_board->big_blind_sum;
+		}
+		return decision.sum;
+	}
+	LOG_F(FATAL, "invalid query: %s", pquery);
+	return -1;
 }
 
 

@@ -27,19 +27,33 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 {
 	board_derived_info_t board_derived_info;
 	get_villains_info(hero, board, &board_derived_info);
-	if (board->stage == TURN)
+	if (board->board_derived_info != nullptr &&
+		board->board_derived_info->bet_type >= FACING_RAISE &&
+		board_derived_info.bet_type >= FACING_RAISE)
 	{
-		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+		if (contains(board_derived_info.villains_before_hero, board_derived_info.main_villain))
+		{
+			board->board_derived_info->bet_type = FACING_3BET;
+		}
+		else
+		{
+			board->board_derived_info->bet_type = FACING_4BET;
+		}
 	}
-	else if (board->stage == RIVER)
-	{
-		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
-		board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
-	}
-	if (board->stage == FLOP || board->stage == TURN)
-	{
-		get_villain_draws(board, &board_derived_info);
-	}
+	//if (board->stage == TURN && board->board_derived_info != nullptr)
+	//{
+	//	__debugbreak();
+	//	board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+	//}
+	//else if (board->stage == RIVER && board->board_derived_info != nullptr)
+	//{
+	//	board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+	//	board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
+	//}
+	//if (board->stage == FLOP || board->stage == TURN)
+	//{
+	//	get_villain_draws(board, &board_derived_info);
+	//}
 	return board_derived_info;
 }
 
@@ -242,7 +256,7 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 		(board->stage == FLOP ?
 		board_derived_info->villain_draws_flop :
 		board_derived_info->villain_draws_turn);
-	for (auto* card : cards)
+	for (auto* card : draws)
 	{
 		to_add.push_back(card);
 	}
