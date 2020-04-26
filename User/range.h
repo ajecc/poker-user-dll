@@ -7,13 +7,13 @@
 
 struct range_hand_t
 {
-	const hand_t* hand;
-	hand_action_t hand_action;
+	const hand_t* hand = nullptr;
+	hand_action_t hand_action = INVALID_HAND_ACTION;
 	/*
 	This is the probability that a raise will happen instead of hand_action.
 	Has a value between [0, 1].
 	*/ 
-	float raise_prob;
+	float raise_prob = 0;
 
 	bool operator<(const range_hand_t& other) const
 	{

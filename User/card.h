@@ -6,11 +6,12 @@
 
 enum color_t
 {
-	H,
-	D,
-	C,
-	S,
-	COLOR_COUNT
+	INVALID_COLOR = -1,
+	H = 0,
+	D = 1,
+	C = 2,
+	S = 3,
+	COLOR_COUNT = 4
 };
 
 color_t& operator++(color_t& color);
@@ -40,8 +41,8 @@ rank_t& operator++(rank_t& rank);
 
 struct card_t
 {
-	color_t color;
-	rank_t rank;
+	color_t color = INVALID_COLOR;
+	rank_t rank = INVALID_RANK;
 
 	bool operator<(const card_t& other) const;
 

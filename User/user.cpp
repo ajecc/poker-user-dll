@@ -17,6 +17,7 @@
 #include "range.h"
 #include "hand_board_result.h"
 #include "decision.h"
+#include "poker_exception.h"
 
 void __stdcall DLLUpdateOnNewFormula() {}
 void __stdcall DLLUpdateOnConnection() {}
@@ -59,6 +60,7 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 	}
 	std::string query = std::string(pquery);
 	static decision_t decision = {};
+	static int consec_exception_count = 0;
 	if (query == "dll$beep")
 	{
 		try
@@ -66,10 +68,17 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 			update_board(g_board);
 			decision = take_decision(g_board->hero, g_board);
 			LOG_F(INFO, decision.to_string().c_str());
+			consec_exception_count = 0;
 		}
-		catch(std::exception& e)
+		catch(poker_exception_t& e)
 		{
-			LOG_F(FATAL, e.what());
+			LOG_F(INFO, "Exception encountered: %s", e.what());
+			consec_exception_count++;
+			if (consec_exception_count >= 3)
+			{
+				LOG_F(FATAL, "Too many consecutive excetions encountered");
+			}
+			decision.action = FOLD;
 		}
 		return 0;
 	}
@@ -92,10 +101,9 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 	else if (query == "dll$betsize")
 	{
 		LOG_F(INFO, "in dll$betsize (%f)", decision.sum);
-		if (g_board->stage == PREFLOP)
+		if (decision.action == CHECK || decision.action == FOLD || decision.action == CALL)
 		{
-			// NOTE: I have no idea why, but OpenHoldem bets 1 blind less than I tell it to??
-			decision.sum += g_board->big_blind_sum;
+			decision.sum = 0;
 		}
 		return decision.sum;
 	}

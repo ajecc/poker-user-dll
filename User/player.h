@@ -22,7 +22,7 @@ enum board_stage_t
 	FLOP = 1,
 	TURN = 2,
 	RIVER = 3,
-	BOARD_STAGE_COUNT
+	BOARD_STAGE_COUNT = 4
 };
 
 
@@ -68,8 +68,8 @@ struct player_t
 	i.e. the label does not correspond with the position of the player.
 	Labels are ordered clockwise.
 	*/
-	std::string label;  
-	std::string name;
+	std::string label = "INVALID";  
+	std::string name = "INVALID";
 	float balance = 0;
 	float current_bet = 0;
 	float overall_agression = 0;
@@ -90,9 +90,8 @@ struct player_t
 	bool is_in_hand = false;
 	// used for folds/sitouts
 	bool is_in_game = false;  
-	range_t* range;
-	const hand_t* hand;
-
+	range_t* range = nullptr;
+	const hand_t* hand = nullptr;
 	board_stage_stats_t preflop = { 0 };
 	board_stage_stats_t flop = { 0 };
 	board_stage_stats_t turn = { 0 };

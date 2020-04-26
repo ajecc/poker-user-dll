@@ -4,8 +4,8 @@
 
 struct decision_t
 {
-	hand_action_t action;
-	float sum;
+	hand_action_t action = INVALID_HAND_ACTION;
+	float sum = 0;
 
 	std::string to_string();
 };

@@ -40,10 +40,8 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 			board->board_derived_info->bet_type = FACING_4BET;
 		}
 	}
-	// FIXME: board->board_derived_info->villain_draws_flop becomes null somehow... 
 	if (board->stage == TURN && board->board_derived_info != nullptr)
 	{
-		__debugbreak();
 		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
 	}
 	else if (board->stage == RIVER && board->board_derived_info != nullptr)
@@ -153,7 +151,6 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 
 static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 {
-	// TODO: maybe optimizee this
 	std::set<const card_t*> draws;
 	std::vector<const card_t*> cards = board->cards;
 	std::vector<const card_t*> remaining_cards = find_remaining_cards(nullptr, nullptr, board);
@@ -205,7 +202,10 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 			consec = 1;
 			for (color_t color = H; color <= S; ++color)
 			{
-				draws.insert(get_card((rank_t)(cards[i - 1]->rank + 1), color));
+				if (cards[i - 1]->rank != _A)
+				{
+					draws.insert(get_card((rank_t)(cards[i - 1]->rank + 1), color));
+				}
 				if (cards[i - 1]->rank - 2 >= _3)
 				{
 					draws.insert(get_card((rank_t)(cards[i - 1]->rank - 2), color));
@@ -261,4 +261,78 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 	{
 		to_add.push_back(card);
 	}
+}
+
+
+std::string board_derived_info_t::to_string()
+{
+	std::string res;
+	res += "bet_type = ";
+	if (bet_type == OPEN)
+	{
+		res += "OPEN";
+	}
+	else if (bet_type == FACING_RAISE)
+	{
+		res += "FACING_RAISE";
+	}
+	else if (bet_type == FACING_3BET)
+	{
+		res += "FACING_3BET";
+	}
+	else if (bet_type == FACING_4BET)
+	{
+		res += "FACING_4BET";
+	}
+	else
+	{
+		res += "INVALID";
+	}
+	res += "\n";
+	res += "villains_BEFORE_hero = ";
+	for (auto* villain : villains_before_hero)
+	{
+		res += villain->name + ", ";
+	}
+	res += "\n";
+	res += "villains_AFTER_hero = ";
+	for (auto* villain : villains_after_hero)
+	{
+		res += villain->name + ", ";
+	}
+	res += "\n";
+	res += "main_villain = ";
+	if (main_villain != nullptr)
+	{
+		res += main_villain->name;
+	}
+	else
+	{
+		res += "NULL";
+	}
+	res += "\n";
+	res += "secondary_villain = ";
+	if (secondary_villain != nullptr)
+	{
+		res += secondary_villain->name;
+	}
+	else
+	{
+		res += "NULL";
+	}
+	res += "\n";
+	res += "pot = " + std::to_string(pot) + "\n";
+	res += "current_bet = " + std::to_string(current_bet) + "\n";
+	res += "villain_draws_FLOP = ";
+	for (auto* card : villain_draws_flop)
+	{
+		res += card->to_string() + ", ";
+	}
+	res += "\n";
+	res += "villain_draws_TURN = ";
+	for (auto* card : villain_draws_turn)
+	{
+		res += card->to_string() + ", ";
+	}
+	return res;
 }

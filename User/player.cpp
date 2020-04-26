@@ -109,7 +109,7 @@ static void update_player_is_in_hand(player_t* player)
 	{
 		query = player->label + "cardface0";
 		query_response = scrape_table_map_region(query);
-		// TODO: make this more elegant
+		// NOTE: only works if the response is empty or it starts with something like "Error"
 		if (query_response.size() == 0 || query_response[0] == 'E')
 		{
 			player->is_in_hand = false;
@@ -154,7 +154,31 @@ std::string player_t::to_string()
 	to_string += "name = " + name + "\n";
 	to_string += "balance = " + std::to_string(balance) + "\n";
 	to_string += "in_front = " + std::to_string(in_front) + "\n";
-	to_string += "position = " + std::to_string(position) + "\n";
+	to_string += "position = ";
+	switch (position)
+	{
+	case BB:
+		to_string += "BB (5)";
+		break;
+	case SB:
+		to_string += "SB (4)";
+		break;
+	case BTN:
+		to_string += "BTN (3)";
+		break;
+	case CO:
+		to_string += "CO (2)";
+		break;
+	case HJ:
+		to_string += "HJ (1)";
+		break;
+	case UTG:
+		to_string += "UTG (0)";
+		break;
+	default:
+		to_string += "INVALID";
+	}
+	to_string += "\n";
 	to_string += "is_in_hand = ";
 	if (is_in_hand)
 	{

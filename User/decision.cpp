@@ -175,6 +175,7 @@ decision_t take_decision(player_t* hero, board_t* board)
 		delete board->board_derived_info;
 	}
 	board->board_derived_info = board_derived_info;
+	DLOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", board_derived_info->to_string().c_str());
 
 	decision_t decision;
 	switch (board->stage)

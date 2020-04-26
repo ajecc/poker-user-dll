@@ -18,7 +18,7 @@ struct board_t
 	Preflop, UTG would be the first and BB the last, flop+ SB first and BTN last.
 	*/
 	std::vector<player_t*> current_hand_players;
-	player_t* hero;
+	player_t* hero = nullptr;
 	float pot = 0;
 	float big_blind_sum = 0;
 	board_derived_info_t* board_derived_info = nullptr;

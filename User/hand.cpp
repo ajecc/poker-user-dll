@@ -162,7 +162,7 @@ float calc_prwin_vs_any_hand(const hand_t* hero, board_t* board)
 
 bool are_similar_hands(const hand_t* lhs, const hand_t* rhs)
 {
-	// TODO: add support for when cards in hand are not in ascending order. for ex: AKs should be equal to KAs
+	// NOTE: only works for hands found in g_all_hands
 	return lhs->cards[0]->rank == rhs->cards[0]->rank && 
 		lhs->cards[1]->rank == rhs->cards[1]->rank && lhs->suited == rhs->suited;
 }

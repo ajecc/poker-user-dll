@@ -9,10 +9,12 @@ const int HAND_CARD_COUNT = 2;
 
 enum hand_action_t
 {
+	INVALID_HAND_ACTION = -1,
 	FOLD = 0,
 	CHECK = 1,
 	CALL = 2,
-	RAISE = 3
+	RAISE = 3,
+	HAND_ACTION_COUNT = 4
 };
 
 /*
@@ -28,8 +30,8 @@ hand_action_t get_hand_action_from_char(char hand_action_char);
 
 struct hand_t
 {
-	const card_t* cards[HAND_CARD_COUNT];
-	bool suited;
+	const card_t* cards[HAND_CARD_COUNT] = { nullptr };
+	bool suited = false;
 
 	bool operator<(const hand_t& other) const;
 };
