@@ -23,8 +23,11 @@ struct board_derived_info_t
 	player_t* secondary_villain = nullptr;
 	float pot = 0;
 	float current_bet = 0;
+	float call_ammount = 0;
 	std::vector<const card_t*> villain_draws_flop;
 	std::vector<const card_t*> villain_draws_turn;
+	std::vector<const card_t*> hero_draws_flop;
+	std::vector<const card_t*> hero_draws_turn;
 
 	std::string to_string();
 };

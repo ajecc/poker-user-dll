@@ -11,6 +11,8 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 
 static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info);
 
+static void get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info);
+
 
 bet_type_t& operator++(bet_type_t& bet_type)
 {
@@ -27,6 +29,7 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 {
 	board_derived_info_t board_derived_info;
 	get_villains_info(hero, board, &board_derived_info);
+	board_derived_info.call_ammount = board_derived_info.current_bet - board->hero->current_bet;
 	if (board->board_derived_info != nullptr &&
 		board->board_derived_info->bet_type >= FACING_RAISE &&
 		board_derived_info.bet_type >= FACING_RAISE)
@@ -40,18 +43,23 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 			board->board_derived_info->bet_type = FACING_4BET;
 		}
 	}
+	// draws
 	if (board->stage == TURN && board->board_derived_info != nullptr)
 	{
 		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
+		board_derived_info.hero_draws_flop = board->board_derived_info->hero_draws_flop;
 	}
 	else if (board->stage == RIVER && board->board_derived_info != nullptr)
 	{
 		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
 		board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
+		board_derived_info.hero_draws_flop = board->board_derived_info->hero_draws_flop;
+		board_derived_info.hero_draws_turn = board->board_derived_info->hero_draws_turn;
 	}
 	if (board->stage == FLOP || board->stage == TURN)
 	{
 		get_villain_draws(board, &board_derived_info);
+		get_hero_draws(board, hero, &board_derived_info);
 	}
 	return board_derived_info;
 }
@@ -151,6 +159,10 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 
 static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 {
+	if (board->stage != FLOP && board->stage != TURN)
+	{
+		return;
+	}
 	std::set<const card_t*> draws;
 	std::vector<const card_t*> cards = board->cards;
 	std::vector<const card_t*> remaining_cards = find_remaining_cards(nullptr, nullptr, board);
@@ -264,6 +276,45 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 }
 
 
+static void get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info)
+{
+	if (board->stage != FLOP && board->stage != TURN)
+	{
+		return;
+	}
+	board_t board_cpy;
+	board_cpy.cards = board->cards;
+	auto remaining_cards = find_remaining_cards(hero->hand, nullptr, &board_cpy);
+	float next_card_prwin_median = 0;
+	for (auto* card : remaining_cards)
+	{
+		board_cpy.cards.push_back(card);
+		next_card_prwin_median += calc_prwin_vs_any_hand(hero->hand, &board_cpy);
+		board_cpy.cards.pop_back();
+	}
+	next_card_prwin_median /= remaining_cards.size();
+	std::vector<const card_t*> draws;
+	for (auto* card : remaining_cards)
+	{
+		board_cpy.cards.push_back(card);
+		float prwin_here = calc_prwin_vs_any_hand(hero->hand, &board_cpy);
+		if (prwin_here > next_card_prwin_median)
+		{
+			draws.push_back(card);
+		}
+		board_cpy.cards.pop_back();
+	}
+	std::vector<const card_t*>& to_add =
+		(board->stage == FLOP ?
+		board_derived_info->hero_draws_flop :
+		board_derived_info->hero_draws_turn);
+	for (auto* card : draws)
+	{
+		to_add.push_back(card);
+	}
+}
+
+
 std::string board_derived_info_t::to_string()
 {
 	std::string res;
@@ -331,6 +382,18 @@ std::string board_derived_info_t::to_string()
 	res += "\n";
 	res += "villain_draws_TURN = ";
 	for (auto* card : villain_draws_turn)
+	{
+		res += card->to_string() + ", ";
+	}
+	res += "\n";
+	res += "hero_draws_FLOP = ";
+	for (auto* card : hero_draws_flop)
+	{
+		res += card->to_string() + ", ";
+	}
+	res += "\n";
+	res += "hero_draws_TURN = ";
+	for (auto* card : hero_draws_turn)
 	{
 		res += card->to_string() + ", ";
 	}

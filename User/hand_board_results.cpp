@@ -214,7 +214,7 @@ const hand_board_result_t* create_all_hand_board_results()
 }
 
 
-hand_board_result_t calc_hand_board_result(const hand_t* hand, board_t* board)
+hand_board_result_t calc_hand_board_result(const hand_t* hand, const board_t* board)
 {
 	static constexpr auto comb = comb_t<NUMBER_OF_CARDS, 7>();
 	// TODO: maybe calculate results with a board that is not full as well

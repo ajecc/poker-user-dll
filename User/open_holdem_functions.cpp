@@ -35,7 +35,8 @@ void ErrorPointerNotInitialized(const char* function_name);
 
 double __stdcall GetSymbol(const char* name_of_single_symbol__not_expression)
 {
-	if (p_GetSymbol == nullptr) {
+	if (p_GetSymbol == nullptr) 
+	{
 		ErrorPointerNotInitialized("GetSymbol");
 		return 0.0;
 	}
