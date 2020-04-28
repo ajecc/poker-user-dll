@@ -5,21 +5,28 @@
 #include "hand.h"
 
 
-static void update_player_is_in_game(player_t* player);
+static void
+update_player_is_in_game(player_t* player);
 
-static void update_player_balance(player_t* player);
+static void
+update_player_balance(player_t* player);
 
-static void update_player_current_bet(player_t* player);
+static void
+update_player_current_bet(player_t* player);
 
-static void update_player_name(player_t* player);
+static void
+update_player_name(player_t* player);
 
-static void update_player_is_in_hand(player_t* player);
+static void
+update_player_is_in_hand(player_t* player);
 
-static void update_player_cards(player_t* player);
+static void
+update_player_cards(player_t* player);
 
 
 
-void update_player(player_t* player)
+void 
+update_player(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -38,7 +45,8 @@ void update_player(player_t* player)
 }
 
 
-static void update_player_is_in_game(player_t* player)
+static void
+update_player_is_in_game(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -57,7 +65,8 @@ static void update_player_is_in_game(player_t* player)
 }
 
 
-static void update_player_balance(player_t* player)
+static void
+update_player_balance(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -68,7 +77,8 @@ static void update_player_balance(player_t* player)
 }
 
 
-static void update_player_current_bet(player_t* player)
+static void
+update_player_current_bet(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -81,7 +91,8 @@ static void update_player_current_bet(player_t* player)
 }
 
 
-static void update_player_name(player_t* player)
+static void 
+update_player_name(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -93,7 +104,8 @@ static void update_player_name(player_t* player)
 }
 
 
-static void update_player_is_in_hand(player_t* player)
+static void
+update_player_is_in_hand(player_t* player)
 {
 	if (nullptr == player)
 	{
@@ -109,7 +121,8 @@ static void update_player_is_in_hand(player_t* player)
 	{
 		query = player->label + "cardface0";
 		query_response = scrape_table_map_region(query);
-		// NOTE: only works if the response is empty or it starts with something like "Error"
+		// NOTE: only works if the response is empty or it starts with 
+		//		 something like "Error"
 		if (query_response.size() == 0 || query_response[0] == 'E')
 		{
 			player->is_in_hand = false;
@@ -122,7 +135,8 @@ static void update_player_is_in_hand(player_t* player)
 }
 
 
-static void update_player_cards(player_t* player)
+static void
+update_player_cards(player_t* player)
 {
 	std::string query = player->label + "cardface0";
 	std::string query_response = scrape_table_map_region(query);
@@ -142,7 +156,8 @@ static void update_player_cards(player_t* player)
 }
 
 
-std::string player_t::to_string()
+std::string 
+player_t::to_string()
 {
 	std::string to_string = "label = ";
 	to_string += label + "\n";

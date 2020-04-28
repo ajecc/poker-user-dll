@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "util.h"
 #include "board_derived_info.h"
+#include <cassert>
 #ifdef min
 #undef min
 #undef max
@@ -30,16 +31,22 @@
 #define ALLIN_ON_3BET 0.934
 
 
-static bool is_board_wet_flop(board_t* board);
+static bool 
+is_board_wet_flop(board_t* board);
 
-static void sanitize_decision(decision_t* decision, board_t* board);
+static void 
+sanitize_decision(decision_t* decision, board_t* board);
 
-static float calc_pot_odds(float pot, float call_sum);
+static float
+calc_pot_odds(float pot, float call_sum);
 
-static bool is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board, int hero_draws_count);
+static bool
+is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
+									int hero_draws_count);
 
 
-decision_t take_decision_preflop(player_t* hero, board_t* board)
+decision_t 
+take_decision_preflop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking PREFLOP decision");
 	board_derived_info_t* board_derived_info = board->board_derived_info;
@@ -78,7 +85,8 @@ decision_t take_decision_preflop(player_t* hero, board_t* board)
 }
 
 
-decision_t take_decision_flop(player_t* hero, board_t* board)
+decision_t
+take_decision_flop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking FLOP decision");
 	float prwin_raw = (float)pow(
@@ -123,7 +131,8 @@ decision_t take_decision_flop(player_t* hero, board_t* board)
 				bet_ammount = std::min(bet_ammount, MAX_CBET_SUM);
 				return { RAISE, board->pot * bet_ammount };
 			}
-			if (board->current_hand_players.size() == 2 && CBET_FREQ < generate_random())
+			if (board->current_hand_players.size() == 2 && 
+				CBET_FREQ < generate_random())
 			{
 				return { RAISE, board->pot * 0.5f };
 			}
@@ -140,7 +149,8 @@ decision_t take_decision_flop(player_t* hero, board_t* board)
 			}
 			return { CALL, 0 };
 		}
-		if (prwin_raw > calc_pot_odds(board->pot, board->board_derived_info->call_ammount))
+		if (prwin_raw > calc_pot_odds(
+			board->pot, board->board_derived_info->call_ammount))
 		{
 			// TODO: tweak this such that you call tighter
 			return { CALL, 0 };
@@ -168,14 +178,16 @@ decision_t take_decision_flop(player_t* hero, board_t* board)
 }
 
 
-decision_t take_decision_turn(player_t* hero, board_t* board)
+decision_t
+take_decision_turn(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking TURN decision");
 	return {FOLD, 0};
 }
 
 
-decision_t take_decision_river(player_t* hero, board_t* board)
+decision_t
+take_decision_river(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking RIVER decision");
 
@@ -183,7 +195,8 @@ decision_t take_decision_river(player_t* hero, board_t* board)
 }
 
 
-decision_t take_decision(player_t* hero, board_t* board)
+decision_t
+take_decision(player_t* hero, board_t* board)
 {
 	board_derived_info_t* board_derived_info = new board_derived_info_t;
 	*board_derived_info = get_board_derived_info(hero, board);
@@ -192,7 +205,8 @@ decision_t take_decision(player_t* hero, board_t* board)
 		delete board->board_derived_info;
 	}
 	board->board_derived_info = board_derived_info;
-	DLOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", board_derived_info->to_string().c_str());
+	DLOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", 
+		board_derived_info->to_string().c_str());
 
 	decision_t decision;
 	switch (board->stage)
@@ -217,14 +231,16 @@ decision_t take_decision(player_t* hero, board_t* board)
 }
 
 
-static bool is_board_wet_flop(board_t* board)
+static bool
+is_board_wet_flop(board_t* board)
 {
 	// TODO: give a better definition of a wet board
 	return board->board_derived_info->villain_draws_flop.size() > 7;
 }
 
 
-std::string decision_t::to_string()
+std::string
+decision_t::to_string()
 {
 	std::string res = "";
 	switch (action)
@@ -249,7 +265,8 @@ std::string decision_t::to_string()
 }
 
 
-static void sanitize_decision(decision_t* decision, board_t* board)
+static void 
+sanitize_decision(decision_t* decision, board_t* board)
 {
 	switch (decision->action)
 	{
@@ -274,14 +291,18 @@ static void sanitize_decision(decision_t* decision, board_t* board)
 }
 
 
-static float calc_pot_odds(float pot, float call_sum)
+static float
+calc_pot_odds(float pot, float call_sum)
 {
 	return call_sum / (call_sum + pot);
 }
 
 
-static bool is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board, int hero_draws_count)
+static bool
+is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
+									int hero_draws_count)
 {
+	assert(board->stage == FLOP || board->stage == TURN);
 	float max_value = 0;
 	for (auto* player : board->current_hand_players)
 	{
@@ -292,7 +313,13 @@ static bool is_appropriate_implied_odds_call(float pot, float call_sum, board_t*
 		(float)(NUMBER_OF_CARDS - 2 - board->cards.size());
 	float sum_needed_to_break_even = (call_sum - hit_draw_chance * (pot + call_sum))
 		/ hit_draw_chance;
-	// NOTE: 0.33 is a constant chosen by my instinc. Might need to tweak it
-	return (sum_needed_to_break_even < ((double)pot + call_sum) * 0.33 &&
+
+	// NOTE: 0.33/0.7 are constants chosen by my instinc. Might need to tweak it
+	if(board->stage == FLOP)
+	{
+		return (sum_needed_to_break_even < ((double)pot + call_sum) * 0.70 &&
+			sum_needed_to_break_even < max_value);
+	}
+	return (sum_needed_to_break_even < ((double)pot + call_sum) * 0.70 &&
 		sum_needed_to_break_even < max_value);
 }

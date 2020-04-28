@@ -1,5 +1,7 @@
 #pragma once
 #include "hand.h"
+
+
 enum bet_type_t
 {
 	INVALID_BET_TYPE = -1,
@@ -29,10 +31,13 @@ struct board_derived_info_t
 	std::vector<const card_t*> hero_draws_flop;
 	std::vector<const card_t*> hero_draws_turn;
 
-	std::string to_string();
+	std::string
+	to_string();
 };
 
 
-std::vector<const card_t*> find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board);
+std::vector<const card_t*> 
+find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board);
 
-board_derived_info_t get_board_derived_info(player_t* hero, board_t* board);
+board_derived_info_t
+get_board_derived_info(player_t* hero, board_t* board);

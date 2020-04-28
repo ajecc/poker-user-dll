@@ -23,7 +23,8 @@ struct board_t
 	float big_blind_sum = 0;
 	board_derived_info_t* board_derived_info = nullptr;
 
-	std::string to_string();
+	std::string
+	to_string();
 };
 
 
@@ -35,7 +36,8 @@ Parameters: IN board_t* board -- the board to fetch the player from
 
 Returns: player_t* -- a pointer to the player fetched. This pointer should not be freed. 
 */
-player_t* get_player_by_label(board_t* board, const std::string& label);
+player_t*
+get_player_by_label(board_t* board, const std::string& label);
 
 
 /*
@@ -45,7 +47,8 @@ Parameters: OUT board_t* -- the board to update
 
 Returns: none
 */
-void update_board(board_t* board);
+void
+update_board(board_t* board);
 
 
 /*
@@ -57,7 +60,8 @@ Parameters: IN board_t* board -- the board to fetch the next player from
 Returns: player_t* -- the next player after the given player, with lexicographically 
 						bigger label.
 */
-player_t* get_next_player(board_t* board, player_t* player);
+player_t*
+get_next_player(board_t* board, player_t* player);
 
 
 /*
@@ -68,7 +72,8 @@ Parameters: IN board_t* board -- the board to fetch the next player from
 
 Returns: player_t* -- the next player after the given player 
 */
-player_t* get_next_player_in_game(board_t* board, player_t* player);
+player_t*
+get_next_player_in_game(board_t* board, player_t* player);
 
 
 /*
@@ -79,7 +84,8 @@ Parameters: IN board_t* board -- the board to fetch the next player from
 
 Returns: player_t* -- the next player after the given player 
 */
-player_t* get_next_player_in_hand(board_t* board, player_t* player);
+player_t*
+get_next_player_in_hand(board_t* board, player_t* player);
 
 
 /*
@@ -90,7 +96,8 @@ Parametrs: none
 
 Returns: board_t*
 */
-board_t* create_board();
+board_t*
+create_board();
 
 
 /*
@@ -98,4 +105,5 @@ Destroys the board created with create_board.
 
 Parameters: OUT board_t** board -- the board to destroy
 */
-void destroy_board(board_t** board);
+void
+destroy_board(board_t** board);

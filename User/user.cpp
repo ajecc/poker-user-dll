@@ -19,23 +19,36 @@
 #include "decision.h"
 #include "poker_exception.h"
 
-void __stdcall DLLUpdateOnNewFormula() {}
-void __stdcall DLLUpdateOnConnection() {}
-void __stdcall DLLUpdateOnHandreset () {}
-void __stdcall DLLUpdateOnNewRound  () {}
-void __stdcall DLLUpdateOnMyTurn    () {}
-void __stdcall DLLUpdateOnHeartbeat () {}
+void __stdcall
+DLLUpdateOnNewFormula() {}
+
+void __stdcall
+DLLUpdateOnConnection() {}
+
+void __stdcall
+DLLUpdateOnHandreset() {}
+
+void __stdcall
+DLLUpdateOnNewRound() {}
+
+void __stdcall
+DLLUpdateOnMyTurn() {}
+
+void __stdcall
+DLLUpdateOnHeartbeat() {}
 
 
 // GLOBALS
 board_t* g_board;
 std::vector<const card_t*> g_all_cards;
 std::vector<const hand_t*> g_all_hands;
-std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges, g_facing_3bet_ranges, g_facing_4bet_ranges;
+std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges,
+							g_facing_3bet_ranges, g_facing_4bet_ranges;
 const hand_board_result_t* g_all_hand_board_results;
 
 
-void create_globals()
+void 
+create_globals()
 {
 	g_board = create_board();
 	g_all_cards = create_all_cards();
@@ -52,7 +65,8 @@ void create_globals()
 
 
 // Handling the lookup of dll$symbols
-DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
+DLL_IMPLEMENTS double __stdcall
+ProcessQuery(const char* pquery)
 {
 	if (nullptr == pquery)
 	{
@@ -101,7 +115,9 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 	else if (query == "dll$betsize")
 	{
 		LOG_F(INFO, "in dll$betsize (%f)", decision.sum);
-		if (decision.action == CHECK || decision.action == FOLD || decision.action == CALL)
+		if (decision.action == CHECK || 
+			decision.action == FOLD ||
+			decision.action == CALL)
 		{
 			decision.sum = 0;
 		}
@@ -113,28 +129,21 @@ DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery)
 
 
 // TODO: msg larisa dupa ce termin
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) 
+BOOL APIENTRY
+DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) 
 {
 	FILE* conout = nullptr;
-	switch (ul_reason_for_call)
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
-		case DLL_PROCESS_ATTACH:
-		{
-			InitializeOpenHoldemFunctionInterface();
-			init_log(&conout);
-			create_globals();
-		} break;
-
-		case DLL_PROCESS_DETACH:
-		{
-			// TODO: add something to destroy everything
-			destroy_board(&g_board);
-			uninit_log(conout);
-		} break;
-
-		default:
-		{
-		}
+		InitializeOpenHoldemFunctionInterface();
+		init_log(&conout);
+		create_globals();
+	}
+	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
+	{
+		// TODO: add something to destroy everything
+		destroy_board(&g_board);
+		uninit_log(conout);
 	}
 	return TRUE;
 } 

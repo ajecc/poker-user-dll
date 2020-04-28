@@ -8,7 +8,8 @@
 extern std::vector<const card_t*> g_all_cards;
 
 
-color_t& operator++(color_t& color)
+color_t&
+operator++(color_t& color)
 {
 #ifdef _DEBUG
 	if (color == COLOR_COUNT)
@@ -21,7 +22,8 @@ color_t& operator++(color_t& color)
 }
 
 
-rank_t& operator++(rank_t& rank)
+rank_t&
+operator++(rank_t& rank)
 {
 #ifdef _DEBUG
 	if (rank == RANK_COUNT)
@@ -34,7 +36,8 @@ rank_t& operator++(rank_t& rank)
 }
 
 
-bool card_t::operator<(const card_t& other) const
+bool
+card_t::operator<(const card_t& other) const
 {
 	if (rank == other.rank)
 	{
@@ -44,7 +47,8 @@ bool card_t::operator<(const card_t& other) const
 }
 
 
-bool card_t::operator>(const card_t& other) const
+bool 
+card_t::operator>(const card_t& other) const
 {
 	if (rank == other.rank)
 	{
@@ -54,19 +58,22 @@ bool card_t::operator>(const card_t& other) const
 }
 
 
-bool card_t::operator==(const card_t& other) const
+bool 
+card_t::operator==(const card_t& other) const
 {
 	return color == other.color && rank == other.rank;
 }
 
 
-bool card_t::operator!=(const card_t& other) const
+bool
+card_t::operator!=(const card_t& other) const
 {
 	return !(*this == other);
 }
 
 
-card_t& operator++(card_t& card)
+card_t&
+operator++(card_t& card)
 {
 	assert(card != *get_card(_A, S));
 	if (card.color != S)
@@ -82,7 +89,8 @@ card_t& operator++(card_t& card)
 }
 
 
-std::vector<const card_t*> create_all_cards()
+std::vector<const card_t*> 
+create_all_cards()
 {
 	std::vector<card_t*> all_cards;
 	for (rank_t rank = _2; rank <= _A; ++rank)
@@ -98,7 +106,8 @@ std::vector<const card_t*> create_all_cards()
 }
 
 
-int get_card_index(const rank_t& rank, const color_t& color)
+int
+get_card_index(const rank_t& rank, const color_t& color)
 {
 	int rank_to_int = (int)rank - 2;
 	int color_to_int = (int)color;
@@ -106,19 +115,22 @@ int get_card_index(const rank_t& rank, const color_t& color)
 }
 
 
-int get_card_index(const card_t* card)
+int
+get_card_index(const card_t* card)
 {
 	return get_card_index(card->rank, card->color);
 }
 
 
-const card_t* get_card(rank_t rank, color_t color)
+const card_t*
+get_card(rank_t rank, color_t color)
 {
 	return g_all_cards[get_card_index(rank, color)];
 }
 
 
-bool is_in_vector(const card_t* card, const std::vector<const card_t*>& vec)
+bool 
+is_in_vector(const card_t* card, const std::vector<const card_t*>& vec)
 {
 	for (const card_t* other : vec)
 	{
@@ -131,7 +143,8 @@ bool is_in_vector(const card_t* card, const std::vector<const card_t*>& vec)
 }
 
 
-const card_t* get_card(const std::string& str)
+const card_t*
+get_card(const std::string& str)
 {
 	if (str.empty())
 	{
@@ -193,7 +206,8 @@ const card_t* get_card(const std::string& str)
 }
 
 
-std::string card_t::to_string() const
+std::string 
+card_t::to_string() const
 {
 	std::string to_string;
 	if (rank >= _2 && rank <= _9)

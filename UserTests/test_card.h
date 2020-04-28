@@ -5,7 +5,7 @@
 
 TEST(CardTest, get_card)
 {
-	card_t* card = nullptr;
+	const card_t* card = nullptr;
 
 	card = get_card(_A, H);
 	EXPECT_EQ(card->rank, _A);
@@ -35,7 +35,7 @@ TEST(CardTest, get_card)
 
 TEST(CardTest, get_card_from_string)
 {
-	card_t* card = nullptr;
+	const card_t* card = nullptr;
 
 	card = get_card("As");
 	EXPECT_EQ(card->rank, _A);

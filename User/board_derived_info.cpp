@@ -3,18 +3,24 @@
 #include "card.h"
 #include <set>
 
+#define STRONG_DRAW_PRWIN (90.0f)
+#define STRONG_DRAW_PRWIN_DIFF (20.0f)
 
 extern std::vector<const card_t*> g_all_cards;
 
 
-static void get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info);
+static void
+get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info);
 
-static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info);
+static void
+get_villain_draws(board_t* board, board_derived_info_t* board_derived_info);
 
-static void get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info);
+static void
+get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info);
 
 
-bet_type_t& operator++(bet_type_t& bet_type)
+bet_type_t&
+operator++(bet_type_t& bet_type)
 {
 	if (bet_type == FACING_4BET)
 	{
@@ -25,16 +31,19 @@ bet_type_t& operator++(bet_type_t& bet_type)
 }
 
 
-board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
+board_derived_info_t 
+get_board_derived_info(player_t* hero, board_t* board)
 {
 	board_derived_info_t board_derived_info;
 	get_villains_info(hero, board, &board_derived_info);
-	board_derived_info.call_ammount = board_derived_info.current_bet - board->hero->current_bet;
+	board_derived_info.call_ammount =
+		board_derived_info.current_bet - board->hero->current_bet;
 	if (board->board_derived_info != nullptr &&
 		board->board_derived_info->bet_type >= FACING_RAISE &&
 		board_derived_info.bet_type >= FACING_RAISE)
 	{
-		if (contains(board_derived_info.villains_before_hero, board_derived_info.main_villain))
+		if (contains(board_derived_info.villains_before_hero,
+			board_derived_info.main_villain))
 		{
 			board->board_derived_info->bet_type = FACING_3BET;
 		}
@@ -46,15 +55,25 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 	// draws
 	if (board->stage == TURN && board->board_derived_info != nullptr)
 	{
-		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
-		board_derived_info.hero_draws_flop = board->board_derived_info->hero_draws_flop;
+		board_derived_info.villain_draws_flop = 
+			board->board_derived_info->villain_draws_flop;
+
+		board_derived_info.hero_draws_flop = 
+			board->board_derived_info->hero_draws_flop;
 	}
 	else if (board->stage == RIVER && board->board_derived_info != nullptr)
 	{
-		board_derived_info.villain_draws_flop = board->board_derived_info->villain_draws_flop;
-		board_derived_info.villain_draws_turn = board->board_derived_info->villain_draws_turn;
-		board_derived_info.hero_draws_flop = board->board_derived_info->hero_draws_flop;
-		board_derived_info.hero_draws_turn = board->board_derived_info->hero_draws_turn;
+		board_derived_info.villain_draws_flop =
+			board->board_derived_info->villain_draws_flop;
+
+		board_derived_info.villain_draws_turn = 
+			board->board_derived_info->villain_draws_turn;
+
+		board_derived_info.hero_draws_flop = 
+			board->board_derived_info->hero_draws_flop;
+
+		board_derived_info.hero_draws_turn = 
+			board->board_derived_info->hero_draws_turn;
 	}
 	if (board->stage == FLOP || board->stage == TURN)
 	{
@@ -65,7 +84,8 @@ board_derived_info_t get_board_derived_info(player_t* hero, board_t* board)
 }
 
 
-std::vector<const card_t*> find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board)
+std::vector<const card_t*>
+find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board)
 {
 	std::vector<const card_t*> current_cards = board->cards;
 	if (hero != nullptr)
@@ -99,7 +119,8 @@ std::vector<const card_t*> find_remaining_cards(const hand_t* hero, const hand_t
 }
 
 
-static void get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info)
+static void
+get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info)
 {
 	board_derived_info->main_villain = nullptr;
 	board_derived_info->secondary_villain = nullptr;
@@ -157,7 +178,8 @@ static void get_villains_info(player_t* hero, board_t* board, board_derived_info
 }
 
 
-static void get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
+static void
+get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 {
 	if (board->stage != FLOP && board->stage != TURN)
 	{
@@ -165,7 +187,8 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 	}
 	std::set<const card_t*> draws;
 	std::vector<const card_t*> cards = board->cards;
-	std::vector<const card_t*> remaining_cards = find_remaining_cards(nullptr, nullptr, board);
+	std::vector<const card_t*> remaining_cards = 
+		find_remaining_cards(nullptr, nullptr, board);
 	count_t colors_count[COLOR_COUNT] = { 0 };
 	for (const auto* card : cards)
 	{
@@ -276,29 +299,24 @@ static void get_villain_draws(board_t* board, board_derived_info_t* board_derive
 }
 
 
-static void get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info)
+static void
+get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info)
 {
 	if (board->stage != FLOP && board->stage != TURN)
 	{
 		return;
 	}
+	auto remaining_cards = find_remaining_cards(hero->hand, nullptr, board);
+	float prwin_raw = calc_prwin_vs_any_hand(hero->hand, board);
+	std::vector<const card_t*> draws;
 	board_t board_cpy;
 	board_cpy.cards = board->cards;
-	auto remaining_cards = find_remaining_cards(hero->hand, nullptr, &board_cpy);
-	float next_card_prwin_median = 0;
-	for (auto* card : remaining_cards)
-	{
-		board_cpy.cards.push_back(card);
-		next_card_prwin_median += calc_prwin_vs_any_hand(hero->hand, &board_cpy);
-		board_cpy.cards.pop_back();
-	}
-	next_card_prwin_median /= remaining_cards.size();
-	std::vector<const card_t*> draws;
 	for (auto* card : remaining_cards)
 	{
 		board_cpy.cards.push_back(card);
 		float prwin_here = calc_prwin_vs_any_hand(hero->hand, &board_cpy);
-		if (prwin_here > next_card_prwin_median)
+		if (prwin_here > STRONG_DRAW_PRWIN && 
+			prwin_here - prwin_raw > STRONG_DRAW_PRWIN_DIFF)
 		{
 			draws.push_back(card);
 		}
@@ -315,7 +333,8 @@ static void get_hero_draws(board_t* board, player_t* hero, board_derived_info_t*
 }
 
 
-std::string board_derived_info_t::to_string()
+std::string 
+board_derived_info_t::to_string()
 {
 	std::string res;
 	res += "bet_type = ";

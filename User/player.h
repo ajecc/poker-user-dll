@@ -97,7 +97,8 @@ struct player_t
 	board_stage_stats_t turn = { 0 };
 	board_stage_stats_t river = { 0 };
 
-	std::string to_string();
+	std::string
+	to_string();
 };
 
 
@@ -108,4 +109,5 @@ Parameters: OUT player_t* player -- the player to update
 
 Returns: none 
 */
-void update_player(player_t* player);
+void
+update_player(player_t* player);

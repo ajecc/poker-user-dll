@@ -5,9 +5,9 @@
 
 TEST(HandTest, get_hand)
 {
-	hand_t* hand = nullptr;
-	card_t* card_lhs = nullptr;
-	card_t* card_rhs = nullptr;
+	const hand_t* hand = nullptr;
+	const card_t* card_lhs = nullptr;
+	const card_t* card_rhs = nullptr;
 
 	std::vector<std::tuple<rank_t, color_t, rank_t, color_t>> tests;
 	tests.push_back({ _A, C, _A, D });
@@ -35,9 +35,9 @@ TEST(HandTest, get_hand)
 TEST(HandTest, is_hero_winner)
 {
 	board_t* board = new board_t;
-	hand_t* hero = nullptr;
-	hand_t* villain = nullptr;
-	std::vector < std::tuple<hand_t*, hand_t*, std::vector<card_t*>>> tests;
+	const hand_t* hero = nullptr;
+	const hand_t* villain = nullptr;
+	std::vector < std::tuple<const hand_t*, const hand_t*, std::vector<const card_t*>>> tests;
 
 	tests.push_back({
 		get_hand(get_card(_A, H), get_card(_A, S)),

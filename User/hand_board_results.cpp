@@ -16,67 +16,86 @@ extern const hand_board_result_t* g_all_hand_board_results;
 
 // NOTE: result should be init with 0 before calling these 
 
-static bool calc_straight_flush(std::vector<const card_t*> cards, hand_board_result_t* result);
+static bool
+calc_straight_flush(std::vector<const card_t*> cards, hand_board_result_t* result);
 
-static bool calc_quads(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_quads(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_full_house(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_full_house(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result);
+static bool
+calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result);
 
-static bool calc_straight(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_straight(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_trips(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_trips(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_two_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool 
+calc_two_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static bool calc_high_card(const std::vector<const card_t*>& cards, hand_board_result_t* result);
+static bool
+calc_high_card(const std::vector<const card_t*>& cards, hand_board_result_t* result);
 
-static void create_all_hand_board_results_cache();
+static void
+create_all_hand_board_results_cache();
 
-static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<const card_t*>& cards);
+static void
+create_all_hand_board_results_cache_aux(std::ofstream& cache, 
+										std::vector<const card_t*>& cards);
 
 
 
-bool hand_board_result_t::operator<(const hand_board_result_t& other) const
+bool 
+hand_board_result_t::operator<(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this < *(unsigned int*)&other;
 }
 
 
-bool hand_board_result_t::operator>(const hand_board_result_t& other) const
+bool
+hand_board_result_t::operator>(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this > *(unsigned int*)&other;
 }
 
 
-bool hand_board_result_t::operator==(const hand_board_result_t& other) const
+bool
+hand_board_result_t::operator==(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this == *(unsigned int*)&other;
 }
 
 
-bool hand_board_result_t::operator<=(const hand_board_result_t& other) const
+bool
+hand_board_result_t::operator<=(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this <= *(unsigned int*)&other;
 }
 
 
-bool hand_board_result_t::operator>=(const hand_board_result_t& other) const
+bool
+hand_board_result_t::operator>=(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this >= *(unsigned int*)&other;
 }
 
 
-bool hand_board_result_t::operator!=(const hand_board_result_t& other) const
+bool
+hand_board_result_t::operator!=(const hand_board_result_t& other) const
 {
 	return *(unsigned int*)this != *(unsigned int*)&other;
 }
 
 
-hand_board_result_t calc_hand_board_result_uncached(const hand_t* hand, board_t* board)
+hand_board_result_t
+calc_hand_board_result_uncached(const hand_t* hand, board_t* board)
 {
 	std::vector<const card_t*> cards = board->cards;
 	assert(cards.size() == 5);
@@ -91,7 +110,7 @@ hand_board_result_t calc_hand_board_result_uncached(const hand_t* hand, board_t*
 	{
 		if (*(cards[i]) == *(cards[i - 1]))
 		{
-			throw poker_exception_t("calc_hand_board_result: duplicates in hand/board ("  +
+			throw poker_exception_t("calc_hand_board_result: duplicates in hand/board (" +
 			cards[i]->to_string() + ", " + cards[i - 1]->to_string() + ")");
 		}
 	}
@@ -140,14 +159,16 @@ hand_board_result_t calc_hand_board_result_uncached(const hand_t* hand, board_t*
 }
 
 
-const hand_board_result_t* create_all_hand_board_results()
+const hand_board_result_t*
+create_all_hand_board_results()
 {
 	if (!std::filesystem::exists(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME))
 	{
 		create_all_hand_board_results_cache();
 	}
 	// NOTE: fits in DWORD (comb(52,7) ~= 10**8)
-	DWORD file_size = (DWORD)std::filesystem::file_size(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME);
+	auto file_size = (DWORD)std::filesystem::file_size(
+		ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME);
 	DLOG(INFO, ("Shared memory file size = " + std::to_string(file_size)).c_str());
 	// TODO: find a way to free this handle
 	HANDLE all_hand_board_results_map = OpenFileMappingA(
@@ -197,7 +218,7 @@ const hand_board_result_t* create_all_hand_board_results()
 				+ std::to_string(error));
 		}
 	}
-	const hand_board_result_t* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
+	const auto* all_hand_board_results = (hand_board_result_t*)MapViewOfFile(
 		all_hand_board_results_map,
 		FILE_MAP_READ,
 		0,
@@ -214,7 +235,8 @@ const hand_board_result_t* create_all_hand_board_results()
 }
 
 
-hand_board_result_t calc_hand_board_result(const hand_t* hand, const board_t* board)
+hand_board_result_t 
+calc_hand_board_result(const hand_t* hand, const board_t* board)
 {
 	static constexpr auto comb = comb_t<NUMBER_OF_CARDS, 7>();
 	// TODO: maybe calculate results with a board that is not full as well
@@ -226,13 +248,15 @@ hand_board_result_t calc_hand_board_result(const hand_t* hand, const board_t* bo
 	}
 	cards[5] = *hand->cards[0];
 	cards[6] = *hand->cards[1];
-	insertion_sort(cards, 7, [](const card_t& lhs, const card_t& rhs) { return lhs < rhs; });
+	insertion_sort(cards, 7, 
+		[](const card_t& lhs, const card_t& rhs) { return lhs < rhs; });
 	int hand_board_result_index = 0;
 	int last_card_index = -1;
 	for (int i = 0; i < 7; i++)
 	{
 		int current_card_index = get_card_index(&cards[i]);
-		hand_board_result_index += comb.comb[NUMBER_OF_CARDS - last_card_index - 1][7 - i] -
+		hand_board_result_index += 
+			comb.comb[NUMBER_OF_CARDS - last_card_index - 1][7 - i] -
 			comb.comb[NUMBER_OF_CARDS - current_card_index][7 - i];
 		last_card_index = current_card_index;
 	}
@@ -240,7 +264,8 @@ hand_board_result_t calc_hand_board_result(const hand_t* hand, const board_t* bo
 }
 
 
-static bool calc_straight_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
+static bool
+calc_straight_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
 {
 	card_t small_aces[] = { {H, _A_1}, {D, _A_1}, {C, _A_1}, {S, _A_1} };
 	for (int i = 0; ; i++)
@@ -291,11 +316,13 @@ static bool calc_straight_flush(std::vector<const card_t*> cards, hand_board_res
 }
 
 
-static bool calc_quads(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool 
+calc_quads(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 3; i++)
 	{
-		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank &&
+		if (cards[i]->rank == cards[i + 1]->rank && 
+			cards[i]->rank == cards[i + 2]->rank &&
 			cards[i]->rank == cards[i + 3]->rank)
 		{
 			result->strength = QUADS;
@@ -315,7 +342,8 @@ static bool calc_quads(const std::vector<const card_t*>& cards, hand_board_resul
 }
 
 
-static bool calc_trips(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool 
+calc_trips(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 2; i++)
 	{
@@ -347,7 +375,8 @@ static bool calc_trips(const std::vector<const card_t*>& cards, hand_board_resul
 }
 
 
-static bool calc_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool
+calc_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 1; i++)
 	{
@@ -390,7 +419,8 @@ static bool calc_pair(const std::vector<const card_t*>& cards, hand_board_result
 }
 
 
-static bool calc_full_house(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool 
+calc_full_house(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	hand_board_result_t trips_result = { 0 };
 	bool have_result = calc_trips(cards, &trips_result);
@@ -419,7 +449,8 @@ static bool calc_full_house(const std::vector<const card_t*>& cards, hand_board_
 }
 
 
-static bool calc_two_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool 
+calc_two_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	hand_board_result_t pair_result_1 = { 0 };
 	bool have_result = calc_pair(cards, &pair_result_1);
@@ -455,7 +486,9 @@ static bool calc_two_pair(const std::vector<const card_t*>& cards, hand_board_re
 }
 
 
-static bool calc_high_card(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool
+calc_high_card(const std::vector<const card_t*>& cards,
+							hand_board_result_t* result)
 {
 	result->strength = HIGH_CARD;
 	for (size_t i = 0; i < std::min((size_t)5, cards.size()); i++)
@@ -485,7 +518,8 @@ static bool calc_high_card(const std::vector<const card_t*>& cards, hand_board_r
 }
 
 
-static bool calc_straight(const std::vector<const card_t*>& cards, hand_board_result_t* result)
+static bool 
+calc_straight(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	std::vector<const card_t*> cards_normalized;
 	for (auto* i : cards)
@@ -537,7 +571,8 @@ static bool calc_straight(const std::vector<const card_t*>& cards, hand_board_re
 }
 
 
-static bool calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
+static bool 
+calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
 {
 	std::sort(all(cards), [](const card_t* lhs, const card_t* rhs)
 		{
@@ -575,17 +610,21 @@ static bool calc_flush(std::vector<const card_t*> cards, hand_board_result_t* re
 }
 
 
-static void create_all_hand_board_results_cache()
+static void 
+create_all_hand_board_results_cache()
 {
 	std::ofstream cache;
-	cache.open(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME, std::ofstream::out | std::ofstream::binary);
+	cache.open(ALL_HAND_BOARD_RESULT_CACHED_FILE_NAME,
+				std::ofstream::out | std::ofstream::binary);
 	std::vector<const card_t*> cards;
 	create_all_hand_board_results_cache_aux(cache, cards);
 	cache.close();
 }
 
 
-static void create_all_hand_board_results_cache_aux(std::ofstream& cache, std::vector<const card_t*>& cards)
+static void
+create_all_hand_board_results_cache_aux(std::ofstream& cache,
+										std::vector<const card_t*>& cards)
 {
 	if (cards.size() == 7)
 	{

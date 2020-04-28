@@ -9,7 +9,8 @@
 //#ifdef _DEBUG
 #define DLOG DLOG_F
 
-inline void init_log(FILE** conout)
+inline void 
+init_log(FILE** conout)
 {
 	int argc = 1;
 	char argv_0[MAX_PATH];
@@ -40,7 +41,8 @@ inline void init_log(FILE** conout)
 }
 
 
-inline void uninit_log(FILE* conout)
+inline void 
+uninit_log(FILE* conout)
 {
 	FreeConsole();
 	if (conout != nullptr)
@@ -48,16 +50,22 @@ inline void uninit_log(FILE* conout)
 		fclose(conout);
 	}
 }
+
 #else
-inline void dll_process_attach(FILE** conout)
+
+inline void
+dll_process_attach(FILE** conout)
 {
 	UNREFERENCED_PARAMETER(conout);
 }
 
 
-inline void dll_process_detach(FILE* conout)
+inline void
+dll_process_detach(FILE* conout)
 {
 	UNREFERENCED_PARAMETER(conout);
 }
+
 #define DLOG(verbosity, arg) (void)verbosity;void(arg); 
+
 #endif

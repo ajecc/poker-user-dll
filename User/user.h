@@ -27,19 +27,33 @@
 #define EXE_IMPLEMENTS extern "C" __declspec(dllexport)
 #endif
 
-DLL_IMPLEMENTS double __stdcall ProcessQuery(const char* pquery);
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnNewFormula();
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnConnection();
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnHandreset();
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnNewRound();
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnMyTurn();
-DLL_IMPLEMENTS void __stdcall DLLUpdateOnHeartbeat();
+DLL_IMPLEMENTS double __stdcall 
+ProcessQuery(const char* pquery);
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnNewFormula();
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnConnection();
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnHandreset();
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnNewRound();
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnMyTurn();
+
+DLL_IMPLEMENTS void __stdcall
+DLLUpdateOnHeartbeat();
 
 
 /*
 Creates the globals to be used throughout the program.
 Should be called only once, in attachement.
 */
-void create_globals();
+void
+create_globals();
 
 // TODO: add destroy_globals

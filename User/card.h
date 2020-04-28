@@ -36,7 +36,8 @@ enum rank_t
 	RANK_COUNT
 };
 
-rank_t& operator++(rank_t& rank);
+rank_t&
+operator++(rank_t& rank);
 
 
 struct card_t
@@ -44,18 +45,24 @@ struct card_t
 	color_t color = INVALID_COLOR;
 	rank_t rank = INVALID_RANK;
 
-	bool operator<(const card_t& other) const;
+	bool 
+	operator<(const card_t& other) const;
 
-	bool operator>(const card_t& other) const;
+	bool
+	operator>(const card_t& other) const;
 
-	bool operator==(const card_t& other) const;
+	bool
+	operator==(const card_t& other) const;
 
-	bool operator!=(const card_t& other) const;
+	bool
+	operator!=(const card_t& other) const;
 
-	std::string to_string() const;
+	std::string
+	to_string() const;
 };
 
-card_t& operator++(card_t& card);
+card_t&
+operator++(card_t& card);
 
 
 
@@ -68,7 +75,8 @@ Parameters: IN rank_t rank -- the rank of the card
 
 Returns: int -- the index of the card
 */
-int get_card_index(const rank_t& rank, const color_t& color);
+int
+get_card_index(const rank_t& rank, const color_t& color);
 
 
 /*
@@ -79,7 +87,8 @@ Parameters: IN card_t* card -- pointer to the card to find the index of
 
 Returns: int -- the index of the card
 */
-int get_card_index(const card_t* card);
+int
+get_card_index(const card_t* card);
 
 
 /*
@@ -91,7 +100,8 @@ Parameters: IN rank_t rank -- the rank of the card
 
 Returns: card_t* -- the pointer to the card. This SHOULD NOT be freed.
 */
-const card_t* get_card(rank_t rank, color_t color);
+const card_t*
+get_card(rank_t rank, color_t color);
 
 
 /*
@@ -100,7 +110,8 @@ The string has for {RANK}{COLOR}. Eg: Ah, 6s.
 
 Returns: card_t* -- the pointer to the card, that shouldn't be freed.
 */
-const card_t* get_card(const std::string& str);
+const card_t*
+get_card(const std::string& str);
 
 
 /*
@@ -111,7 +122,8 @@ Parameters: IN card_t* card -- the card
 
 Returns: bool -- true if is found in the vector and false otherwise.
 */
-bool is_in_vector(const card_t* card, const std::vector<const card_t*>& vec);
+bool
+is_in_vector(const card_t* card, const std::vector<const card_t*>& vec);
 
 
 /*
@@ -124,4 +136,5 @@ Parameters: none
 Return: std::vector<card_t*> -- the vector that contains all the cards.
 								Should not be used explicitly (use get_card instead)
 */
-std::vector<const card_t*> create_all_cards();
+std::vector<const card_t*>
+create_all_cards();

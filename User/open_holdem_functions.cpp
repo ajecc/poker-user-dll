@@ -12,7 +12,7 @@ typedef char*(*t_GetHandnumber)();
 typedef char*(*t_GetPlayerName)(int chair);
 typedef char*(*t_GetTableTitle)();
 typedef void(*t_ParseHandList)(const char* name_of_list, const char* list_body);
-typedef char*(*t_ScrapeTableMapRegion)(const char* p_region, int& p_returned_lengh);  // TODO: check if the first argument really is a const char
+typedef char*(*t_ScrapeTableMapRegion)(const char* p_region, int& p_returned_lengh);  
 typedef void(*t_SendChatMessage)(char *message);
 typedef void(*t_WriteLog)(char* format, va_list args);
 
@@ -30,10 +30,12 @@ t_WriteLog p_WriteLog = nullptr;
 
 // OpenHoldem functions, to be used by the DLL
 
-void ErrorPointerNotInitialized(const char* function_name);
+void
+ErrorPointerNotInitialized(const char* function_name);
 
 
-double __stdcall GetSymbol(const char* name_of_single_symbol__not_expression)
+double __stdcall
+GetSymbol(const char* name_of_single_symbol__not_expression)
 {
 	if (p_GetSymbol == nullptr) 
 	{
@@ -44,7 +46,8 @@ double __stdcall GetSymbol(const char* name_of_single_symbol__not_expression)
 }
 
 
-void* __stdcall GetPrw1326()
+void* __stdcall
+GetPrw1326()
 {
 	if (p_GetPrw1326 == nullptr)
 	{
@@ -55,7 +58,9 @@ void* __stdcall GetPrw1326()
 }
 
 
-char* __stdcall GetHandnumber() {
+char* __stdcall
+GetHandnumber()
+{
 	if (p_GetHandnumber == nullptr)
 	{
 		ErrorPointerNotInitialized("GetHandnumber");
@@ -65,7 +70,8 @@ char* __stdcall GetHandnumber() {
 }
 
 
-char* __stdcall GetPlayerName(int chair) 
+char* __stdcall 
+GetPlayerName(int chair) 
 {
 	if (p_GetPlayerName == nullptr)
 	{
@@ -76,7 +82,8 @@ char* __stdcall GetPlayerName(int chair)
 }
 
 
-char* __stdcall GetTableTitle()
+char* __stdcall
+GetTableTitle()
 {
 	if (p_GetTableTitle == nullptr)
 	{
@@ -87,7 +94,8 @@ char* __stdcall GetTableTitle()
 }
 
 
-void __stdcall ParseHandList(const char* name_of_list, const char* list_body)
+void __stdcall 
+ParseHandList(const char* name_of_list, const char* list_body)
 {
 	if (p_ParseHandList == nullptr)
 	{
@@ -98,7 +106,9 @@ void __stdcall ParseHandList(const char* name_of_list, const char* list_body)
 }
 
 
-char* __stdcall ScrapeTableMapRegion(const char* p_region, int& p_returned_lengh) {
+char* __stdcall 
+ScrapeTableMapRegion(const char* p_region, int& p_returned_lengh) 
+{
 
 	if (p_ScrapeTableMapRegion == nullptr)
 	{
@@ -109,7 +119,8 @@ char* __stdcall ScrapeTableMapRegion(const char* p_region, int& p_returned_lengh
 }
 
 
-void __stdcall SendChatMessage(char *message)
+void __stdcall 
+SendChatMessage(char *message)
 {
 	if (p_SendChatMessage == nullptr)
 	{
@@ -120,7 +131,8 @@ void __stdcall SendChatMessage(char *message)
 }
 
 
-void WriteLog(char* format, ...)
+void 
+WriteLog(char* format, ...)
 {
 	if (p_WriteLog == nullptr)
 	{
@@ -135,7 +147,8 @@ void WriteLog(char* format, ...)
 
 
 // Initialization of the interface
-FARPROC WINAPI LookupOpenHoldemFunction(const char* function_name)
+FARPROC WINAPI 
+LookupOpenHoldemFunction(const char* function_name)
 {
 	HMODULE openholdem_main_module = GetModuleHandle(NULL);
 	if (openholdem_main_module == nullptr)
@@ -159,7 +172,8 @@ FARPROC WINAPI LookupOpenHoldemFunction(const char* function_name)
 }
 
 
-void InitializeOpenHoldemFunctionInterface()
+void
+InitializeOpenHoldemFunctionInterface()
 {
 	p_GetSymbol = (t_GetSymbol)LookupOpenHoldemFunction("GetSymbol");
 	p_GetPrw1326 = (t_GetPrw1326)LookupOpenHoldemFunction("GetPrw1326");
@@ -167,13 +181,15 @@ void InitializeOpenHoldemFunctionInterface()
 	p_GetPlayerName = (t_GetPlayerName)LookupOpenHoldemFunction("GetPlayerName");
 	p_GetTableTitle = (t_GetTableTitle) LookupOpenHoldemFunction("GetTableTitle");
 	p_ParseHandList = (t_ParseHandList)LookupOpenHoldemFunction("ParseHandList");
-	p_ScrapeTableMapRegion = (t_ScrapeTableMapRegion)LookupOpenHoldemFunction("ScrapeTableMapRegion");
+	p_ScrapeTableMapRegion = (t_ScrapeTableMapRegion)LookupOpenHoldemFunction(
+														"ScrapeTableMapRegion");
 	p_SendChatMessage = (t_SendChatMessage)LookupOpenHoldemFunction("SendChatMessage");
 	p_WriteLog = (t_WriteLog)LookupOpenHoldemFunction("WriteLog");
 }
 
 
-void ErrorPointerNotInitialized(const char* function_name)
+void 
+ErrorPointerNotInitialized(const char* function_name)
 {
 	CString error_message;
 	error_message.Format(
@@ -188,7 +204,8 @@ void ErrorPointerNotInitialized(const char* function_name)
 	);
 }
 
-std::string scrape_table_map_region(const std::string& region)
+std::string
+scrape_table_map_region(const std::string& region)
 {
 	int dummy;
 	DLOG(INFO, "region = %s", region.c_str());
@@ -203,7 +220,8 @@ std::string scrape_table_map_region(const std::string& region)
 }
 
 
-float scrape_table_map_region_numeric(const std::string& region)
+float
+scrape_table_map_region_numeric(const std::string& region)
 {
 	std::string response = scrape_table_map_region(region);
 	std::string clean_response = "";

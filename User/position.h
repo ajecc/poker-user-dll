@@ -14,8 +14,11 @@ enum position_t
 };
 
 
-position_t& operator++(position_t& position);
+position_t& 
+operator++(position_t& position);
 
-position_t& operator--(position_t& position);
+position_t& 
+operator--(position_t& position);
 
-position_t operator+(const position_t& position, int to_add);
+position_t
+operator+(const position_t& position, int to_add);

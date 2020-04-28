@@ -15,14 +15,16 @@ struct range_hand_t
 	*/ 
 	float raise_prob = 0;
 
-	bool operator<(const range_hand_t& other) const
+	bool
+	operator<(const range_hand_t& other) const
 	{
 		return *hand < *other.hand;
 	}
 };
 
 
-void apply_raise_prob(range_hand_t* range_hand);
+void 
+apply_raise_prob(range_hand_t* range_hand);
 
 
 struct range_t
@@ -37,11 +39,13 @@ struct range_t
 
 	Parameters: hand_t* hand -- a pointer to the hand
 				hand_action_t hand_action -- the action that should be made
-				float raise_prob -- the probability that a raise will happen instead of hand_action
+				float raise_prob -- the probability that a raise will happen
+									instead of hand_action
 
 	Returns: none
 	*/
-	void add(const hand_t* hand, hand_action_t hand_action = FOLD, float raise_prob = 0);
+	void
+	add(const hand_t* hand, hand_action_t hand_action = FOLD, float raise_prob = 0);
 
 
 	/*
@@ -51,7 +55,8 @@ struct range_t
 	
 	Returns: none
 	*/
-	void remove(const hand_t* hand);
+	void
+	remove(const hand_t* hand);
 
 
 	/*
@@ -61,7 +66,8 @@ struct range_t
 
 	Retuns: bool -- true if the hand is in range and false otherwise
 	*/
-	bool contains(const hand_t* hand);
+	bool
+	contains(const hand_t* hand) const;
 
 
 	/*
@@ -71,7 +77,8 @@ struct range_t
 
 	Returns: range_hand_t* -- the appropriate range. Should not be freed. 
 	*/
-	range_hand_t* fetch(const hand_t* hand);
+	range_hand_t* 
+	fetch(const hand_t* hand) const;
 
 
 	/*
@@ -81,7 +88,8 @@ struct range_t
 
 	Returns: size_t -- the size of the range
 	*/
-	size_t size();
+	size_t
+	size() const;
 };
 
 
@@ -91,9 +99,11 @@ a get_*_range function is called  with the intention to modify the range.
 
 Parameters: IN range_t* range -- the range to copy
 
-Returns: range_t* -- a pointer to the new range. Should be deleted when it is no longer needed.
+Returns: range_t* -- a pointer to the new range. 
+					Should be deleted when it is no longer needed.
 */
-range_t* copy_range(const range_t* range);
+range_t*
+copy_range(const range_t* range);
 
 
 /*
@@ -103,10 +113,17 @@ These are fetched from "prefop_range" directory.
 
 These functions should only be called once, when the process is attaching.
 */
-std::vector<const range_t*> create_open_ranges();
-std::vector<const range_t*> create_facing_raise_ranges();
-std::vector<const range_t*> create_facing_3bet_ranges();
-std::vector<const range_t*> create_facing_4bet_ranges();
+std::vector<const range_t*>
+create_open_ranges();
+
+std::vector<const range_t*>
+create_facing_raise_ranges();
+
+std::vector<const range_t*>
+create_facing_3bet_ranges();
+
+std::vector<const range_t*>
+create_facing_4bet_ranges();
 
 // TODO: add destroy functions for ranges 
 
@@ -121,13 +138,21 @@ For
 	bet_type == FACING_3BET: hero_position > villain_position
 	bet_Type == FACING_4BET: hero_position < villain_position
 */
-const range_t* get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);
+const range_t*
+get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);
 
 
 /*
 Superseted by get_range.
 */
-const range_t* get_open_range(position_t hero_position);
-const range_t* get_facing_raise_range(position_t hero_position, position_t villain_position);
-const range_t* get_facing_3bet_range(position_t hero_position, position_t villain_position);
-const range_t* get_facing_4bet_range(position_t hero_position, position_t villain_position);
+const range_t* 
+get_open_range(position_t hero_position);
+
+const range_t*
+get_facing_raise_range(position_t hero_position, position_t villain_position);
+
+const range_t*
+get_facing_3bet_range(position_t hero_position, position_t villain_position);
+
+const range_t* 
+get_facing_4bet_range(position_t hero_position, position_t villain_position);

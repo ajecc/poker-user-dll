@@ -7,24 +7,33 @@
 #include <cassert>
 #include <algorithm>
 
-static void clear_board(board_t* board);
+static void 
+clear_board(board_t* board);
 
-static void update_cards(board_t* board);
+static void
+update_cards(board_t* board);
 
-static void update_players(board_t* board);
+static void
+update_players(board_t* board);
 
-static void update_player_positions(board_t* board);
+static void
+update_player_positions(board_t* board);
 
-static void update_current_hand_players(board_t* board);
+static void
+update_current_hand_players(board_t* board);
 
-static void update_big_blind_sum(board_t* board);
+static void
+update_big_blind_sum(board_t* board);
 
-static void update_pot(board_t* board);
+static void
+update_pot(board_t* board);
 
-static void update_hero(board_t* board);
+static void
+update_hero(board_t* board);
 
 
-board_t* create_board()
+board_t*
+create_board()
 {
 	auto* board = new board_t;
 	if (nullptr == board)
@@ -48,7 +57,8 @@ cleanup:
 }
 
 
-void destroy_board(board_t** board)
+void
+destroy_board(board_t** board)
 {
 	if (nullptr == board)
 	{
@@ -68,7 +78,8 @@ void destroy_board(board_t** board)
 }
 
 
-player_t* get_player_by_label(board_t* board, const std::string& label)
+player_t*
+get_player_by_label(board_t* board, const std::string& label)
 {
 	if (nullptr == board)
 	{
@@ -88,7 +99,8 @@ player_t* get_player_by_label(board_t* board, const std::string& label)
 }
 
 
-void update_board(board_t* board)
+void
+update_board(board_t* board)
 {
 	if (nullptr == board)
 	{
@@ -112,7 +124,8 @@ void update_board(board_t* board)
 }
 
 
-player_t* get_next_player(board_t* board, player_t* player)
+player_t* 
+get_next_player(board_t* board, player_t* player)
 {
 	std::string label = player->label;
 	label[1] = (label[1] - '0' + 1) % PLAYERS_COUNT + '0';
@@ -120,7 +133,8 @@ player_t* get_next_player(board_t* board, player_t* player)
 }
 
 
-player_t* get_next_player_in_game(board_t* board, player_t* player)
+player_t*
+get_next_player_in_game(board_t* board, player_t* player)
 {
 	for (int i = 0; i < PLAYERS_COUNT + 1; i++)
 	{
@@ -134,7 +148,8 @@ player_t* get_next_player_in_game(board_t* board, player_t* player)
 }
 
 
-player_t* get_next_player_in_hand(board_t* board, player_t* player)
+player_t*
+get_next_player_in_hand(board_t* board, player_t* player)
 {
 	for (int i = 0; i < PLAYERS_COUNT + 1; i++)
 	{
@@ -148,7 +163,8 @@ player_t* get_next_player_in_hand(board_t* board, player_t* player)
 }
 
 
-static void clear_board(board_t* board)
+static void
+clear_board(board_t* board)
 {
 	if (nullptr == board)
 	{
@@ -159,7 +175,8 @@ static void clear_board(board_t* board)
 }
 
 
-static void update_cards(board_t* board)
+static void
+update_cards(board_t* board)
 {
 	if (nullptr == board)
 	{
@@ -198,7 +215,8 @@ cleanup:
 }
 
 
-static void update_players(board_t* board)
+static void
+update_players(board_t* board)
 {
 	if (nullptr == board)
 	{
@@ -214,7 +232,8 @@ static void update_players(board_t* board)
 }
 
 
-static void update_player_positions(board_t* board)
+static void
+update_player_positions(board_t* board)
 {
 	DLOG(INFO, "in update_player_positions");
 	for (auto* player : board->players)
@@ -323,7 +342,8 @@ static void update_player_positions(board_t* board)
 }
 
 
-static void update_current_hand_players(board_t* board)
+static void
+update_current_hand_players(board_t* board)
 {
 	std::vector<player_t*> all_players = board->players;
 	if (board->stage == PREFLOP)
@@ -365,25 +385,29 @@ static void update_current_hand_players(board_t* board)
 }
 
 
-static void update_big_blind_sum(board_t* board)
+static void 
+update_big_blind_sum(board_t* board)
 {
 	board->big_blind_sum = (float)GetSymbol("bblind");
 }
 
 
-static void update_pot(board_t* board)
+static void
+update_pot(board_t* board)
 {
 	board->pot = (float)GetSymbol("pot");
 }
 
 
-static void update_hero(board_t* board)
+static void
+update_hero(board_t* board)
 {
 	board->hero = get_player_by_label(board, "p2");
 }
 
 
-std::string board_t::to_string()
+std::string 
+board_t::to_string()
 {
 	std::string to_string;
 	to_string = "CARDS: ";
