@@ -1,6 +1,7 @@
 #include "board_derived_info.h"
 #include "util.h"
 #include "card.h"
+#include "debug.h"
 #include <set>
 
 #define STRONG_DRAW_PRWIN (90.0f)
@@ -122,6 +123,7 @@ find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board)
 static void
 get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_derived_info)
 {
+	DLOG(INFO, "getting vilains info");
 	board_derived_info->main_villain = nullptr;
 	board_derived_info->secondary_villain = nullptr;
 	board_derived_info->bet_type = OPEN;
@@ -181,6 +183,7 @@ get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_de
 static void
 get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 {
+	DLOG(INFO, "getting villain draws");
 	if (board->stage != FLOP && board->stage != TURN)
 	{
 		return;
@@ -302,6 +305,7 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 static void
 get_hero_draws(board_t* board, player_t* hero, board_derived_info_t* board_derived_info)
 {
+	DLOG(INFO, "getting hero draws");
 	if (board->stage != FLOP && board->stage != TURN)
 	{
 		return;

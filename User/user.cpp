@@ -81,7 +81,7 @@ ProcessQuery(const char* pquery)
 		{
 			update_board(g_board);
 			decision = take_decision(g_board->hero, g_board);
-			LOG_F(INFO, decision.to_string().c_str());
+			LOG_F(INFO, (decision.to_string() + "\n").c_str());
 			consec_exception_count = 0;
 		}
 		catch(poker_exception_t& e)
@@ -114,7 +114,7 @@ ProcessQuery(const char* pquery)
 	}
 	else if (query == "dll$betsize")
 	{
-		LOG_F(INFO, "in dll$betsize (%f)", decision.sum);
+		DLOG(INFO, "in dll$betsize (%f)", decision.sum);
 		if (decision.action == CHECK || 
 			decision.action == FOLD ||
 			decision.action == CALL)
@@ -126,7 +126,7 @@ ProcessQuery(const char* pquery)
 	LOG_F(FATAL, "invalid query: %s", pquery);
 	return -1;
 }
-
+		
 
 // TODO: msg larisa dupa ce termin
 BOOL APIENTRY
@@ -138,6 +138,11 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 		InitializeOpenHoldemFunctionInterface();
 		init_log(&conout);
 		create_globals();
+#ifdef _DEBUG
+		LOG_F(INFO, "Debug build");
+#else
+		LOG_F(INFO, "Release build");
+#endif
 	}
 	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
 	{

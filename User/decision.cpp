@@ -49,7 +49,7 @@ decision_t
 take_decision_preflop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking PREFLOP decision");
-	board_derived_info_t* board_derived_info = board->board_derived_info;
+	auto* board_derived_info = board->board_derived_info;
 	hero->range = copy_range(get_range(
 		hero->position,
 		board_derived_info->main_villain->position,
@@ -77,7 +77,6 @@ take_decision_preflop(player_t* hero, board_t* board)
 		}
 		else
 		{
-			// let's say we bet 65% of the pot otherwise
 			to_raise_sum = 0.65f * board->pot; 
 		}
 	}
@@ -89,11 +88,14 @@ decision_t
 take_decision_flop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking FLOP decision");
+	auto* board_derived_info = board->board_derived_info;
 	float prwin_raw = (float)pow(
-		calc_prwin_vs_any_hand(hero->hand, board),
-		board->current_hand_players.size() - 1
-	);
-	if (board->board_derived_info->bet_type == OPEN)
+		calc_prwin_vs_any_hand(hero->hand, board), 
+		board->current_hand_players.size() - 1);
+	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
+	LOG_F(INFO, "pot_odds=%f", pot_odds); 
+	LOG_F(INFO, "prwin_raw=%f", prwin_raw);
+	if (board_derived_info->bet_type == OPEN)
 	{
 		if (prwin_raw > STRONG_HAND_PRWIN)
 		{
@@ -115,7 +117,7 @@ take_decision_flop(player_t* hero, board_t* board)
 			}
 			return { CHECK, 0 };
 		}
-		else if (!board->board_derived_info->villains_after_hero.empty())
+		else if (!board_derived_info->villains_after_hero.empty())
 		{
 			if (prwin_raw > CBET_PRWIN_OUT_POSITION)
 			{
@@ -139,7 +141,7 @@ take_decision_flop(player_t* hero, board_t* board)
 			return { CHECK, 0 };
 		}
 	}
-	else if (board->board_derived_info->bet_type == FACING_RAISE)
+	else if (board_derived_info->bet_type == FACING_RAISE)
 	{
 		if (prwin_raw > STRONG_HAND_PRWIN)
 		{
@@ -149,24 +151,23 @@ take_decision_flop(player_t* hero, board_t* board)
 			}
 			return { CALL, 0 };
 		}
-		if (prwin_raw > calc_pot_odds(
-			board->pot, board->board_derived_info->call_ammount))
+		if (prwin_raw > pot_odds)
 		{
 			// TODO: tweak this such that you call tighter
 			return { CALL, 0 };
 		}
 		if (is_appropriate_implied_odds_call(
 			board->pot,
-			board->board_derived_info->call_ammount,
+			board_derived_info->call_ammount,
 			board,
-			board->board_derived_info->hero_draws_flop.size()))
+			board_derived_info->hero_draws_flop.size()))
 		{
 			return { CALL, 0 };
 		}
 		return { FOLD, 0 };
 	}
-	else if (board->board_derived_info->bet_type == FACING_3BET ||
-		board->board_derived_info->bet_type == FACING_4BET)
+	else if (board_derived_info->bet_type == FACING_3BET ||
+		board_derived_info->bet_type == FACING_4BET)
 	{
 		if (prwin_raw > ALLIN_ON_3BET)
 		{
@@ -182,6 +183,62 @@ decision_t
 take_decision_turn(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking TURN decision");
+	auto* board_derived_info = board->board_derived_info;
+	bool draw_hit = contains(board_derived_info->villain_draws_flop, board->cards.back());
+	float prwin_raw = (float)pow(
+		calc_prwin_vs_any_hand(hero->hand, board), 
+		board->current_hand_players.size() - 1);
+	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
+	LOG_F(INFO, "pot_odds=%f", pot_odds); 
+	LOG_F(INFO, "prwin_raw=%f", prwin_raw);
+	if (board_derived_info->bet_type == OPEN)
+	{
+		if (is_board_wet_flop(board) && !draw_hit && prwin_raw > 0.65f)
+		{
+			return { RAISE, board->pot * 0.65f };
+		}
+		if (board_derived_info->villains_after_hero.empty())
+		{
+			if (prwin_raw > 0.92f)
+			{
+				return { RAISE, board->pot * 0.65f };
+			}
+			return { CHECK, 0 };
+		}
+		else
+		{
+			return { CHECK, 0 };
+		}
+	}
+	else if (board_derived_info->bet_type == FACING_RAISE)
+	{
+		if (is_board_wet_flop(board) && !draw_hit && prwin_raw > 0.65f)
+		{
+			return { CALL, 0 };
+		}
+		if (prwin_raw > 0.92f)
+		{
+			return { RAISE, board_derived_info->call_ammount * 3 };
+		}
+		if (is_appropriate_implied_odds_call(
+			board->pot,
+			board_derived_info->call_ammount,
+			board,
+			board_derived_info->hero_draws_turn.size()))
+		{
+			return { CALL, 0 };
+		}
+		return { FOLD, 0 };
+	}
+	else if(board_derived_info->bet_type == FACING_3BET ||
+		board_derived_info->bet_type == FACING_4BET)
+	{
+		if (prwin_raw > ALLIN_ON_3BET)
+		{
+			return { RAISE, hero->balance };
+		}
+		return { FOLD, 0 };
+	}
 	return {FOLD, 0};
 }
 
@@ -190,22 +247,95 @@ decision_t
 take_decision_river(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking RIVER decision");
-
-	return {FOLD, 0};
+	auto* board_derived_info = board->board_derived_info;
+	bool draw_hit = contains(board_derived_info->villain_draws_turn, board->cards.back());
+	if (!draw_hit)
+	{
+		draw_hit = contains(board_derived_info->villain_draws_flop,
+			board->cards[board->cards.size() - 2]);
+	}
+	float prwin_raw = (float)pow(
+		calc_prwin_vs_any_hand(hero->hand, board), 
+		board->current_hand_players.size() - 1);
+	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
+	LOG_F(INFO, "pot_odds=%f", pot_odds); 
+	LOG_F(INFO, "prwin_raw=%f", prwin_raw);
+	if (board_derived_info->bet_type == OPEN) 
+	{
+		if (board_derived_info->villains_after_hero.empty())
+		{
+			if (prwin_raw > 0.8f)
+			{
+				if (prwin_raw < 0.85f && draw_hit)
+				{
+					return { CHECK, 0 };
+				}
+				return { RAISE, board->pot * 0.35f };
+			}
+		}
+		else
+		{
+			if (prwin_raw > 0.92f)
+			{
+				return { RAISE, board->pot * 0.75f };
+			}
+			return { CHECK, 0 };
+		}
+	}
+	else if (board_derived_info->bet_type == FACING_RAISE)
+	{
+		if (prwin_raw > 0.92f)
+		{
+			// CRIT: check if call_ammount is added to pot anyway
+			if (board_derived_info->call_ammount < board_derived_info->pot)
+			{
+				return { RAISE, board_derived_info->call_ammount * 3 };
+			}
+			if (prwin_raw > 0.96f)
+			{
+				return { RAISE, hero->balance };
+			}
+			return { CALL, 0 };
+		}
+		if (prwin_raw > pot_odds + 0.1f)
+		{
+			return { CALL, 0 };
+		}
+		return { FOLD, 0 };
+	}
+	else if (board_derived_info->bet_type == FACING_3BET ||
+		board_derived_info->bet_type == FACING_4BET)
+	{
+		if (draw_hit)
+		{
+			if (prwin_raw > 0.97f)
+			{
+				return { RAISE, hero->balance };
+			}
+			return { FOLD, 0 };
+		}
+		if (prwin_raw > 0.93f)
+		{
+			return { RAISE, hero->balance };
+		}
+		return { FOLD, 0 };
+	}
+	throw poker_exception_t("take_decision_river: some case was not handled");
 }
 
 
 decision_t
 take_decision(player_t* hero, board_t* board)
 {
-	board_derived_info_t* board_derived_info = new board_derived_info_t;
+	LOG_F(INFO, "started taking decision");
+	auto* board_derived_info = new board_derived_info_t;
 	*board_derived_info = get_board_derived_info(hero, board);
 	if (board->board_derived_info != nullptr)
 	{
 		delete board->board_derived_info;
 	}
 	board->board_derived_info = board_derived_info;
-	DLOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", 
+	LOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", 
 		board_derived_info->to_string().c_str());
 
 	decision_t decision;

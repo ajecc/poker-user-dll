@@ -15,9 +15,10 @@ int main(int argc, char** argv)
 	create_globals();
 	auto result =  RUN_ALL_TESTS();
 	board_t board;
-	board.cards = { get_card(_8, D), get_card(_A, D), get_card(_7, H), get_card(_7, D) };
-	const hand_t* hero_hand = get_hand(get_card(_6, D), get_card(_Q, D));
-	const hand_t* villain_hand = get_hand(get_card(_K, D), get_card(_A, C));
+	board.cards =
+	{ get_card("8d"), get_card("Ac"), get_card("7h"), get_card("7d"), get_card("2h")};
+	const hand_t* hero_hand = get_hand(get_card("3d"), get_card("7s"));
+	const hand_t* villain_hand = get_hand(get_card("Kd"), get_card("Ac"));
 	float start = clock();
 	float sum = 0;
 	sum += calc_prwin_vs_any_hand(hero_hand, &board);
