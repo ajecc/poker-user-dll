@@ -261,3 +261,9 @@ calc_prwin_vs_hand_flop(const hand_t* hero, const hand_t* villain, const board_t
 		(float)(remaining_cards_size * (remaining_cards_size - 1) / 2);
 }
 
+
+std::string
+hand_t::to_string() const
+{
+	return cards[0]->to_string() + " " + cards[1]->to_string();
+}

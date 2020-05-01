@@ -153,7 +153,7 @@ get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_de
 			current_bet = villain->current_bet;
 			board_derived_info->bet_type = FACING_RAISE;
 		}
-		if (current_bet != 0)
+		if (FP_ARE_DIFFERENT(current_bet, 0))
 		{
 			board_derived_info->secondary_villain = board_derived_info->main_villain;
 			board_derived_info->main_villain = villain;
@@ -256,16 +256,24 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 			{
 				for (color_t color = H; color <= S; ++color)
 				{
-					int rank = (rank_t)cards[i - 1]->rank - 3;
+					int rank = (int)cards[i - 1]->rank - 3;
 					if (rank == 1)
 					{
 						rank = _A;
+					}
+					if (rank <= (int)_2)
+					{
+						continue;
 					}
 					draws.insert(get_card((rank_t)rank, color));
 					rank--;
 					if (rank == 1)
 					{
 						rank = _A;
+					}
+					if (rank <= (int)_2)
+					{
+						continue;
 					}
 					draws.insert(get_card((rank_t)rank, color));
 				}
@@ -395,7 +403,6 @@ board_derived_info_t::to_string()
 		res += "NULL";
 	}
 	res += "\n";
-	res += "pot = " + std::to_string(pot) + "\n";
 	res += "current_bet = " + std::to_string(current_bet) + "\n";
 	res += "villain_draws_FLOP = ";
 	for (auto* card : villain_draws_flop)

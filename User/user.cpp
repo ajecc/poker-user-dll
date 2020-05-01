@@ -88,7 +88,7 @@ ProcessQuery(const char* pquery)
 		{
 			LOG_F(INFO, "Exception encountered: %s", e.what());
 			consec_exception_count++;
-			if (consec_exception_count >= 3)
+			if (consec_exception_count >= 12)
 			{
 				LOG_F(FATAL, "Too many consecutive excetions encountered");
 			}
@@ -143,6 +143,7 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 #else
 		LOG_F(INFO, "Release build");
 #endif
+		LOG_F(INFO, "Compile time: " __TIME__ " -- " __DATE__);
 	}
 	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
 	{

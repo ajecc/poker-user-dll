@@ -9,15 +9,16 @@
 
 
 
-int main(int argc, char** argv)
+int 
+main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);
 	create_globals();
 	auto result =  RUN_ALL_TESTS();
 	board_t board;
 	board.cards =
-	{ get_card("8d"), get_card("Ac"), get_card("7h"), get_card("7d"), get_card("2h")};
-	const hand_t* hero_hand = get_hand(get_card("3d"), get_card("7s"));
+	{ get_card("Qd"), get_card("Qh"), get_card("Jc")};
+	const hand_t* hero_hand = get_hand(get_card("Ks"), get_card("Kd"));
 	const hand_t* villain_hand = get_hand(get_card("Kd"), get_card("Ac"));
 	float start = clock();
 	float sum = 0;

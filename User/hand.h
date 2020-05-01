@@ -36,6 +36,9 @@ struct hand_t
 
 	bool 
 	operator<(const hand_t& other) const;
+
+	std::string
+	to_string() const;
 };
 
 

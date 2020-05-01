@@ -23,7 +23,6 @@ struct board_derived_info_t
 	std::vector<player_t*> villains_after_hero;
 	player_t* main_villain = nullptr;
 	player_t* secondary_villain = nullptr;
-	float pot = 0;
 	float current_bet = 0;
 	float call_ammount = 0;
 	std::vector<const card_t*> villain_draws_flop;
@@ -38,6 +37,7 @@ struct board_derived_info_t
 
 std::vector<const card_t*> 
 find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board);
+
 
 board_derived_info_t
 get_board_derived_info(player_t* hero, board_t* board);

@@ -33,6 +33,7 @@ update_player(player_t* player)
 		throw poker_exception_t("Player should never be nullptr");
 	}
 	update_player_is_in_game(player);
+	update_player_is_in_hand(player);
 	if (!player->is_in_game)
 	{
 		return;
@@ -40,7 +41,6 @@ update_player(player_t* player)
 	update_player_balance(player);
 	update_player_current_bet(player);
 	update_player_name(player);
-	update_player_is_in_hand(player);
 	update_player_cards(player);
 }
 
@@ -86,8 +86,6 @@ update_player_current_bet(player_t* player)
 	}
 	std::string query = player->label + "bet";
 	player->current_bet = scrape_table_map_region_numeric(query);
-	// TODO: check for raise, update player aggresivity etc. 
-	// NOTE: maybe use poker tracer
 }
 
 
@@ -111,26 +109,13 @@ update_player_is_in_hand(player_t* player)
 	{
 		throw poker_exception_t("Player should never be nullptr");
 	}
+	player->is_in_hand = false;
 	std::string query = player->label + "cardback";
 	std::string query_response = scrape_table_map_region(query);
-	if (query_response == "true")
+	// NOTE: p2 = hero's label
+	if (query_response == "true" || player->label == "p2")
 	{
 		player->is_in_hand = true;
-	}
-	else
-	{
-		query = player->label + "cardface0";
-		query_response = scrape_table_map_region(query);
-		// NOTE: only works if the response is empty or it starts with 
-		//		 something like "Error"
-		if (query_response.size() == 0 || query_response[0] == 'E')
-		{
-			player->is_in_hand = false;
-		}
-		else
-		{
-			player->is_in_hand = true;
-		}
 	}
 }
 

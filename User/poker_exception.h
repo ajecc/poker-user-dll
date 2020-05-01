@@ -16,6 +16,7 @@ public:
 	virtual const char* 
 	what() const throw()
 	{
+		LOG_F(INFO, message.c_str());
 		return message.c_str();
 	}
 };

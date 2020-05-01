@@ -81,10 +81,6 @@ destroy_board(board_t** board)
 player_t*
 get_player_by_label(board_t* board, const std::string& label)
 {
-	if (nullptr == board)
-	{
-		throw poker_exception_t("Board should never be nullptr");
-	}
 	for (auto* player : board->players)
 	{
 		if (label == player->label)
@@ -102,10 +98,6 @@ get_player_by_label(board_t* board, const std::string& label)
 void
 update_board(board_t* board)
 {
-	if (nullptr == board)
-	{
-		throw poker_exception_t("Board should never be nullptr");
-	}
 	auto prev_stage = board->stage;
 	clear_board(board);
 	update_cards(board);
@@ -120,7 +112,7 @@ update_board(board_t* board)
 		delete board->board_derived_info;
 		board->board_derived_info = nullptr;
 	}
-	DLOG(INFO, board->to_string().c_str());
+	LOG_F(INFO, board->to_string().c_str());
 }
 
 
@@ -178,10 +170,6 @@ clear_board(board_t* board)
 static void
 update_cards(board_t* board)
 {
-	if (nullptr == board)
-	{
-		throw poker_exception_t("Board should never be nullptr");
-	}
 	std::string cards_query_string = "c0cardfaceX";
 	for (int i = 0; i < PLAYERS_COUNT; i++)
 	{
@@ -218,10 +206,6 @@ cleanup:
 static void
 update_players(board_t* board)
 {
-	if (nullptr == board)
-	{
-		throw poker_exception_t("Board should never be nullptr");
-	}
 	std::string player_label = "pX";
 	for (char i = '0'; i < '0' + PLAYERS_COUNT; i++)
 	{
@@ -377,7 +361,7 @@ update_current_hand_players(board_t* board)
 	}
 	for (auto* player : all_players)
 	{
-		if (player->is_in_game)
+		if (player->is_in_hand)
 		{
 			board->current_hand_players.emplace_back(player);
 		}
@@ -420,7 +404,9 @@ board_t::to_string()
 	for (auto* player : players)
 	{
 		to_string += player->to_string();
-		to_string += "\n\n";
+		to_string += "\n";
 	}
+	to_string += "HERO: " + hero->hand->to_string() + "\n";
+	to_string += "CURRENT PLAYERS CNT: " + std::to_string(current_hand_players.size());
 	return to_string;
 }

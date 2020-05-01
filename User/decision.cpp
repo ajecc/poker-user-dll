@@ -41,6 +41,9 @@ static float
 calc_pot_odds(float pot, float call_sum);
 
 static bool
+is_appropriate_pot_odds_call(float pot_odds, float prwin);
+
+static bool
 is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
 									int hero_draws_count);
 
@@ -151,9 +154,8 @@ take_decision_flop(player_t* hero, board_t* board)
 			}
 			return { CALL, 0 };
 		}
-		if (prwin_raw > pot_odds)
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw))
 		{
-			// TODO: tweak this such that you call tighter
 			return { CALL, 0 };
 		}
 		if (is_appropriate_implied_odds_call(
@@ -172,6 +174,10 @@ take_decision_flop(player_t* hero, board_t* board)
 		if (prwin_raw > ALLIN_ON_3BET)
 		{
 			return { RAISE, hero->balance };
+		}
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw - 0.2f))
+		{
+			return { CALL, 0 };
 		}
 		return { FOLD, 0 };
 	}
@@ -220,6 +226,10 @@ take_decision_turn(player_t* hero, board_t* board)
 		{
 			return { RAISE, board_derived_info->call_ammount * 3 };
 		}
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw))
+		{
+			return { CALL, 0 };
+		}
 		if (is_appropriate_implied_odds_call(
 			board->pot,
 			board_derived_info->call_ammount,
@@ -233,9 +243,21 @@ take_decision_turn(player_t* hero, board_t* board)
 	else if(board_derived_info->bet_type == FACING_3BET ||
 		board_derived_info->bet_type == FACING_4BET)
 	{
-		if (prwin_raw > ALLIN_ON_3BET)
+		if (draw_hit)
+		{
+			if (prwin_raw > 0.97f)
+			{
+				return { RAISE, hero->balance };
+			}
+			return { FOLD, 0 };
+		}
+		if (prwin_raw > 0.93f)
 		{
 			return { RAISE, hero->balance };
+		}
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw - 0.2f))
+		{
+			return { CALL, 0 };
 		}
 		return { FOLD, 0 };
 	}
@@ -272,6 +294,11 @@ take_decision_river(player_t* hero, board_t* board)
 				}
 				return { RAISE, board->pot * 0.35f };
 			}
+			else if (prwin_raw > 0.6f && generate_random() < 0.4f)
+			{
+				return { RAISE, board->pot * 0.65f };
+			}
+			return { CHECK, 0 };
 		}
 		else
 		{
@@ -287,7 +314,7 @@ take_decision_river(player_t* hero, board_t* board)
 		if (prwin_raw > 0.92f)
 		{
 			// CRIT: check if call_ammount is added to pot anyway
-			if (board_derived_info->call_ammount < board_derived_info->pot)
+			if (board_derived_info->call_ammount < board->pot)
 			{
 				return { RAISE, board_derived_info->call_ammount * 3 };
 			}
@@ -297,7 +324,7 @@ take_decision_river(player_t* hero, board_t* board)
 			}
 			return { CALL, 0 };
 		}
-		if (prwin_raw > pot_odds + 0.1f)
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw))
 		{
 			return { CALL, 0 };
 		}
@@ -317,6 +344,10 @@ take_decision_river(player_t* hero, board_t* board)
 		if (prwin_raw > 0.93f)
 		{
 			return { RAISE, hero->balance };
+		}
+		if (is_appropriate_pot_odds_call(pot_odds, prwin_raw - 0.3f))
+		{
+			return { CALL, 0 };
 		}
 		return { FOLD, 0 };
 	}
@@ -429,10 +460,22 @@ calc_pot_odds(float pot, float call_sum)
 
 
 static bool
+is_appropriate_pot_odds_call(float pot_odds, float prwin)
+{
+	// NOTE: tweak this constant
+	return prwin > pot_odds + 33;
+}
+
+
+static bool
 is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
 									int hero_draws_count)
 {
 	assert(board->stage == FLOP || board->stage == TURN);
+	if (hero_draws_count == 0)
+	{
+		return false;
+	}
 	float max_value = 0;
 	for (auto* player : board->current_hand_players)
 	{
