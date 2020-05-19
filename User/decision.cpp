@@ -162,7 +162,7 @@ take_decision_flop(player_t* hero, board_t* board)
 			board->pot,
 			board_derived_info->call_ammount,
 			board,
-			board_derived_info->hero_draws_flop.size()))
+			(int)board_derived_info->hero_draws_flop.size()))
 		{
 			return { CALL, 0 };
 		}
@@ -234,7 +234,7 @@ take_decision_turn(player_t* hero, board_t* board)
 			board->pot,
 			board_derived_info->call_ammount,
 			board,
-			board_derived_info->hero_draws_turn.size()))
+			(int)board_derived_info->hero_draws_turn.size()))
 		{
 			return { CALL, 0 };
 		}

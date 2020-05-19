@@ -22,6 +22,7 @@ main(int argc, char** argv)
 	const hand_t* villain_hand = get_hand(get_card("Kd"), get_card("Ac"));
 	float start = clock();
 	float sum = 0;
+	for(int i = 0; i < 10000; i++) 
 	sum += calc_prwin_vs_any_hand(hero_hand, &board);
 	std::cout << sum * 100 << "%" << '\n';
 	std::cout << calc_prwin_vs_hand(hero_hand, villain_hand, &board) * 100 << "%\n";
