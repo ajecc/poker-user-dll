@@ -8,6 +8,8 @@
 #include <cstdio>
 #include <random>
 #include <excpt.h>
+#include <filesystem>
+#include <future>
 #include "loguru.h"
 #include "user.h"
 #include "open_holdem_functions.h"
@@ -128,6 +130,7 @@ ProcessQuery(const char* pquery)
 }
 		
 
+#ifdef _WINDLL
 // TODO: msg larisa dupa ce termin
 BOOL APIENTRY
 DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) 
@@ -153,3 +156,100 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 	}
 	return TRUE;
 } 
+#else
+#include <fstream>
+#include <iostream>
+size_t i, j, k, l, m;
+std::vector<float> results;
+bool done = false;
+
+void save_state()
+{
+	std::cout << "saving state...\n";
+	std::ofstream saved_stream_state("saved_state.txt");
+	saved_stream_state << i << ' ' << j << ' ' << k << ' ' << l << ' ' << m + 1;
+	std::ofstream prwin_results;
+	prwin_results.open("prwin_results_any_hand.cache", 
+		std::ofstream::app | std::ofstream::binary);
+	prwin_results.write((char*)&results[0], sizeof(float) * results.size());
+	std::cout << "successfully saved state...\n";
+	prwin_results.clear();
+}
+
+
+BOOL WINAPI HandlerRoutine(DWORD dwCtrlType)
+{
+	done = true;
+	Sleep(50000);
+	return TRUE;
+}
+
+
+int main()
+{
+	auto file_size = (float)std::filesystem::file_size(
+					"prwin_results_any_hand.cache"); 
+	SetConsoleCtrlHandler(HandlerRoutine, TRUE);
+	FILE* conout = nullptr;
+	init_log(&conout);
+	create_globals();
+	std::ifstream saved_state_stream("saved_state.txt");
+	saved_state_stream >> i >> j >> k >> l >> m;
+	saved_state_stream.close();
+	if (i == g_all_cards.size())
+	{
+		i = 0;
+	}
+	for (i; i < g_all_cards.size(); i++)
+	{
+		if (j <= i || j == g_all_cards.size())
+		{
+			j = i + 1;
+		}
+		for (j; j < g_all_cards.size(); j++)
+		{
+			if (k == g_all_cards.size())
+			{
+				k = 0;
+			}
+			for (k; k < g_all_cards.size(); k++)
+			{
+				if (l <= k || l == g_all_cards.size())
+				{
+					l = k + 1;
+				}
+				for (l; l < g_all_cards.size(); l++)
+				{
+					if (m <= l || m == g_all_cards.size())
+					{
+						m = l + 1;
+					}
+					for (m; m < g_all_cards.size(); m++)
+					{
+						if (k == j || l == j || m == j ||
+							k == i || l == i || m == i)
+						{
+							continue;
+						}
+						const hand_t* hero_hand = 
+							get_hand(g_all_cards[i], g_all_cards[j]);
+						board_t board;
+						board.cards = { g_all_cards[k], g_all_cards[l], g_all_cards[m] };
+						results.push_back(calc_prwin_vs_any_hand(hero_hand, &board));
+						if (done)
+						{
+							save_state();
+							MessageBox(NULL, "Saved, everything ok", "OK", MB_OK);
+							Sleep(50000);
+							exit(0);
+						}
+					}
+				}
+			}
+			float progress = (file_size + results.size() * sizeof(float)) / 1039584;
+			std::cout << "[#] Done: " << progress << "%\n";
+		}
+	}
+	std::cout << "done!\n";
+}
+#endif

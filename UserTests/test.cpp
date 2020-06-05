@@ -23,9 +23,8 @@ main(int argc, char** argv)
 	float start = clock();
 	float sum = 0;
 	sum += calc_prwin_vs_any_hand(hero_hand, &board);
-	std::cout << sum * 100 << "%" << '\n';
-	std::cout << calc_prwin_vs_hand(hero_hand, villain_hand, &board) * 100 << "%\n";
 	float end = clock();
+	std::cout << sum * 100 << "%" << '\n';
 	float time = (end - start) / CLOCKS_PER_SEC;
 	std::cout <<  "TIME: " << time << '\n';
 	return result;
