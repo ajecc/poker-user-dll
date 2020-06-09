@@ -1,105 +1,122 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
+    <Filter Include="headers">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="headers\external">
+      <UniqueIdentifier>{62b1afa1-0051-4f97-9b0b-0ed0e8d3c87b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\primitives">
+      <UniqueIdentifier>{86070ebd-1cb1-493d-80dc-48f9b6a55b48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers\misc">
+      <UniqueIdentifier>{acf2006d-5133-4d08-96b6-336a58b29241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\primitives">
+      <UniqueIdentifier>{99038ca5-1ca6-498f-a6e2-83c3bd286d05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\external">
+      <UniqueIdentifier>{c6f0281f-482c-4a62-b18a-ec4083182259}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="user.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="open_holdem_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="board.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="card.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="loguru.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="hand_board_results.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="range.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="position.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="decision.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="board_derived_info.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="board.cpp">
+      <Filter>sources\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="hand.cpp">
+      <Filter>sources\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>sources\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="card.cpp">
+      <Filter>sources\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="loguru.cpp">
+      <Filter>sources\external</Filter>
+    </ClCompile>
+    <ClCompile Include="prwin_calc.cpp">
+      <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="open_holdem_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="board.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="card.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="poker_exception.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="loguru.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="hand_board_result.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="range.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="position.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="decision.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="board_derived_info.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="clean_windows.h">
-      <Filter>Header Files</Filter>
+      <Filter>headers\external</Filter>
+    </ClInclude>
+    <ClInclude Include="loguru.h">
+      <Filter>headers\external</Filter>
+    </ClInclude>
+    <ClInclude Include="board.h">
+      <Filter>headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="card.h">
+      <Filter>headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="hand.h">
+      <Filter>headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>headers\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="poker_exception.h">
+      <Filter>headers\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="prwin_calc.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

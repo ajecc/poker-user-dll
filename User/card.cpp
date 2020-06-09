@@ -146,10 +146,6 @@ is_in_vector(const card_t* card, const std::vector<const card_t*>& vec)
 const card_t*
 get_card(const std::string& str)
 {
-	if (str.empty())
-	{
-		return nullptr;
-	}
 	if (str.size() != 2)
 	{
 		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");

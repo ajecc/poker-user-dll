@@ -198,6 +198,7 @@
     <ClCompile Include="open_holdem_functions.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="position.cpp" />
+    <ClCompile Include="prwin_calc.cpp" />
     <ClCompile Include="range.cpp" />
     <ClCompile Include="user.cpp" />
   </ItemGroup>
@@ -215,6 +216,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="poker_exception.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="prwin_calc.h" />
     <ClInclude Include="range.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="util.h" />

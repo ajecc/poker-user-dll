@@ -2,6 +2,7 @@
 #include "util.h"
 #include "card.h"
 #include "debug.h"
+#include "prwin_calc.h"
 #include <set>
 
 #define STRONG_DRAW_PRWIN (90.0f)
@@ -227,11 +228,11 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 	count_t consec = 1;
 	for (int i = 1; i < (int)cards.size(); i++)
 	{
-		if (cards[i]->rank == cards[i - 1]->rank + 1)
+		if (cards[i]->rank == cards[(int64_t)i - 1]->rank + 1)
 		{
 			consec++;
 		}
-		else if (cards[i]->rank == cards[i - 1]->rank)
+		else if (cards[i]->rank == cards[(int64_t)i - 1]->rank)
 		{
 			continue;
 		}
@@ -240,13 +241,13 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 			consec = 1;
 			for (color_t color = H; color <= S; ++color)
 			{
-				if (cards[i - 1]->rank != _A)
+				if (cards[(int64_t)i - 1]->rank != _A)
 				{
-					draws.insert(get_card((rank_t)(cards[i - 1]->rank + 1), color));
+					draws.insert(get_card((rank_t)(cards[(int64_t)i - 1]->rank + 1), color));
 				}
-				if (cards[i - 1]->rank - 2 >= _3)
+				if (cards[(int64_t)i - 1]->rank - 2 >= _3)
 				{
-					draws.insert(get_card((rank_t)(cards[i - 1]->rank - 2), color));
+					draws.insert(get_card((rank_t)(cards[(int64_t)i - 1]->rank - 2), color));
 				}
 			}
 		}
@@ -256,7 +257,7 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 			{
 				for (color_t color = H; color <= S; ++color)
 				{
-					int rank = (int)cards[i - 1]->rank - 3;
+					int rank = (int)cards[(int64_t)i - 1]->rank - 3;
 					if (rank == 1)
 					{
 						rank = _A;
@@ -278,7 +279,7 @@ get_villain_draws(board_t* board, board_derived_info_t* board_derived_info)
 					draws.insert(get_card((rank_t)rank, color));
 				}
 			}
-			int rank = cards[i - 1]->rank + 1;
+			int rank = cards[(int64_t)i - 1]->rank + 1;
 			if (rank > _A)
 			{
 				continue;

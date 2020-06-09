@@ -353,3 +353,4 @@ MigrationBackup/
 .ionide/
 
 *.cache
+preflop_range/

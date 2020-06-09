@@ -18,6 +18,7 @@
 #include "hand_board_result.h"
 #include "decision.h"
 #include "poker_exception.h"
+#include "prwin_calc.h"
 
 void __stdcall
 DLLUpdateOnNewFormula() {}
@@ -43,8 +44,9 @@ board_t* g_board;
 std::vector<const card_t*> g_all_cards;
 std::vector<const hand_t*> g_all_hands;
 std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges,
-							g_facing_3bet_ranges, g_facing_4bet_ranges;
+						g_facing_3bet_ranges, g_facing_4bet_ranges;
 const hand_board_result_t* g_all_hand_board_results;
+std::vector<float> g_all_prwin_vs_any_hand_flop;
 
 
 void 
@@ -60,6 +62,8 @@ create_globals()
 	g_facing_4bet_ranges = create_facing_4bet_ranges();
 
 	g_all_hand_board_results = create_all_hand_board_results();
+
+	g_all_prwin_vs_any_hand_flop = create_all_prwin_vs_any_hand_flop();
 	LOG_F(INFO, "Created all globals successfully");
 }
 

@@ -1,6 +1,9 @@
 #pragma once
+#include "clean_windows.h"
+#include "debug.h"
 #include <random>
 #include <chrono>
+#include <filesystem>
 
 #define all(X) (X).begin(), (X).end()
 
@@ -81,3 +84,74 @@ contains(T1 container, T2 elem)
 {
 	return std::find(all(container), elem) != container.end();
 }
+
+
+inline const void* 
+open_cache(const std::string& cache_name, const std::string& shared_cache_name)
+{
+	auto file_size = (DWORD)std::filesystem::file_size(cache_name);
+	DLOG(INFO, ("Shared memory file size = " + std::to_string(file_size)).c_str());
+	// TODO: find a way to free this handle
+	HANDLE cache_map = OpenFileMappingA(
+		FILE_MAP_READ,
+		FALSE,
+		shared_cache_name.c_str()
+	);
+	if (cache_map == NULL)
+	{
+		DWORD error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND)
+		{
+			HANDLE cached_handle = CreateFileA(
+				cache_name.c_str(),
+				GENERIC_ALL,
+				FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				NULL
+			);
+			if (cached_handle == INVALID_HANDLE_VALUE)
+			{
+				throw std::runtime_error("open_cache: CreateFileA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			cache_map = CreateFileMappingA(
+				cached_handle,
+				NULL,
+				PAGE_READWRITE,
+				0,
+				file_size,
+				shared_cache_name.c_str()
+			);
+			CloseHandle(cached_handle);
+			if (cache_map == NULL)
+			{
+				error = GetLastError();
+				throw std::runtime_error("open_cache: CreateFileMappingA failed with last err-code=" 
+					+ std::to_string(error));
+			}
+			LOG_F(INFO, "Successfully created the shared memory region");
+		}
+		else
+		{
+			throw std::runtime_error("create_all_hand_board_results: OpenFileMappingA failed with last err-code=" 
+				+ std::to_string(error));
+		}
+	}
+	const void* cache = MapViewOfFile(
+		cache_map,
+		FILE_MAP_READ,
+		0,
+		0,
+		file_size	
+	);
+	if (cache == NULL)
+	{
+		throw std::runtime_error("cache: MapViewOfFile failed with last err-code=" 
+			+ std::to_string(GetLastError()));
+	}
+	LOG_F(INFO, "Successfully opened shared memory region: %s", cache_name.c_str());
+	return cache;
+}
+

@@ -64,6 +64,12 @@ struct card_t
 card_t&
 operator++(card_t& card);
 
+inline bool
+card_ptr_cmp(const card_t* lhs, const card_t* rhs)
+{
+	return *lhs < *rhs;
+}
+
 
 
 /*

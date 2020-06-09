@@ -4,11 +4,8 @@
 #include "debug.h"
 #include "util.h"
 #include "board_derived_info.h"
+#include "prwin_calc.h"
 #include <cassert>
-#ifdef min
-#undef min
-#undef max
-#endif
 
 // TODO: find appropriate values for these
 #define STRONG_HAND_PRWIN 0.93f

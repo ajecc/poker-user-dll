@@ -2,6 +2,7 @@
 #include "poker_exception.h"
 #include "position.h"
 #include "util.h"
+#include "hand.h"
 #include <vector>
 #include <cassert>
 #ifdef _DEBUG

@@ -11,6 +11,9 @@ struct board_derived_info_t;
 struct board_t
 {
 	board_stage_t stage = INVALID_BOARD_STAGE;
+	/*
+	The cards found on the board, in ascending order. (using card_ptr_cmp)
+	*/
 	std::vector<const card_t*> cards;
 	std::vector<player_t*> players;
 	/*

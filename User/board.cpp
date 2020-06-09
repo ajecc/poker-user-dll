@@ -171,18 +171,18 @@ static void
 update_cards(board_t* board)
 {
 	std::string cards_query_string = "c0cardfaceX";
-	for (int i = 0; i < PLAYERS_COUNT; i++)
+	for (int i = 0; ;i++)
 	{
 		cards_query_string[cards_query_string.size() - 1] = (char)(i + '0');
 		std::string card_str = scrape_table_map_region(cards_query_string);
-		const card_t* card = get_card(card_str);
-		if (card == nullptr)
+		if (card_str.empty())
 		{
-			goto cleanup;
+			break;
 		}
+		const card_t* card = get_card(card_str);
 		board->cards.emplace_back(card);
 	}
-cleanup:
+	std::sort(all(board->cards), card_ptr_cmp);
 	switch (board->cards.size())
 	{
 	case 0:
