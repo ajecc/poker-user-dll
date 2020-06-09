@@ -5,7 +5,7 @@
 #include <vector>
 #include <cassert>
 #ifdef _DEBUG
-#include <Windows.h>
+#include "clean_windows.h"
 #endif
 
 extern std::vector<const range_t*> g_open_ranges, g_facing_raise_ranges,

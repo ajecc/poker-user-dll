@@ -6,11 +6,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <Windows.h>
-#ifdef min
-#undef min
-#endif
-
+#include "clean_windows.h"
 
 extern const hand_board_result_t* g_all_hand_board_results;
 
@@ -292,8 +288,8 @@ calc_straight_flush(std::vector<const card_t*> cards, hand_board_result_t* resul
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
-		if (cards[i]->rank == cards[i + 1]->rank + 1
-			&& cards[i]->color == cards[i + 1]->color)
+		if (cards[i]->rank == cards[(int64_t)i + 1]->rank + 1
+			&& cards[i]->color == cards[(int64_t)i + 1]->color)
 		{
 			consec++;
 		}
@@ -321,9 +317,9 @@ calc_quads(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 3; i++)
 	{
-		if (cards[i]->rank == cards[i + 1]->rank && 
-			cards[i]->rank == cards[i + 2]->rank &&
-			cards[i]->rank == cards[i + 3]->rank)
+		if (cards[i]->rank == cards[(int64_t)i + 1]->rank && 
+			cards[i]->rank == cards[(int64_t)i + 2]->rank &&
+			cards[i]->rank == cards[(int64_t)i + 3]->rank)
 		{
 			result->strength = QUADS;
 			result->kicker_0 = cards[i]->rank;
@@ -347,7 +343,8 @@ calc_trips(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 2; i++)
 	{
-		if (cards[i]->rank == cards[i + 1]->rank && cards[i]->rank == cards[i + 2]->rank)
+		if (cards[i]->rank == cards[(int64_t)i + 1]->rank && 
+			cards[i]->rank == cards[(int64_t)i + 2]->rank)
 		{
 			result->strength = TRIPS;
 			result->kicker_0 = cards[i]->rank;
@@ -380,7 +377,7 @@ calc_pair(const std::vector<const card_t*>& cards, hand_board_result_t* result)
 {
 	for (int i = 0; i < (int)cards.size() - 1; i++)
 	{
-		if (cards[i]->rank == cards[i + 1]->rank)
+		if (cards[i]->rank == cards[(int64_t)i + 1]->rank)
 		{
 			result->strength = PAIR;
 			result->kicker_0 = cards[i]->rank;
@@ -544,11 +541,11 @@ calc_straight(const std::vector<const card_t*>& cards, hand_board_result_t* resu
 	bool have_result = false;
 	for (int i = (int)cards_normalized.size() - 2; i >= 0; i--)
 	{
-		if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank + 1)
+		if (cards_normalized[i]->rank == cards_normalized[(int64_t)i + 1]->rank + 1)
 		{
 			consec++;
 		}
-		else if (cards_normalized[i]->rank == cards_normalized[i + 1]->rank)
+		else if (cards_normalized[i]->rank == cards_normalized[(int64_t)i + 1]->rank)
 		{
 			continue;
 		}
@@ -587,7 +584,7 @@ calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
-		if (cards[i]->color == cards[i + 1]->color)
+		if (cards[i]->color == cards[(int64_t)i + 1]->color)
 		{
 			consec++;
 		}

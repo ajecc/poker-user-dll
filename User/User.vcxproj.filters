@@ -98,5 +98,8 @@
     <ClInclude Include="board_derived_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="clean_windows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

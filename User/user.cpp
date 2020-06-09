@@ -3,8 +3,8 @@
 // NOTE: this needs to be at the top
 #define USER_DLL 
 
+#include "clean_windows.h"
 #include <conio.h>
-#include <Windows.h>
 #include <cstdio>
 #include <random>
 #include <excpt.h>

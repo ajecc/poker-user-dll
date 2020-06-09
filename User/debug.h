@@ -1,6 +1,6 @@
 #pragma once
 #include <conio.h>
-#include <Windows.h>
+#include "clean_windows.h"
 #include <cstdio>
 #include "loguru.h"
 

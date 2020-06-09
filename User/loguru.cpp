@@ -123,12 +123,7 @@
 #endif
 
 #if LOGURU_WINTHREADS
-	#ifndef _WIN32_WINNT
-		#define _WIN32_WINNT 0x0502
-	#endif
-	#define WIN32_LEAN_AND_MEAN
-	#define NOMINMAX
-	#include <windows.h>
+#include "clean_windows.h"
 #endif
 
 #ifndef LOGURU_PTLS_NAMES
@@ -389,8 +384,8 @@ namespace loguru
 #ifdef _WIN32
 		int bytes_needed = _vscprintf(format, vlist);
 		CHECK_F(bytes_needed >= 0, "Bad string format: '%s'", format);
-		char* buff = (char*)malloc(bytes_needed+1);
-		vsnprintf(buff, bytes_needed+1, format, vlist);
+		char* buff = (char*)malloc((int64_t)bytes_needed+1);
+		vsnprintf(buff, (int64_t)bytes_needed+1, format, vlist);
 		return Text(buff);
 #else
 		char* buff = nullptr;
