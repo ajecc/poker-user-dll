@@ -5,7 +5,7 @@
 #include <vector>
 
 
-struct range_hand_t
+struct hero_preflop_range_hand_t
 {
 	const hand_t* hand = nullptr;
 	hand_action_t hand_action = INVALID_HAND_ACTION;
@@ -16,7 +16,7 @@ struct range_hand_t
 	float raise_prob = 0;
 
 	bool
-	operator<(const range_hand_t& other) const
+	operator<(const hero_preflop_range_hand_t& other) const
 	{
 		return *hand < *other.hand;
 	}
@@ -24,15 +24,15 @@ struct range_hand_t
 
 
 void 
-apply_raise_prob(range_hand_t* range_hand);
+apply_raise_prob(hero_preflop_range_hand_t* range_hand);
 
 
-struct range_t
+struct hero_preflop_range_t
 {
-	std::vector<range_hand_t*> range;
+	std::vector<hero_preflop_range_hand_t*> hero_preflop_range;
 
 	// The destructor frees the elements accordingly.
-	~range_t();
+	~hero_preflop_range_t();
 
 	/*
 	Adds a range_hand_t* to the range, constructed from the parameters.
@@ -77,7 +77,7 @@ struct range_t
 
 	Returns: range_hand_t* -- the appropriate range. Should not be freed. 
 	*/
-	range_hand_t* 
+	hero_preflop_range_hand_t* 
 	fetch(const hand_t* hand) const;
 
 
@@ -102,8 +102,8 @@ Parameters: IN range_t* range -- the range to copy
 Returns: range_t* -- a pointer to the new range. 
 					Should be deleted when it is no longer needed.
 */
-range_t*
-copy_range(const range_t* range);
+hero_preflop_range_t*
+copy_range(const hero_preflop_range_t* hero_preflop_range);
 
 
 /*
@@ -113,16 +113,16 @@ These are fetched from "prefop_range" directory.
 
 These functions should only be called once, when the process is attaching.
 */
-std::vector<const range_t*>
+std::vector<const hero_preflop_range_t*>
 create_open_ranges();
 
-std::vector<const range_t*>
+std::vector<const hero_preflop_range_t*>
 create_facing_raise_ranges();
 
-std::vector<const range_t*>
+std::vector<const hero_preflop_range_t*>
 create_facing_3bet_ranges();
 
-std::vector<const range_t*>
+std::vector<const hero_preflop_range_t*>
 create_facing_4bet_ranges();
 
 // TODO: add destroy functions for ranges 
@@ -138,21 +138,21 @@ For
 	bet_type == FACING_3BET: hero_position > villain_position
 	bet_Type == FACING_4BET: hero_position < villain_position
 */
-const range_t*
+const hero_preflop_range_t*
 get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);
 
 
 /*
 Superseted by get_range.
 */
-const range_t* 
+const hero_preflop_range_t* 
 get_open_range(position_t hero_position);
 
-const range_t*
+const hero_preflop_range_t*
 get_facing_raise_range(position_t hero_position, position_t villain_position);
 
-const range_t*
+const hero_preflop_range_t*
 get_facing_3bet_range(position_t hero_position, position_t villain_position);
 
-const range_t* 
+const hero_preflop_range_t* 
 get_facing_4bet_range(position_t hero_position, position_t villain_position);

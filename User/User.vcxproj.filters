@@ -35,9 +35,6 @@
     <ClCompile Include="hand_board_results.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="range.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
     <ClCompile Include="position.cpp">
       <Filter>sources</Filter>
     </ClCompile>
@@ -65,6 +62,9 @@
     <ClCompile Include="prwin_calc.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="hero_preflop_range.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user.h">
@@ -74,9 +74,6 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="hand_board_result.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="range.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="position.h">
@@ -116,6 +113,9 @@
       <Filter>headers\misc</Filter>
     </ClInclude>
     <ClInclude Include="prwin_calc.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="hero_preflop_range.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "decision.h"
 #include "poker_exception.h"
-#include "range.h"
+#include "hero_preflop_range.h"
 #include "debug.h"
 #include "util.h"
 #include "board_derived_info.h"
@@ -50,17 +50,17 @@ take_decision_preflop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking PREFLOP decision");
 	auto* board_derived_info = board->board_derived_info;
-	hero->range = copy_range(get_range(
+	hero->hero_preflop_range = copy_range(get_range(
 		hero->position,
 		board_derived_info->main_villain->position,
 		board_derived_info->bet_type
 	));
 	DLOG(INFO, "got range");
-	if (!hero->range->contains(hero->hand))
+	if (!hero->hero_preflop_range->contains(hero->hand))
 	{
 		return decision_t{ FOLD, 0 };
 	}
-	range_hand_t range_hand = *hero->range->fetch(hero->hand);
+	hero_preflop_range_hand_t range_hand = *hero->hero_preflop_range->fetch(hero->hand);
 	apply_raise_prob(&range_hand);
 	float to_raise_sum = 0;
 	if (range_hand.hand_action == RAISE)
