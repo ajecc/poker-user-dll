@@ -14,6 +14,8 @@ struct hand_t;
 
 struct hero_preflop_range_t;
 
+struct villain_range_t;
+
 
 enum board_stage_t 
 {
@@ -91,6 +93,7 @@ struct player_t
 	// used for folds/sitouts
 	bool is_in_game = false;  
 	hero_preflop_range_t* hero_preflop_range = nullptr;
+	villain_range_t* villain_range = nullptr;
 	const hand_t* hand = nullptr;
 	board_stage_stats_t preflop = { 0 };
 	board_stage_stats_t flop = { 0 };

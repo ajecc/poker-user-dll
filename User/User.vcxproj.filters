@@ -65,6 +65,9 @@
     <ClCompile Include="hero_preflop_range.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="villain_range.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="user.h">
@@ -116,6 +119,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="hero_preflop_range.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="villain_range.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

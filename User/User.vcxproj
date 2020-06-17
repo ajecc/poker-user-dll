@@ -201,6 +201,7 @@
     <ClCompile Include="prwin_calc.cpp" />
     <ClCompile Include="hero_preflop_range.cpp" />
     <ClCompile Include="user.cpp" />
+    <ClCompile Include="villain_range.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="board.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="hero_preflop_range.h" />
     <ClInclude Include="user.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="villain_range.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

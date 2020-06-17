@@ -19,6 +19,7 @@
 #include "decision.h"
 #include "poker_exception.h"
 #include "prwin_calc.h"
+#include "villain_range.h"
 
 void __stdcall
 DLLUpdateOnNewFormula() {}
@@ -41,12 +42,20 @@ DLLUpdateOnHeartbeat() {}
 
 // GLOBALS
 board_t* g_board;
+
 std::vector<const card_t*> g_all_cards;
 std::vector<const hand_t*> g_all_hands;
-std::vector<const hero_preflop_range_t*> g_open_ranges, g_facing_raise_ranges,
-						g_facing_3bet_ranges, g_facing_4bet_ranges;
+
+std::vector<const hero_preflop_range_t*> g_open_hero_preflop_ranges, g_facing_raise_hero_preflop_ranges,
+						g_facing_3bet_hero_preflop_ranges, g_facing_4bet_hero_preflop_ranges;
+
 const hand_board_result_t* g_all_hand_board_results;
+
 std::vector<float> g_all_prwin_vs_any_hand_flop;
+
+std::vector<const villain_range_t*> g_open_villain_preflop_range, g_call_villain_preflop_range;
+const villain_range_t* g_reraise_villain_preflop_range;
+
 
 
 void 
@@ -56,14 +65,19 @@ create_globals()
 	g_all_cards = create_all_cards();
 	g_all_hands = create_all_hands();
 
-	g_open_ranges = create_open_ranges();
-	g_facing_raise_ranges = create_facing_raise_ranges();
-	g_facing_3bet_ranges = create_facing_3bet_ranges();
-	g_facing_4bet_ranges = create_facing_4bet_ranges();
+	g_open_hero_preflop_ranges = create_open_hero_preflop_ranges();
+	g_facing_raise_hero_preflop_ranges = create_facing_raise_hero_preflop_ranges();
+	g_facing_3bet_hero_preflop_ranges = create_facing_3bet_hero_preflop_ranges();
+	g_facing_4bet_hero_preflop_ranges = create_facing_4bet_hero_preflop_ranges();
 
 	g_all_hand_board_results = create_all_hand_board_results();
 
 	g_all_prwin_vs_any_hand_flop = create_all_prwin_vs_any_hand_flop();
+
+	g_open_villain_preflop_range = create_open_villain_preflop_range();
+	g_call_villain_preflop_range = create_call_villain_preflop_range();
+	g_reraise_villain_preflop_range = create_reraise_villain_preflop_range();
+
 	LOG_F(INFO, "Created all globals successfully");
 }
 

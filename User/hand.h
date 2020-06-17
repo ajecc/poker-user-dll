@@ -14,7 +14,8 @@ enum hand_action_t
 	CHECK = 1,
 	CALL = 2,
 	RAISE = 3,
-	HAND_ACTION_COUNT = 4
+	RERAISE = 4,
+	HAND_ACTION_COUNT = 5
 };
 
 /*

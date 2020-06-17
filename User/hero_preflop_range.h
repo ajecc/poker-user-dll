@@ -103,7 +103,7 @@ Returns: range_t* -- a pointer to the new range.
 					Should be deleted when it is no longer needed.
 */
 hero_preflop_range_t*
-copy_range(const hero_preflop_range_t* hero_preflop_range);
+copy_hero_preflop_range(const hero_preflop_range_t* hero_preflop_range);
 
 
 /*
@@ -114,23 +114,23 @@ These are fetched from "prefop_range" directory.
 These functions should only be called once, when the process is attaching.
 */
 std::vector<const hero_preflop_range_t*>
-create_open_ranges();
+create_open_hero_preflop_ranges();
 
 std::vector<const hero_preflop_range_t*>
-create_facing_raise_ranges();
+create_facing_raise_hero_preflop_ranges();
 
 std::vector<const hero_preflop_range_t*>
-create_facing_3bet_ranges();
+create_facing_3bet_hero_preflop_ranges();
 
 std::vector<const hero_preflop_range_t*>
-create_facing_4bet_ranges();
+create_facing_4bet_hero_preflop_ranges();
 
 // TODO: add destroy functions for ranges 
 
 
 /*
 Gets the range of hero according to its position, its attacker and 
-the bet_type.
+the bet_type. This is a copy of the gloval variable.
 
 For
 	bet_type == OPEN: villain_position can be anything. There is not open range for BB.
@@ -138,21 +138,5 @@ For
 	bet_type == FACING_3BET: hero_position > villain_position
 	bet_Type == FACING_4BET: hero_position < villain_position
 */
-const hero_preflop_range_t*
-get_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);
-
-
-/*
-Superseted by get_range.
-*/
-const hero_preflop_range_t* 
-get_open_range(position_t hero_position);
-
-const hero_preflop_range_t*
-get_facing_raise_range(position_t hero_position, position_t villain_position);
-
-const hero_preflop_range_t*
-get_facing_3bet_range(position_t hero_position, position_t villain_position);
-
-const hero_preflop_range_t* 
-get_facing_4bet_range(position_t hero_position, position_t villain_position);
+hero_preflop_range_t*
+get_hero_preflop_range(position_t hero_position, position_t villain_position, bet_type_t bet_type);

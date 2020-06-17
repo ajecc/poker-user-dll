@@ -50,11 +50,11 @@ take_decision_preflop(player_t* hero, board_t* board)
 {
 	DLOG(INFO, "started taking PREFLOP decision");
 	auto* board_derived_info = board->board_derived_info;
-	hero->hero_preflop_range = copy_range(get_range(
+	hero->hero_preflop_range = get_hero_preflop_range(
 		hero->position,
 		board_derived_info->main_villain->position,
 		board_derived_info->bet_type
-	));
+	);
 	DLOG(INFO, "got range");
 	if (!hero->hero_preflop_range->contains(hero->hand))
 	{
