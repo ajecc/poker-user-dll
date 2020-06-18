@@ -6,7 +6,9 @@
 #include <cassert>
 
 extern std::vector<const villain_range_t*> g_open_villain_preflop_range, g_call_villain_preflop_range;
-extern const villain_range_t* g_reraise_villain_preflop_range;
+extern const villain_range_t* g_limp_villain_preflop_range;
+extern const villain_range_t* g_check_villain_preflop_range;
+extern const villain_range_t* g_raise_villain_preflop_range;
 
 
 static villain_range_t*
@@ -45,6 +47,18 @@ villain_range_t::constains_at_least_one(const std::vector<const hand_t*>& hands)
 		}
 	}
 	return false;
+}
+
+
+void
+update_player_villain_range(player_t* player, const board_t* board)
+{
+	if (board->stage == PREFLOP)
+	{
+		player->villain_range = get_villain_preflop_range(player->position, player->villain_action);
+		return;
+	}
+	// TODO: update the range postflop
 }
 
 
@@ -88,29 +102,55 @@ create_call_villain_preflop_range()
 
 
 const villain_range_t*
-create_reraise_villain_preflop_range()
+create_raise_villain_preflop_range()
 {
-	return get_range_from_csv("villain_range\\All_Reraise.csv");
+	return get_range_from_csv("villain_range\\All_Raise.csv");
 }
 
 
-villain_range_t*
-get_villain_prelop_range(position_t villain_position, hand_action_t last_villain_action)
+const villain_range_t*
+create_limp_villain_preflop_range()
 {
-	if (last_villain_action == RERAISE)
+	return get_range_from_csv("villain_range\\All_Limp.csv");
+}
+
+
+const villain_range_t*
+create_check_villain_preflop_range()
+{
+	return get_range_from_csv("villain_range\\All_Check.csv");
+}
+
+
+
+villain_range_t*
+get_villain_preflop_range(const position_t& villain_position, const villain_action_t& last_villain_action)
+{
+	const villain_range_t* villain_range = nullptr;
+	switch (last_villain_action)
 	{
-		return copy_villain_range(g_reraise_villain_preflop_range);
-	}
-	else if (last_villain_action == RAISE)
-	{
+	case VILLAIN_ACTION_LIMP:
 		assert(villain_position != BB);
-		return copy_villain_range(g_open_villain_preflop_range[(int)villain_position]);
+		villain_range = g_limp_villain_preflop_range;
+		break;
+	case VILLAIN_ACTION_CHECK:
+		assert(villain_position == BB);
+		villain_range = g_check_villain_preflop_range;
+		break;
+	case VILLAIN_ACTION_OPEN:
+		assert(villain_position != BB);
+		villain_range = g_open_villain_preflop_range[(int)villain_position];
+		break;
+	case VILLAIN_ACTION_CALL:
+		villain_range = g_call_villain_preflop_range[(int)villain_position];
+		break;
+	case VILLAIN_ACTION_RAISE: 
+		villain_range = g_raise_villain_preflop_range;
+		break;
+	default:
+		throw poker_exception_t("get_villain_preflop_range: invalid last_villain_action");
 	}
-	else if (last_villain_action == CALL)
-	{
-		return copy_villain_range(g_call_villain_preflop_range[(int)villain_position]);
-	}
-	throw poker_exception_t("get_villain_preflop_range: invalid last_villain_action");
+	return copy_villain_range(villain_range);
 }
 
 

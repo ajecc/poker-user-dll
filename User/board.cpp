@@ -1,11 +1,13 @@
 #include "board.h"
 #include "poker_exception.h"
+#include "villain_range.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include "board_derived_info.h"
 #include "util.h"
 #include <cassert>
 #include <algorithm>
+
 
 static void 
 clear_board(board_t* board);
@@ -30,6 +32,15 @@ update_pot(board_t* board);
 
 static void
 update_hero(board_t* board);
+
+static void
+update_board_derived_info(board_t* board, const board_stage_t& prev_stage);
+
+static void
+update_villain_actions(board_t* board, const board_stage_t& prev_stage);
+
+static void
+update_villain_ranges(const board_t* board);
 
 
 board_t*
@@ -107,11 +118,9 @@ update_board(board_t* board)
 	update_big_blind_sum(board);
 	update_pot(board);
 	update_hero(board);
-	if (prev_stage != board->stage)
-	{
-		delete board->board_derived_info;
-		board->board_derived_info = nullptr;
-	}
+	update_board_derived_info(board, prev_stage);
+	update_villain_actions(board, prev_stage);
+	update_villain_ranges(board);
 	LOG_F(INFO, board->to_string().c_str());
 }
 
@@ -387,6 +396,147 @@ static void
 update_hero(board_t* board)
 {
 	board->hero = get_player_by_label(board, "p2");
+	board->hero->is_hero = true;
+}
+
+
+static void
+update_board_derived_info(board_t* board, const board_stage_t& prev_stage)
+{
+	if (prev_stage != board->stage)
+	{
+		delete board->board_derived_info;
+		board->board_derived_info = nullptr;
+	}
+	auto* board_derived_info = new board_derived_info_t;
+	*board_derived_info = get_board_derived_info(board->hero, board);
+	if (board->board_derived_info != nullptr)
+	{
+		delete board->board_derived_info;
+	}
+	board->board_derived_info = board_derived_info;
+	LOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", 
+		board_derived_info->to_string().c_str());
+}
+
+
+static void
+update_villain_actions(board_t* board, const board_stage_t& prev_stage)
+{
+	// NOTE: this works because we only limp on SB
+	auto villains_before_hero = board->board_derived_info->villains_before_hero;
+	auto villains_after_hero = board->board_derived_info->villains_after_hero;
+	float hero_current_bet = board->hero->current_bet;
+	float last_bet = 0;
+	bool opened = false;
+	if (prev_stage != board->stage)
+	{
+		for (auto* player : villains_before_hero)
+		{
+			if (FP_ARE_EQUAL(player->current_bet, board->big_blind_sum) && 
+				board->stage == PREFLOP)
+			{
+				player->villain_action = VILLAIN_ACTION_LIMP;
+			}
+			else if (FP_ARE_EQUAL(player->current_bet, 0))
+			{
+				player->villain_action = VILLAIN_ACTION_CHECK;
+			}
+			else 
+			{
+				if (player->current_bet > last_bet && !opened)
+				{
+					player->villain_action = VILLAIN_ACTION_OPEN;
+					opened = true;
+				}
+				else if (player->current_bet > last_bet && opened)
+				{
+					player->villain_action = VILLAIN_ACTION_RAISE;
+				}
+				else
+				{
+					player->villain_action = VILLAIN_ACTION_CALL;
+				}
+				last_bet = player->current_bet;
+			}
+		}
+		for (auto* player : villains_after_hero)
+		{
+			if (player->is_big && board->stage == PREFLOP)
+			{
+				player->villain_action = VILLAIN_ACTION_CHECK;
+			}
+			else
+			{
+				// TODO: this might be check postflop, depending on the decision we make.
+				player->villain_action = VILLAIN_ACTION_CALL;
+			}
+		}
+	}
+	else
+	{
+		if (FP_ARE_DIFFERENT(board->hero->current_bet, 0.0f))
+		{
+			opened = true;
+			last_bet = board->hero->current_bet;
+		}
+		bool raised = false;
+		for (const auto* player : board->current_hand_players)
+		{
+			if (player->current_bet > 0 &&
+				FP_ARE_DIFFERENT(board->hero->current_bet, last_bet))
+			{
+				raised = true;
+				break;
+			}
+		}
+		auto players = concat(villains_after_hero, villains_before_hero);
+		for (auto* player : players)
+		{
+			if (raised)
+			{
+				player->villain_action = VILLAIN_ACTION_RAISE;
+				continue;
+			}
+			if (opened)
+			{
+				if (player->current_bet > last_bet)
+				{
+					raised = true;
+					player->villain_action = VILLAIN_ACTION_RAISE;
+				}
+				else
+				{
+					player->villain_action = VILLAIN_ACTION_CALL;
+				}
+			}
+			else
+			{
+				if (player->current_bet > 0)
+				{
+					player->villain_action = VILLAIN_ACTION_OPEN;
+					opened = true;
+				}
+				else
+				{
+					player->villain_action = VILLAIN_ACTION_CHECK;
+				}
+			}
+		}
+	}
+}
+
+
+static void
+update_villain_ranges(const board_t* board)
+{
+	for (auto* player : board->current_hand_players)
+	{
+		if (!player->is_hero)
+		{
+			update_player_villain_range(player, board);
+		}
+	}
 }
 
 

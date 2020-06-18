@@ -86,6 +86,15 @@ contains(T1 container, T2 elem)
 }
 
 
+template<typename T> inline std::vector<T>
+concat(const std::vector<T>& lhs, const std::vector<T>& rhs)
+{
+	std::vector<T> result = lhs;
+	result.insert(result.end(), rhs.begin(), rhs.end());
+	return result;
+}
+
+
 inline const void* 
 open_cache(const std::string& cache_name, const std::string& shared_cache_name)
 {

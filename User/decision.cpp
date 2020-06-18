@@ -356,16 +356,6 @@ decision_t
 take_decision(player_t* hero, board_t* board)
 {
 	LOG_F(INFO, "started taking decision");
-	auto* board_derived_info = new board_derived_info_t;
-	*board_derived_info = get_board_derived_info(hero, board);
-	if (board->board_derived_info != nullptr)
-	{
-		delete board->board_derived_info;
-	}
-	board->board_derived_info = board_derived_info;
-	LOG_F(INFO, "BOARD_DERIVED_INFO:\n%s", 
-		board_derived_info->to_string().c_str());
-
 	decision_t decision;
 	switch (board->stage)
 	{

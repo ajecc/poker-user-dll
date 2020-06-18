@@ -54,8 +54,9 @@ const hand_board_result_t* g_all_hand_board_results;
 std::vector<float> g_all_prwin_vs_any_hand_flop;
 
 std::vector<const villain_range_t*> g_open_villain_preflop_range, g_call_villain_preflop_range;
+const villain_range_t* g_limp_villain_preflop_range;
+const villain_range_t* g_check_villain_preflop_range;
 const villain_range_t* g_reraise_villain_preflop_range;
-
 
 
 void 
@@ -76,7 +77,9 @@ create_globals()
 
 	g_open_villain_preflop_range = create_open_villain_preflop_range();
 	g_call_villain_preflop_range = create_call_villain_preflop_range();
-	g_reraise_villain_preflop_range = create_reraise_villain_preflop_range();
+	g_limp_villain_preflop_range = create_limp_villain_preflop_range();
+	g_check_villain_preflop_range = create_check_villain_preflop_range();
+	g_reraise_villain_preflop_range = create_raise_villain_preflop_range();
 
 	LOG_F(INFO, "Created all globals successfully");
 }

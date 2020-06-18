@@ -204,7 +204,7 @@ get_hero_preflop_range(position_t hero_position, position_t villain_position, be
 	DLOG(INFO, ("getting range for: hero=" + std::to_string(hero_position) + 
 		" villain=" + std::to_string(villain_position) +
 		" bet_type=" + std::to_string(bet_type)).c_str());
-	const hero_preflop_range_t* hero_preflop_range;
+	const hero_preflop_range_t* hero_preflop_range = nullptr;
 	switch (bet_type)
 	{
 	case OPEN:
