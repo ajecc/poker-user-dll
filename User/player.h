@@ -92,6 +92,8 @@ struct player_t
 	bool is_small = false;
 	bool is_big = false;
 	bool is_in_hand = false;
+	// TODO: update this
+	bool is_in_position = false;
 	// used for folds/sitouts
 	bool is_in_game = false;  
 	bool is_hero = false;

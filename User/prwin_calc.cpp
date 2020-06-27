@@ -124,7 +124,7 @@ create_all_prwin_vs_any_hand_flop()
 	}
 	const auto* cache = (const float*)open_cache(ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME,
 		ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME);
-	const size_t cache_size = std::filesystem::file_size(ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME) /
+	const size_t cache_size = (size_t)std::filesystem::file_size(ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME) /
 																					sizeof(float);
 	return std::vector<float>(cache, cache + cache_size);
 }

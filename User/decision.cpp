@@ -28,9 +28,6 @@
 #define ALLIN_ON_3BET 0.934
 
 
-static bool 
-is_board_wet_flop(board_t* board);
-
 static void 
 sanitize_decision(decision_t* decision, board_t* board);
 
@@ -376,14 +373,6 @@ take_decision(player_t* hero, board_t* board)
 	}
 	sanitize_decision(&decision, board);
 	return decision;
-}
-
-
-static bool
-is_board_wet_flop(board_t* board)
-{
-	// TODO: give a better definition of a wet board
-	return board->board_derived_info->villain_draws_flop.size() > 7;
 }
 
 

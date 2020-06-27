@@ -120,6 +120,7 @@ update_board(board_t* board)
 	update_hero(board);
 	update_board_derived_info(board, prev_stage);
 	update_villain_actions(board, prev_stage);
+	board->current_hand_players.back()->is_in_position = true;
 	update_villain_ranges(board);
 	LOG_F(INFO, board->to_string().c_str());
 }
@@ -146,6 +147,14 @@ get_next_player_in_game(board_t* board, player_t* player)
 		}
 	}
 	throw poker_exception_t("Could not get next player in game");
+}
+
+
+bool
+is_board_wet_flop(board_t* board)
+{
+	// TODO: give a better definition of a wet board
+	return board->board_derived_info->villain_draws_flop.size() > 7;
 }
 
 

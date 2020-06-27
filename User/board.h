@@ -91,6 +91,10 @@ player_t*
 get_next_player_in_hand(board_t* board, player_t* player);
 
 
+bool
+is_board_wet_flop(board_t* board);
+
+
 /*
 Creates the main board. This is a global object that should get updated each tick.  
 This object can be accessed directly.

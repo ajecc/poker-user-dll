@@ -1,6 +1,7 @@
 #include "villain_range.h"
 #include "util.h"
 #include "poker_exception.h"
+#include "prwin_calc.h"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -17,6 +18,19 @@ get_range_from_csv(const std::string& file_name);
 
 static std::vector<std::string>
 get_position_map();
+
+
+static bool
+has_gutshot(const hand_t* hand, const board_t* board);
+
+
+static bool
+has_open_ender(const hand_t* hand, const board_t* board);
+
+
+static bool
+has_flush_draw(const hand_t* hand, const board_t* board);
+
 
 
 void
@@ -58,7 +72,158 @@ update_player_villain_range(player_t* player, const board_t* board)
 		player->villain_range = get_villain_preflop_range(player->position, player->villain_action);
 		return;
 	}
-	// TODO: update the range postflop
+	std::vector<const hand_t*> hands_to_remove;
+	// at the moment we treat turn and flop the same
+	if (board->stage == FLOP || board->stage == TURN)
+	{
+		if (board->current_hand_players.size() >= 3)
+		{
+			if (player->villain_action == VILLAIN_ACTION_CHECK)
+			{
+				for (const auto* hand : player->villain_range->villain_range)
+				{
+					if (calc_prwin_vs_any_hand(hand, board) > 0.83)
+					{
+						hands_to_remove.push_back(hand);
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_CALL)
+			{
+				for (const auto* hand : player->villain_range->villain_range)
+				{
+					if (!(has_flush_draw(hand, board) || has_open_ender(hand, board) ||
+						calc_prwin_vs_any_hand(hand, board) > 0.8))
+					{
+						hands_to_remove.push_back(hand);
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_OPEN || 
+				player->villain_action == VILLAIN_ACTION_LIMP)
+			{
+				// TODO: this doesn't seem accurate. Correct it.
+				if (!player->is_in_position || board->current_hand_players.size() >= 4)
+				{
+					for (const auto* hand : player->villain_range->villain_range)
+					{
+						if (!(has_flush_draw(hand, board) || has_open_ender(hand, board) ||
+							calc_prwin_vs_any_hand(hand, board) > 0.8))
+						{
+							hands_to_remove.push_back(hand);
+						}
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_RAISE)
+			{
+				for (const auto* hand : player->villain_range->villain_range)
+				{
+					if (!(has_flush_draw(hand, board) ||
+						calc_prwin_vs_any_hand(hand, board) > 0.85))
+					{
+						hands_to_remove.push_back(hand);
+					}
+				}
+			}
+		}
+		else
+		{
+			if (player->villain_action == VILLAIN_ACTION_CHECK)
+			{
+				if (!player->is_in_position)
+				{
+					for (const auto* hand : player->villain_range->villain_range)
+					{
+						if (calc_prwin_vs_any_hand(hand, board) > 0.85 &&
+							calc_prwin_vs_any_hand(hand, board) > 0.925)
+						{
+							hands_to_remove.push_back(hand);
+						}
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_CALL)
+			{
+				for (const auto* hand : player->villain_range->villain_range)
+				{
+					if (calc_prwin_vs_any_hand(hand, board) < 0.44 &&
+						!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
+							has_open_ender(hand, board)))
+					{
+						hands_to_remove.push_back(hand);
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_OPEN
+				|| player->villain_action == VILLAIN_ACTION_LIMP)
+			{
+				if (!player->is_in_position)
+				{
+					// TODO: this might not be accurate
+					for (const auto* hand : player->villain_range->villain_range)
+					{
+						if (calc_prwin_vs_any_hand(hand, board) < 0.44 &&
+							!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
+								has_open_ender(hand, board)))
+						{
+							hands_to_remove.push_back(hand);
+						}
+					}
+				}
+			}
+			else if (player->villain_action == VILLAIN_ACTION_RAISE)
+			{
+				for (const auto* hand : player->villain_range->villain_range)
+				{
+					if (!(has_flush_draw(hand, board) ||
+						calc_prwin_vs_any_hand(hand, board) > 0.82))
+					{
+						hands_to_remove.push_back(hand);
+					}
+				}
+			}
+		}
+	}
+	else if (board->stage == RIVER)
+	{
+		if (player->villain_action == VILLAIN_ACTION_CHECK)
+		{
+			for (const auto* hand : player->villain_range->villain_range)
+			{
+				if (calc_prwin_vs_any_hand(hand, board) > 0.852)
+				{
+					hands_to_remove.push_back(hand);
+				}
+			}
+		}
+		else if (player->villain_action == VILLAIN_ACTION_OPEN
+			|| player->villain_action == VILLAIN_ACTION_LIMP)
+		{
+			for (const auto* hand : player->villain_range->villain_range)
+			{
+				if (calc_prwin_vs_any_hand(hand, board) < 0.78)
+				{
+					hands_to_remove.push_back(hand);
+				}
+			}
+		}
+		else if(player->villain_action == VILLAIN_ACTION_RAISE)
+		{
+			for (const auto* hand : player->villain_range->villain_range)
+			{
+				if (calc_prwin_vs_any_hand(hand, board) > 0.92)
+				{
+					hands_to_remove.push_back(hand);
+				}
+			}
+		}
+	}
+	else
+	{
+		throw poker_exception_t("update_player_villain_range: invalid board stage");
+	}
+	player->villain_range->remove(hands_to_remove);
 }
 
 
@@ -120,7 +285,6 @@ create_check_villain_preflop_range()
 {
 	return get_range_from_csv("villain_range\\All_Check.csv");
 }
-
 
 
 villain_range_t*
@@ -219,4 +383,115 @@ get_position_map()
 	position_map[HJ] = "HJ";
 	position_map[UTG] = "UTG";
 	return position_map;
+}
+
+
+static bool
+has_gutshot(const hand_t* hand, const board_t* board)
+{
+	std::vector<rank_t> ranks;
+	ranks.emplace_back(hand->cards[0]->rank);
+	ranks.emplace_back(hand->cards[1]->rank);
+	for (const card_t* card : board->cards)
+	{
+		ranks.emplace_back(card->rank);
+	}
+	insertion_sort(&ranks[0], ranks.size(),
+		[](const rank_t& lhs, const rank_t& rhs)
+		{
+			return lhs < rhs;
+		});
+	int consec_before_gap = 0, consec_after_gap = 1;
+	for (int i = 0; i < (int)ranks.size() - 1; i++)
+	{
+		if ((int)ranks[i + 1] == (int)ranks[i] + 1)
+		{
+			consec_after_gap++;
+		}
+		else if ((int)ranks[i + 1] == (int)ranks[i] + 2)
+		{
+			consec_before_gap = consec_after_gap;
+			consec_after_gap = 1;
+		}
+		else
+		{
+			consec_after_gap = 1;
+			consec_before_gap = 0;
+		}
+		if (consec_after_gap + consec_before_gap == 4)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+static bool
+has_open_ender(const hand_t* hand, const board_t* board)
+{
+	std::vector<rank_t> ranks;
+	ranks.emplace_back(hand->cards[0]->rank);
+	ranks.emplace_back(hand->cards[1]->rank);
+	for (const card_t* card : board->cards)
+	{
+		ranks.emplace_back(card->rank);
+	}
+	insertion_sort(&ranks[0], ranks.size(),
+		[](const rank_t& lhs, const rank_t& rhs)
+		{
+			return lhs < rhs;
+		});
+	int consec = 1;
+	for (int i = 0; i < (int)ranks.size() - 1; i++)
+	{
+		if ((int)ranks[i + 1] == (int)ranks[i] + 1)
+		{
+			consec++;
+		}
+		else
+		{
+			consec = 1;
+		}
+		if (consec == 4)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+static bool
+has_flush_draw(const hand_t* hand, const board_t* board)
+{
+	std::vector<color_t> colors;
+	colors.emplace_back(hand->cards[0]->color);
+	colors.emplace_back(hand->cards[1]->color);
+	for (const card_t* card : board->cards)
+	{
+		colors.emplace_back(card->color);
+	}
+	insertion_sort(&colors[0], colors.size(),
+		[](const color_t& lhs, const color_t& rhs)
+		{
+			return lhs < rhs;
+		});
+	int consec = 1;
+	for (int i = 0; i < (int)colors.size() - 1; i++)
+	{
+		if (colors[i + 1] == colors[i])
+		{
+			consec++;
+		}
+		else
+		{
+			consec = 1;
+		}
+		if (consec == 4)
+		{
+			return true;
+		}
+	}
+	return false;
 }
