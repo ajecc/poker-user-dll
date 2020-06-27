@@ -3,10 +3,12 @@
 #include "poker_exception.h"
 #include "hand_board_result.h"
 #include "board_derived_info.h"
+#include "villain_range.h"
 #include <filesystem>
 #include <cassert>
 #include <future>
 #include <iostream>
+#include <future>
 
 
 extern std::vector<const card_t*> g_all_cards;
@@ -127,6 +129,25 @@ create_all_prwin_vs_any_hand_flop()
 	const size_t cache_size = (size_t)std::filesystem::file_size(ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME) /
 																					sizeof(float);
 	return std::vector<float>(cache, cache + cache_size);
+}
+
+
+float
+calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range, const board_t* board)
+{
+	std::vector<std::future<float>> prwin_futures;
+	for (const auto* hand : villain_range->villain_range)
+	{
+		prwin_futures.push_back(
+			std::async(std::launch::async, calc_prwin_vs_hand, hero, hand, board)
+		);
+	}
+	float prwin_sum = 0;
+	for (auto& prwin_future : prwin_futures)
+	{
+		prwin_sum += prwin_future.get();
+	}
+	return prwin_sum / (float)prwin_futures.size();
 }
 
 

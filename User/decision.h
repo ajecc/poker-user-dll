@@ -16,13 +16,19 @@ decision_t
 take_decision_preflop(player_t* hero, board_t* board);
 
 decision_t
-take_decision_flop(player_t* hero, board_t* board);
-
-decision_t
-take_decision_turn(player_t* hero, board_t* board);
-
-decision_t
-take_decision_river(player_t* hero, board_t* board);
+take_decision_postflop(player_t* hero, board_t* board);
 
 decision_t
 take_decision(player_t* hero, board_t* board);
+
+//decision_t
+//take_decision_flop(player_t* hero, board_t* board);
+//
+//decision_t
+//take_decision_turn(player_t* hero, board_t* board);
+//
+//decision_t
+//take_decision_river(player_t* hero, board_t* board);
+//
+//decision_t
+//take_decision(player_t* hero, board_t* board);

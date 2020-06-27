@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "hand.h"
+#include "prwin_calc.h"
 
 #define ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED_NAME "Global\\ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED"
 #define ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME "all_prwin_vs_any_hand_flop.cache"
@@ -47,6 +48,7 @@ Returns: float -- the chance that the hero wins. Value is between [0, 1].
 float 
 calc_prwin_vs_any_hand(const hand_t* hero, const board_t* board);
 
+
 /*
 Given a hero's hand and a board, along with some draws, this function
 calculates the probability that the hero will win if it hits one of these draws.
@@ -62,6 +64,10 @@ Returns: float -- the chance that the hero wins after hitting a draw.
 float
 calc_prwin_vs_any_hand_with_draws(const hand_t* hero, const board_t* board,
 									const std::vector<const card_t*>& draws);
+
+
+float
+calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range, const board_t* board);
 
 
 std::vector<float>
