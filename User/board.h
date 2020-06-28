@@ -27,7 +27,7 @@ struct board_t
 	board_derived_info_t* board_derived_info = nullptr;
 
 	std::string
-	to_string();
+	to_string() const;
 };
 
 

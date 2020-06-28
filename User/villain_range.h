@@ -27,9 +27,17 @@ struct villain_range_t
 	void
 	remove(const std::vector<const hand_t*>& hands);
 
+	
+	void
+	remove_containg_card(const card_t* card);
+
 
 	bool
-	constains_at_least_one(const std::vector<const hand_t*>& hands);
+	contains_at_least_one(const std::vector<const hand_t*>& hands) const;
+
+
+	std::string
+	to_string() const;
 };
 
 

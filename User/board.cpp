@@ -47,6 +47,7 @@ board_t*
 create_board()
 {
 	auto* board = new board_t;
+	board->stage = INVALID_BOARD_STAGE;
 	if (nullptr == board)
 	{
 		goto cleanup;
@@ -112,12 +113,17 @@ update_board(board_t* board)
 	auto prev_stage = board->stage;
 	clear_board(board);
 	update_cards(board);
+	update_hero(board);
 	update_players(board);
 	update_player_positions(board);
 	update_current_hand_players(board);
 	update_big_blind_sum(board);
 	update_pot(board);
-	update_hero(board);
+	if (prev_stage == PREFLOP && board->stage == PREFLOP
+		&& board->current_hand_players.back()->current_bet == board->big_blind_sum)
+	{
+		prev_stage = INVALID_BOARD_STAGE;
+	}
 	update_board_derived_info(board, prev_stage);
 	update_villain_actions(board, prev_stage);
 	board->current_hand_players.back()->is_in_position = true;
@@ -550,7 +556,7 @@ update_villain_ranges(const board_t* board)
 
 
 std::string 
-board_t::to_string()
+board_t::to_string() const
 {
 	std::string to_string;
 	to_string = "CARDS: ";

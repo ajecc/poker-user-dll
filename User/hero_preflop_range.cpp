@@ -212,6 +212,7 @@ get_hero_preflop_range(position_t hero_position, position_t villain_position, be
 		{
 			villain_position = SB;
 			bet_type = FACING_RAISE;
+			hero_preflop_range = get_facing_raise_hero_preflop_range(hero_position, villain_position);
 		}
 		else
 		{
@@ -222,6 +223,7 @@ get_hero_preflop_range(position_t hero_position, position_t villain_position, be
 		if ((int)hero_position < (int)villain_position)
 		{
 			bet_type = FACING_3BET;
+			hero_preflop_range = get_facing_3bet_hero_preflop_range(hero_position, villain_position);
 		}
 		else
 		{
@@ -229,7 +231,7 @@ get_hero_preflop_range(position_t hero_position, position_t villain_position, be
 		}
 		break;
 	case FACING_3BET:
-		hero_preflop_range =  get_facing_3bet_hero_preflop_range(hero_position, villain_position);
+		hero_preflop_range = get_facing_3bet_hero_preflop_range(hero_position, villain_position);
 		break;
 	case FACING_4BET:
 		if ((int)hero_position < (int)villain_position)

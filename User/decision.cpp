@@ -46,14 +46,14 @@ is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
 decision_t 
 take_decision_preflop(player_t* hero, board_t* board)
 {
-	DLOG(INFO, "started taking PREFLOP decision");
+	LOG_F(INFO, "started taking PREFLOP decision");
 	auto* board_derived_info = board->board_derived_info;
 	hero->hero_preflop_range = get_hero_preflop_range(
 		hero->position,
 		board_derived_info->main_villain->position,
 		board_derived_info->bet_type
 	);
-	DLOG(INFO, "got range");
+	LOG_F(INFO, "got range");
 	if (!hero->hero_preflop_range->contains(hero->hand))
 	{
 		return decision_t{ FOLD, 0 };
@@ -85,6 +85,7 @@ take_decision_preflop(player_t* hero, board_t* board)
 decision_t 
 take_decision_postflop(player_t* hero, board_t* board)
 {
+	LOG_F(INFO, "started taking POSTFLOP decision");
 	// TODO: add implied odds into consideration 
 	auto* board_derived_info = board->board_derived_info;
 	float prwin = 1;
@@ -95,11 +96,14 @@ take_decision_postflop(player_t* hero, board_t* board)
 			continue;
 		}
 		prwin *= calc_prwin_vs_villain_range(hero->hand, villain->villain_range, board);
+		LOG_F(INFO, "got 1 more prwin out of %d", board->current_hand_players.size());
 	}
+	LOG_F(INFO, "prwin = %f", prwin);
 	// NOTE: the first member of the addition gurantees that we have better pot odds than the villains
 	// the second part => profit taking and rake beating
-	const float RAISE_SIZE = prwin * board->pot / (1.0f - prwin) + 0.05f * board->pot;
+	const float RAISE_SIZE = prwin * board->pot / (1.1f - prwin);
 	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
+	LOG_F(INFO, "pot_odds = %f", pot_odds);
 	if (board_derived_info->bet_type == OPEN)
 	{
 		if (prwin > 0.33)
@@ -435,6 +439,10 @@ take_decision(player_t* hero, board_t* board)
 		throw poker_exception_t("take_decision: invalid board->stage");
 	}
 	sanitize_decision(&decision, board);
+	if (decision.action == FOLD)
+	{
+		board->stage = INVALID_BOARD_STAGE;
+	}
 	return decision;
 }
 
@@ -470,6 +478,12 @@ sanitize_decision(decision_t* decision, board_t* board)
 {
 	switch (decision->action)
 	{
+	case FOLD:
+		if (FP_ARE_EQUAL(board->board_derived_info->current_bet, 0))
+		{
+			decision->action = CHECK;
+		}
+		break;
 	case CHECK:
 		if (FP_ARE_DIFFERENT(board->board_derived_info->current_bet, 0))
 		{

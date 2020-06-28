@@ -33,7 +33,7 @@ bool
 is_hero_winner(const hand_t* hero, const hand_t* villain, const board_t* board)
 {
 	assert(board->cards.size() == 5);
-	auto hero_result =  calc_hand_board_result(hero, board);
+	auto hero_result = calc_hand_board_result(hero, board);
 	auto villain_result = calc_hand_board_result(villain, board);
 	return hero_result >= villain_result;
 }
@@ -142,10 +142,15 @@ calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_r
 			std::async(std::launch::async, calc_prwin_vs_hand, hero, hand, board)
 		);
 	}
+	LOG_F(INFO, "got %d futures", prwin_futures.size());
 	float prwin_sum = 0;
 	for (auto& prwin_future : prwin_futures)
 	{
 		prwin_sum += prwin_future.get();
+	}
+	if (prwin_futures.size() == 0)
+	{
+		return 1;
 	}
 	return prwin_sum / (float)prwin_futures.size();
 }

@@ -81,6 +81,7 @@ get_board_derived_info(player_t* hero, board_t* board)
 	{
 		get_villain_draws(board, &board_derived_info);
 		get_hero_draws(board, hero, &board_derived_info);
+		DLOG(INFO, "got draws");
 	}
 	return board_derived_info;
 }

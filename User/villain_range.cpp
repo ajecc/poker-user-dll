@@ -43,6 +43,7 @@ villain_range_t::add(const hand_t* hand)
 void
 villain_range_t::remove(const std::vector<const hand_t*>& hands)
 {
+	assert(!villain_range.empty());
 	std::set<const hand_t*> hands_set(all(hands));
 	std::set<const hand_t*> diff;
 	std::set_difference(all(villain_range), all(hands_set), std::inserter(diff, diff.begin()));
@@ -50,9 +51,24 @@ villain_range_t::remove(const std::vector<const hand_t*>& hands)
 }
 
 
-bool
-villain_range_t::constains_at_least_one(const std::vector<const hand_t*>& hands)
+void
+villain_range_t::remove_containg_card(const card_t* card)
 {
+	std::vector<const hand_t*> hands_to_remove;
+	for (const auto* villain_hand : villain_range)
+	{
+		if (villain_hand->cards[0] == card || villain_hand->cards[1] == card)
+		{
+			hands_to_remove.push_back(villain_hand);
+		}
+	}
+}
+
+
+bool
+villain_range_t::contains_at_least_one(const std::vector<const hand_t*>& hands) const
+{
+	assert(!villain_range.empty());
 	for (const auto* hand : hands)
 	{
 		if (villain_range.count(hand))
@@ -64,12 +80,41 @@ villain_range_t::constains_at_least_one(const std::vector<const hand_t*>& hands)
 }
 
 
+std::string
+villain_range_t::to_string() const
+{
+	assert(!villain_range.empty());
+	std::string ret = "[";
+	int cnt = 0;
+	auto it = villain_range.end();
+	it--;
+	const auto* last_hand = *it;
+	for (const auto* hand : villain_range)
+	{
+		ret += hand->to_string();
+		if (hand != last_hand)
+		{
+			ret += ", ";
+			cnt++;
+			if (cnt == 6)
+			{
+				cnt = 0;
+				ret += "\n";
+			}
+		}
+	}
+	return ret + "]";
+}
+
+
 void
 update_player_villain_range(player_t* player, const board_t* board)
 {
 	if (board->stage == PREFLOP)
 	{
 		player->villain_range = get_villain_preflop_range(player->position, player->villain_action);
+		player->villain_range->remove_containg_card(board->hero->hand->cards[0]);
+		player->villain_range->remove_containg_card(board->hero->hand->cards[1]);
 		return;
 	}
 	std::vector<const hand_t*> hands_to_remove;
@@ -224,6 +269,17 @@ update_player_villain_range(player_t* player, const board_t* board)
 		throw poker_exception_t("update_player_villain_range: invalid board stage");
 	}
 	player->villain_range->remove(hands_to_remove);
+	if (board->stage == FLOP)
+	{
+		for (const auto* card : board->cards)
+		{
+			player->villain_range->remove_containg_card(card);
+		}
+	}
+	else
+	{
+		player->villain_range->remove_containg_card(board->cards.back());
+	}
 }
 
 

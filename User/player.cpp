@@ -3,6 +3,7 @@
 #include "open_holdem_functions.h"
 #include "poker_exception.h"
 #include "hand.h"
+#include "villain_range.h"
 
 
 static void
@@ -41,7 +42,10 @@ update_player(player_t* player)
 	update_player_balance(player);
 	update_player_current_bet(player);
 	update_player_name(player);
-	update_player_cards(player);
+	if (player->is_hero)
+	{
+		update_player_cards(player);
+	}
 }
 
 
@@ -142,7 +146,7 @@ update_player_cards(player_t* player)
 
 
 std::string 
-player_t::to_string()
+player_t::to_string() const
 {
 	std::string to_string = "label = ";
 	to_string += label + "\n";
@@ -182,11 +186,15 @@ player_t::to_string()
 	to_string += "is_in_hand = ";
 	if (is_in_hand)
 	{
-		to_string += "true";
+		to_string += "true\n";
 	}
 	else
 	{
-		to_string += "false";
+		to_string += "false\n";
+	}
+	if (is_in_hand && !is_hero)
+	{
+		to_string += "villain_range = " + villain_range->to_string() + "\n";
 	}
 	return to_string;
 }

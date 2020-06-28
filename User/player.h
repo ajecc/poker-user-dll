@@ -107,7 +107,7 @@ struct player_t
 	board_stage_stats_t river = { 0 };
 
 	std::string
-	to_string();
+	to_string() const;
 };
 
 
