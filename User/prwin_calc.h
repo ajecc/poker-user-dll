@@ -69,6 +69,8 @@ calc_prwin_vs_any_hand_with_draws(const hand_t* hero, const board_t* board,
 float
 calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range, const board_t* board);
 
+float
+calc_calling_rate_vs_villain_range(const villain_range_t* villain_range, const board_t* board);
 
 std::vector<float>
 create_all_prwin_vs_any_hand_flop();

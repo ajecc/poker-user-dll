@@ -2,6 +2,7 @@
 #include "poker_exception.h"
 #include "hero_preflop_range.h"
 #include "debug.h"
+#include "villain_range.h"
 #include "util.h"
 #include "board_derived_info.h"
 #include "prwin_calc.h"
@@ -36,6 +37,7 @@ calc_pot_odds(float pot, float call_sum);
 
 static bool
 is_appropriate_pot_odds_call(float pot_odds, float prwin);
+
 
 static bool
 is_appropriate_implied_odds_call(float pot, float call_sum, board_t* board,
@@ -89,6 +91,7 @@ take_decision_postflop(player_t* hero, board_t* board)
 	// TODO: add implied odds into consideration 
 	auto* board_derived_info = board->board_derived_info;
 	float prwin = 1;
+	float calling_rate = 0;
 	for(const auto* villain : board->current_hand_players)
 	{
 		if (villain->is_hero)
@@ -96,30 +99,42 @@ take_decision_postflop(player_t* hero, board_t* board)
 			continue;
 		}
 		prwin *= calc_prwin_vs_villain_range(hero->hand, villain->villain_range, board);
+		calling_rate += calc_calling_rate_vs_villain_range(villain->villain_range, board);
 		LOG_F(INFO, "got 1 more prwin out of %d", board->current_hand_players.size());
 	}
+	assert(board->current_hand_players.size() >= 2);
+	calling_rate /= (float)(board->current_hand_players.size() - 1);
 	LOG_F(INFO, "prwin = %f", prwin);
 	// NOTE: the first member of the addition gurantees that we have better pot odds than the villains
 	// the second part => profit taking and rake beating
-	const float RAISE_SIZE = prwin * board->pot / (1.1f - prwin);
+	float raise_size = board->big_blind_sum;
 	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
 	LOG_F(INFO, "pot_odds = %f", pot_odds);
 	if (board_derived_info->bet_type == OPEN)
 	{
-		if (prwin > 0.33)
+		if (prwin < 0.33f || calling_rate < 0.2f)
 		{
-			return { RAISE,  RAISE_SIZE};
+			return { CHECK, 0 };
 		}
 		else
 		{
-			return { CHECK, 0 };
+			// TODO: add something for TURN as well
+			if ((board->stage == FLOP || board->stage == TURN) && is_board_wet_flop(board))
+			{
+				raise_size = 0.8f * board->pot;
+			}
+			else
+			{
+				raise_size = 0.6f * board->pot;
+			}
+			return { RAISE, raise_size };
 		}
 	}
 	else if (board_derived_info->bet_type == FACING_RAISE)
 	{
-		if (prwin > pot_odds * 2)
+		if (prwin > pot_odds * 4)
 		{
-			return { RAISE, RAISE_SIZE };
+			return { RAISE, board->pot };
 		}
 		else if (prwin > pot_odds)
 		{

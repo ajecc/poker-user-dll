@@ -65,5 +65,15 @@ const villain_range_t*
 create_check_villain_preflop_range();
 
 
+bool
+has_gutshot(const hand_t* hand, const board_t* board);
+
+bool
+has_open_ender(const hand_t* hand, const board_t* board);
+
+bool
+has_flush_draw(const hand_t* hand, const board_t* board);
+
+
 villain_range_t*
 get_villain_preflop_range(const position_t& villain_position, const villain_action_t& last_villain_action);

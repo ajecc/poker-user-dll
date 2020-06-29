@@ -20,16 +20,6 @@ static std::vector<std::string>
 get_position_map();
 
 
-static bool
-has_gutshot(const hand_t* hand, const board_t* board);
-
-
-static bool
-has_open_ender(const hand_t* hand, const board_t* board);
-
-
-static bool
-has_flush_draw(const hand_t* hand, const board_t* board);
 
 
 
@@ -43,7 +33,10 @@ villain_range_t::add(const hand_t* hand)
 void
 villain_range_t::remove(const std::vector<const hand_t*>& hands)
 {
-	assert(!villain_range.empty());
+	if (villain_range.empty() || hands.empty())
+	{
+		return;
+	}
 	std::set<const hand_t*> hands_set(all(hands));
 	std::set<const hand_t*> diff;
 	std::set_difference(all(villain_range), all(hands_set), std::inserter(diff, diff.begin()));
@@ -62,6 +55,7 @@ villain_range_t::remove_containg_card(const card_t* card)
 			hands_to_remove.push_back(villain_hand);
 		}
 	}
+	remove(hands_to_remove);
 }
 
 
@@ -442,7 +436,7 @@ get_position_map()
 }
 
 
-static bool
+bool
 has_gutshot(const hand_t* hand, const board_t* board)
 {
 	std::vector<rank_t> ranks;
@@ -483,7 +477,7 @@ has_gutshot(const hand_t* hand, const board_t* board)
 }
 
 
-static bool
+bool
 has_open_ender(const hand_t* hand, const board_t* board)
 {
 	std::vector<rank_t> ranks;
@@ -518,7 +512,7 @@ has_open_ender(const hand_t* hand, const board_t* board)
 }
 
 
-static bool
+bool
 has_flush_draw(const hand_t* hand, const board_t* board)
 {
 	std::vector<color_t> colors;

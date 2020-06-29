@@ -20,9 +20,9 @@ main(int argc, char** argv)
 	auto result = RUN_ALL_TESTS();
 	board_t board;
 	board.cards =
-	{ get_card("6c"), get_card("7c"), get_card("Js"), get_card("Qd"), get_card("5s")};
+	{ get_card("5c"), get_card("7d"), get_card("8d"), get_card("2c"), get_card("As")};
 	std::sort(all(board.cards), card_ptr_cmp);
-	const hand_t* hero_hand = get_hand(get_card("Ad"), get_card("Jh"));
+	const hand_t* hero_hand = get_hand(get_card("Kc"), get_card("5s"));
 	const hand_t* villain_hand = get_hand(get_card("Kd"), get_card("Ac"));
 	float start = clock();
 	float end = clock();
