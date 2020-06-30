@@ -3,7 +3,7 @@
 #include "hand.h"
 #include "prwin_calc.h"
 
-#define ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED_NAME "Global\\ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED"
+#define ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED_NAME "ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED"
 #define ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME "all_prwin_vs_any_hand_flop.cache"
 
 

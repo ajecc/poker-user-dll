@@ -403,7 +403,8 @@ update_big_blind_sum(board_t* board)
 static void
 update_pot(board_t* board)
 {
-	board->pot = (float)GetSymbol("pot");
+	board->pot = scrape_table_map_region_numeric("c0pot0");
+	board->pot += scrape_table_map_region_numeric("c0pot1");
 }
 
 

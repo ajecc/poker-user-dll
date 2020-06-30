@@ -6,6 +6,7 @@
 #include "clean_windows.h"
 #include <conio.h>
 #include <cstdio>
+#include <chrono>
 #include <random>
 #include <excpt.h>
 #include "loguru.h"
@@ -89,7 +90,7 @@ create_globals()
 DLL_IMPLEMENTS double __stdcall
 ProcessQuery(const char* pquery)
 {
-	if (nullptr == pquery)
+	if (pquery == nullptr)
 	{
 		return -1;
 	}
@@ -100,9 +101,13 @@ ProcessQuery(const char* pquery)
 	{
 		try
 		{
+			auto start_time = std::chrono::steady_clock::now();
 			update_board(g_board);
 			decision = take_decision(g_board->hero, g_board);
-			LOG_F(INFO, (decision.to_string() + "\n").c_str());
+			auto end_time = std::chrono::steady_clock::now();
+			std::chrono::duration<float> elapsed_time = end_time - start_time;
+			LOG_F(INFO, decision.to_string().c_str());
+			LOG_F(INFO, "Time to take the decision = %fs\n", elapsed_time.count());
 			consec_exception_count = 0;
 		}
 		catch(poker_exception_t& e)

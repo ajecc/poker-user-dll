@@ -204,6 +204,7 @@ ErrorPointerNotInitialized(const char* function_name)
 	);
 }
 
+
 std::string
 scrape_table_map_region(const std::string& region)
 {
