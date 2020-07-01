@@ -36,7 +36,7 @@ struct board_derived_info_t
 
 
 std::vector<const card_t*> 
-find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board);
+find_remaining_cards(const hand_t* hero, const hand_t* villain, const board_t* board);
 
 
 board_derived_info_t

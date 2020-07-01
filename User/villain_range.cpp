@@ -50,7 +50,7 @@ villain_range_t::remove_containg_card(const card_t* card)
 	std::vector<const hand_t*> hands_to_remove;
 	for (const auto* villain_hand : villain_range)
 	{
-		if (villain_hand->cards[0] == card || villain_hand->cards[1] == card)
+		if (*villain_hand->cards[0] == *card || *villain_hand->cards[1] == *card)
 		{
 			hands_to_remove.push_back(villain_hand);
 		}
@@ -111,6 +111,10 @@ update_player_villain_range(player_t* player, const board_t* board)
 		player->villain_range->remove_containg_card(board->hero->hand->cards[1]);
 		return;
 	}
+	for (const auto* card : board->cards)
+	{
+		player->villain_range->remove_containg_card(card);
+	}
 	std::vector<const hand_t*> hands_to_remove;
 	float players_cnt = (float)board->current_hand_players.size() - 1;
 	auto normalize_prwin = [&players_cnt](const float& prwin)
@@ -126,7 +130,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 			{
 				for (const auto* hand : player->villain_range->villain_range)
 				{
-					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.83)
+					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.83f)
 					{
 						hands_to_remove.push_back(hand);
 					}
@@ -137,7 +141,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 				for (const auto* hand : player->villain_range->villain_range)
 				{
 					if (!(has_flush_draw(hand, board) || has_open_ender(hand, board) ||
-						normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.8))
+						pow(calc_prwin_vs_any_hand(hand, board), 2) > 0.5f))
 					{
 						hands_to_remove.push_back(hand);
 					}
@@ -152,7 +156,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 					for (const auto* hand : player->villain_range->villain_range)
 					{
 						if (!(has_flush_draw(hand, board) || has_open_ender(hand, board) ||
-							normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.8))
+							pow(calc_prwin_vs_any_hand(hand, board), 2) > 0.6f))
 						{
 							hands_to_remove.push_back(hand);
 						}
@@ -163,8 +167,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 			{
 				for (const auto* hand : player->villain_range->villain_range)
 				{
-					if (!(has_flush_draw(hand, board) ||
-						normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.85))
+					if (pow(calc_prwin_vs_any_hand(hand, board), 2) < 0.85f)
 					{
 						hands_to_remove.push_back(hand);
 					}
@@ -179,8 +182,8 @@ update_player_villain_range(player_t* player, const board_t* board)
 				{
 					for (const auto* hand : player->villain_range->villain_range)
 					{
-						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.85 &&
-							normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.925)
+						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.85f &&
+							normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.925f)
 						{
 							hands_to_remove.push_back(hand);
 						}
@@ -191,7 +194,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 			{
 				for (const auto* hand : player->villain_range->villain_range)
 				{
-					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.44 &&
+					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.44f &&
 						!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
 							has_open_ender(hand, board)))
 					{
@@ -207,7 +210,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 					// TODO: this might not be accurate
 					for (const auto* hand : player->villain_range->villain_range)
 					{
-						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.44 &&
+						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.44f &&
 							!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
 								has_open_ender(hand, board)))
 						{
@@ -220,8 +223,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 			{
 				for (const auto* hand : player->villain_range->villain_range)
 				{
-					if (!(has_flush_draw(hand, board) ||
-						normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.82))
+					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.82f)
 					{
 						hands_to_remove.push_back(hand);
 					}
@@ -235,7 +237,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 		{
 			for (const auto* hand : player->villain_range->villain_range)
 			{
-				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.852)
+				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.852f)
 				{
 					hands_to_remove.push_back(hand);
 				}
@@ -246,7 +248,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 		{
 			for (const auto* hand : player->villain_range->villain_range)
 			{
-				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.78)
+				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.78f)
 				{
 					hands_to_remove.push_back(hand);
 				}
@@ -256,7 +258,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 		{
 			for (const auto* hand : player->villain_range->villain_range)
 			{
-				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.92)
+				if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.92f)
 				{
 					hands_to_remove.push_back(hand);
 				}
@@ -268,17 +270,6 @@ update_player_villain_range(player_t* player, const board_t* board)
 		throw poker_exception_t("update_player_villain_range: invalid board stage");
 	}
 	player->villain_range->remove(hands_to_remove);
-	if (board->stage == FLOP)
-	{
-		for (const auto* card : board->cards)
-		{
-			player->villain_range->remove_containg_card(card);
-		}
-	}
-	else
-	{
-		player->villain_range->remove_containg_card(board->cards.back());
-	}
 }
 
 

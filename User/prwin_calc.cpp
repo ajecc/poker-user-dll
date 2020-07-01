@@ -69,19 +69,7 @@ calc_prwin_vs_any_hand(const hand_t* hero, const board_t* board)
 	{
 		return calc_prwin_vs_any_hand_flop(hero, board);
 	}
-	std::vector<const card_t*> remaining_cards;
-	std::vector<const card_t*> current_cards = {hero->cards[0], hero->cards[1]};
-	for (auto* card : board->cards)
-	{
-		current_cards.emplace_back(card);
-	}
-	for (auto* card : g_all_cards)
-	{
-		if (!is_in_vector(card, current_cards))
-		{
-			remaining_cards.emplace_back(card);
-		}
-	}
+	std::vector<const card_t*> remaining_cards = find_remaining_cards(hero, nullptr, board);
 	float prwin = 0, count = 0;
 	for (size_t i = 0; i < remaining_cards.size(); i++)
 	{
@@ -91,8 +79,8 @@ calc_prwin_vs_any_hand(const hand_t* hero, const board_t* board)
 			const card_t* rhs_card = remaining_cards[j];
 			const hand_t* hand = get_hand(lhs_card, rhs_card);
 			prwin += calc_prwin_vs_hand(hero, hand, board);
+			count++;
 		}
-		count += remaining_cards.size() - i - 1;
 	}
 	return prwin / count;
 }
@@ -146,7 +134,6 @@ calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_r
 			std::async(std::launch::async, calc_prwin_vs_hand, hero, hand, board)
 		);
 	}
-	LOG_F(INFO, "got %d futures", prwin_futures.size());
 	float prwin_sum = 0;
 	for (auto& prwin_future : prwin_futures)
 	{
@@ -203,6 +190,7 @@ calc_prwin_vs_hand_turn(const hand_t* hero, const hand_t* villain, const board_t
 		}
 		board_cpy.cards.pop_back();
 	}
+	assert(remaining_cards.size() != 0);
 	return (float)hero_wins / (float)remaining_cards.size();
 }
 

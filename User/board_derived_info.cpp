@@ -88,7 +88,7 @@ get_board_derived_info(player_t* hero, board_t* board)
 
 
 std::vector<const card_t*>
-find_remaining_cards(const hand_t* hero, const hand_t* villain, board_t* board)
+find_remaining_cards(const hand_t* hero, const hand_t* villain, const board_t* board)
 {
 	std::vector<const card_t*> current_cards = board->cards;
 	if (hero != nullptr)

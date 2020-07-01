@@ -100,7 +100,6 @@ take_decision_postflop(player_t* hero, board_t* board)
 		}
 		prwin *= calc_prwin_vs_villain_range(hero->hand, villain->villain_range, board);
 		calling_rate += calc_calling_rate_vs_villain_range(villain->villain_range, board);
-		LOG_F(INFO, "got 1 more prwin out of %d", board->current_hand_players.size());
 	}
 	assert(board->current_hand_players.size() >= 2);
 	calling_rate /= (float)(board->current_hand_players.size() - 1);

@@ -7,6 +7,8 @@
 #include "util.h"
 #include <cassert>
 #include <algorithm>
+#include <vector>
+#include <future>
 
 
 static void 
@@ -540,18 +542,28 @@ update_villain_actions(board_t* board, const board_stage_t& prev_stage)
 			}
 		}
 	}
+	LOG_F(INFO, "updated villain_actions");
 }
 
 
 static void
 update_villain_ranges(const board_t* board)
 {
+	// TODO: you can improve performance by launching async calc_prwin_vs_any_hand
+	//       inside of update_player_villain_range, instead of launching
+	//       update_player_villain_range async
+	std::vector<std::future<void>> update_player_villain_range_futures;
 	for (auto* player : board->current_hand_players)
 	{
 		if (!player->is_hero)
 		{
-			update_player_villain_range(player, board);
+			update_player_villain_range_futures.push_back(std::async(std::launch::async,
+				update_player_villain_range, player, board));
 		}
+	}
+	for (auto& future : update_player_villain_range_futures)
+	{
+		future.wait();
 	}
 }
 
