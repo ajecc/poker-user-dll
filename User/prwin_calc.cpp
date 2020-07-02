@@ -30,7 +30,7 @@ calc_prwin_vs_any_hand_flop(const hand_t* hero, const board_t* board);
 
 
 static float
-calc_hand_calling_rate(const hand_t* hand, const board_t* board);
+calc_hand_calling_rate(const hand_t* hand, const board_t* board, const bet_type_t& bet_type);
 
 
 bool
@@ -148,7 +148,8 @@ calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_r
 
 
 float
-calc_calling_rate_vs_villain_range(const villain_range_t* villain_range, const board_t* board)
+calc_calling_rate_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range,
+	const board_t* board, const bet_type_t& bet_type)
 {
 	if (villain_range->villain_range.size() == 0)
 	{
@@ -157,7 +158,9 @@ calc_calling_rate_vs_villain_range(const villain_range_t* villain_range, const b
 	float calling_rate = 0;
 	for (const hand_t* hand : villain_range->villain_range)
 	{
-		calling_rate += calc_hand_calling_rate(hand, board);
+		float calling_rate_local = calc_hand_calling_rate(hand, board, bet_type);
+		float prwin = calc_prwin_vs_hand(hero, hand, board);
+		calling_rate += prwin * calling_rate_local;
 	}
 	return calling_rate / (float)villain_range->villain_range.size();
 }
@@ -284,89 +287,118 @@ calc_prwin_vs_any_hand_flop(const hand_t* hero, const board_t* board)
 }
 
 
-static float 
-calc_hand_calling_rate(const hand_t* hand, const board_t* board)
+static float
+calc_hand_calling_rate(const hand_t* hand, const board_t* board, const bet_type_t& bet_type)
 {
+	// TODO: add calling rate based on previous actions (i.e reraise => smaller calling rate)
 	bool has_gutshot_ = has_gutshot(hand, board);
 	bool has_open_ender_ = has_open_ender(hand, board);
 	bool has_flush_draw_ = has_flush_draw(hand, board);
 	float prwin_vs_any_hand_ = (float)pow(calc_prwin_vs_any_hand(hand, board),
 		board->current_hand_players.size() - 1);
-	if (board->stage == FLOP)
+	if (bet_type == OPEN)
 	{
-		if (has_flush_draw_)
+		if (board->stage == FLOP)
 		{
-			return 1.0f;
+			if (has_flush_draw_)
+			{
+				return 1.0f;
+			}
+			if (prwin_vs_any_hand_ > 0.71f)
+			{
+				return 1.0f;
+			}
+			if (prwin_vs_any_hand_ > 0.65f)
+			{
+				return 0.90f;
+			}
+			if (has_open_ender_)
+			{
+				return 0.8f;
+			}
+			if (prwin_vs_any_hand_ > 0.58f)
+			{
+				return 0.6f;
+			}
+			if (has_gutshot_ && prwin_vs_any_hand_ > 0.4f)
+			{
+				return 0.3f;
+			}
+			if (prwin_vs_any_hand_ > 0.52f)
+			{
+				return 0.3f;
+			}
+			if (has_gutshot_)
+			{
+				return 0.2f;
+			}
+			return 0.05f;
 		}
-		if (prwin_vs_any_hand_ > 0.71f)
+		else if (board->stage == TURN)
 		{
-			return 1.0f;
+			if (prwin_vs_any_hand_ > 0.76f)
+			{
+				return 1.0f;
+			}
+			if (prwin_vs_any_hand_ > 0.74f)
+			{
+				return 0.9f;
+			}
+			if (has_flush_draw_ && has_open_ender_)
+			{
+				return 0.8f;
+			}
+			if (has_flush_draw_ && prwin_vs_any_hand_ > 0.68f)
+			{
+				return 0.6f;
+			}
+			if (has_flush_draw_)
+			{
+				return 0.5f;
+			}
+			if (has_open_ender_ && prwin_vs_any_hand_ > 0.63f)
+			{
+				return 0.5f;
+			}
+			if (prwin_vs_any_hand_ > 0.47f)
+			{
+				return 0.5f;
+			}
+			if (has_gutshot_)
+			{
+				return 0.1f;
+			}
+			return 0.0f;
 		}
-		if (prwin_vs_any_hand_ > 0.65f)
+		else if (board->stage == RIVER)
 		{
-			return 0.90f;
+			if (prwin_vs_any_hand_ > 0.87f)
+			{
+				return 1.0f;
+			}
+			if (prwin_vs_any_hand_ > 0.84f)
+			{
+				return 0.9f;
+			}
+			if (prwin_vs_any_hand_ > 0.8f)
+			{
+				return 0.85f;
+			}
+			if (prwin_vs_any_hand_ > 0.73f)
+			{
+				return 0.5f;
+			}
+			if (prwin_vs_any_hand_ > 0.53f)
+			{
+				return 0.3f;
+			}
+			return 0.0f;
 		}
-		if (has_open_ender_)
-		{
-			return 0.8f;
-		}
-		if (prwin_vs_any_hand_ > 0.58f)
-		{
-			return 0.6f;
-		}
-		if (has_gutshot_ && prwin_vs_any_hand_ > 0.4f)
-		{
-			return 0.3f;
-		}
-		if (prwin_vs_any_hand_ > 0.52f)
-		{
-			return 0.3f;
-		}
-		if (has_gutshot_)
-		{
-			return 0.2f;
-		}
-		return 0.05f;
+		throw poker_exception_t("calc_hand_would_call_percent: invalid board stage");
 	}
-	else if (board->stage == TURN)
+	else
 	{
-		if (prwin_vs_any_hand_ > 0.76f)
-		{
-			return 1.0f;
-		}
-		if (prwin_vs_any_hand_ > 0.74f)
-		{
-			return 0.9f;
-		}
-		if (has_flush_draw_ && has_open_ender_)
-		{
-			return 0.8f;
-		}
-		if (has_flush_draw_ && prwin_vs_any_hand_ > 0.68f)
-		{
-			return 0.6f;
-		}
-		if (has_flush_draw_)
-		{
-			return 0.5f;
-		}
-		if (has_open_ender_ && prwin_vs_any_hand_ > 0.63f)
-		{
-			return 0.5f;
-		}
-		if (prwin_vs_any_hand_ > 0.47f)
-		{
-			return 0.5f;
-		}
-		if (has_gutshot_)
-		{
-			return 0.1f;
-		}
-		return 0.0f;
-	}
-	else if (board->stage == RIVER)
-	{
-		if (prwin_vs_any_hand_ > 0.87f)
+		if (prwin_vs_any_hand_ > 0.88f)
 		{
 			return 1.0f;
 		}
@@ -374,21 +406,24 @@ calc_hand_calling_rate(const hand_t* hand, const board_t* board)
 		{
 			return 0.9f;
 		}
-		if (prwin_vs_any_hand_ > 0.8f)
+		if (has_flush_draw_ && has_open_ender_ && board->stage == FLOP)
 		{
-			return 0.85f;
+			return 0.9f;
 		}
-		if (prwin_vs_any_hand_ > 0.73f)
+		if (prwin_vs_any_hand_ > 0.78f)
 		{
-			return 0.5f;
+			return 0.7f;
 		}
-		if (prwin_vs_any_hand_ > 0.53f)
+		if (has_flush_draw_ && has_open_ender_ && board->stage == TURN)
+		{
+			return 0.4f;
+		}
+		if (has_flush_draw_ && board->stage == FLOP)
 		{
 			return 0.3f;
 		}
 		return 0.0f;
 	}
-	throw poker_exception_t("calc_hand_would_call_percent: invalid board stage");
 }
 
 

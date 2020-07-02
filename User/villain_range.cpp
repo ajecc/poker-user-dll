@@ -104,6 +104,7 @@ villain_range_t::to_string() const
 void
 update_player_villain_range(player_t* player, const board_t* board)
 {
+	// TODO: take bluffs in consideration
 	if (board->stage == PREFLOP)
 	{
 		player->villain_range = get_villain_preflop_range(player->position, player->villain_action);
@@ -183,7 +184,7 @@ update_player_villain_range(player_t* player, const board_t* board)
 					for (const auto* hand : player->villain_range->villain_range)
 					{
 						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.85f &&
-							normalize_prwin(calc_prwin_vs_any_hand(hand, board)) > 0.925f)
+							normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.925f)
 						{
 							hands_to_remove.push_back(hand);
 						}

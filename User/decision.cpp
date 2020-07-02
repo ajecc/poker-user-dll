@@ -77,7 +77,7 @@ take_decision_preflop(player_t* hero, board_t* board)
 		}
 		else
 		{
-			to_raise_sum = 0.8f * board->pot; 
+			to_raise_sum = 1.2f * board->pot; 
 		}
 	}
 	return decision_t{ range_hand.hand_action, to_raise_sum };
@@ -99,10 +99,13 @@ take_decision_postflop(player_t* hero, board_t* board)
 			continue;
 		}
 		prwin *= calc_prwin_vs_villain_range(hero->hand, villain->villain_range, board);
-		calling_rate += calc_calling_rate_vs_villain_range(villain->villain_range, board);
+		calling_rate += calc_calling_rate_vs_villain_range(hero->hand, villain->villain_range,
+			board, board_derived_info->bet_type);
 	}
 	assert(board->current_hand_players.size() >= 2);
 	calling_rate /= (float)(board->current_hand_players.size() - 1);
+	calling_rate *= (1 + prwin);
+	const float BET_SIZE = board->pot * std::min(0.8f, calling_rate);
 	LOG_F(INFO, "prwin = %f", prwin);
 	LOG_F(INFO, "calling_rate = %f", calling_rate);
 	// NOTE: the first member of the addition gurantees that we have better pot odds than the villains
@@ -112,7 +115,7 @@ take_decision_postflop(player_t* hero, board_t* board)
 	LOG_F(INFO, "pot_odds = %f", pot_odds);
 	if (board_derived_info->bet_type == OPEN)
 	{
-		if (prwin < 0.33f || calling_rate < 0.2f)
+		if (calling_rate < 0.4f)
 		{
 			return { CHECK, 0 };
 		}
@@ -125,16 +128,16 @@ take_decision_postflop(player_t* hero, board_t* board)
 			}
 			else
 			{
-				raise_size = 0.6f * board->pot;
+				raise_size = BET_SIZE;
 			}
 			return { RAISE, raise_size };
 		}
 	}
 	else if (board_derived_info->bet_type == FACING_RAISE)
 	{
-		if (prwin > pot_odds * 4)
+		if (calling_rate > 0.4f)
 		{
-			return { RAISE, board->pot * 0.8f };
+			return { RAISE, BET_SIZE };
 		}
 		else if (prwin > pot_odds)
 		{
@@ -149,10 +152,13 @@ take_decision_postflop(player_t* hero, board_t* board)
 		board_derived_info->bet_type == FACING_4BET)
 	{
 		// TODO: this seems somewhat wrong. check it
-		pot_odds = calc_pot_odds(board->pot, hero->balance);
-		if (prwin > pot_odds)
+		if (calling_rate > 0.6f)
 		{
 			return { RAISE, hero->balance };
+		}
+		if (prwin > pot_odds)
+		{
+			return { CALL, 0 };
 		}
 		else
 		{

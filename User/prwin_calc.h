@@ -2,6 +2,8 @@
 #include <vector>
 #include "hand.h"
 #include "prwin_calc.h"
+#include "board_derived_info.h"
+
 
 #define ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED_NAME "ALL_PRWIN_VS_ANY_HAND_FLOP_SHARED"
 #define ALL_PRWIN_VS_ANY_HAND_FLOP_FILE_NAME "all_prwin_vs_any_hand_flop.cache"
@@ -70,7 +72,8 @@ float
 calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range, const board_t* board);
 
 float
-calc_calling_rate_vs_villain_range(const villain_range_t* villain_range, const board_t* board);
+calc_calling_rate_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range,
+	const board_t* board, const bet_type_t& bet_type);
 
 std::vector<float>
 create_all_prwin_vs_any_hand_flop();
