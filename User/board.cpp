@@ -3,6 +3,7 @@
 #include "villain_range.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
+#include "decision.h"
 #include "board_derived_info.h"
 #include "util.h"
 #include <cassert>
@@ -36,6 +37,9 @@ static void
 update_hero(board_t* board);
 
 static void
+update_players_current_bet(board_t* board);
+
+static void
 update_board_derived_info(board_t* board, const board_stage_t& prev_stage);
 
 static void
@@ -50,24 +54,14 @@ create_board()
 {
 	auto* board = new board_t;
 	board->stage = INVALID_BOARD_STAGE;
-	if (nullptr == board)
-	{
-		goto cleanup;
-	}
 	for (int i = 0; i < PLAYERS_COUNT; i++)
 	{
 		auto* player = new player_t;
-		if (player == nullptr)
-		{
-			goto cleanup;
-		}
 		player->label = "p" + std::to_string(i);
 		board->players.emplace_back(player);
 	}
+	board->last_decision = new decision_t;
 	return board;
-cleanup:
-	destroy_board(&board);
-	return nullptr;
 }
 
 
@@ -119,6 +113,7 @@ update_board(board_t* board)
 	update_players(board);
 	update_player_positions(board);
 	update_current_hand_players(board);
+	update_players_current_bet(board);
 	update_big_blind_sum(board);
 	update_pot(board);
 	if (prev_stage == PREFLOP && board->stage == PREFLOP
@@ -568,23 +563,43 @@ update_villain_ranges(const board_t* board)
 }
 
 
+static void
+update_players_current_bet(board_t* board)
+{
+	for (auto* player : board->current_hand_players)
+	{
+		if (!player->is_hero)
+		{
+			float max_bet = board->hero->balance + board->hero->current_bet;
+			if (max_bet > player->current_bet)
+			{
+				board->pot -= player->current_bet;
+				player->current_bet = max_bet;
+				board->pot += player->current_bet;
+			}
+		}
+	}
+}
+
+
 std::string 
 board_t::to_string() const
 {
 	std::string to_string;
-	to_string = "CARDS: ";
-	for (auto* card : cards)
-	{
-		to_string += card->to_string() + " ";
-	}
-	to_string += "\n\n";
 	to_string += "PLAYERS: \n";
 	for (auto* player : players)
 	{
 		to_string += player->to_string();
 		to_string += "\n";
 	}
+	to_string += "CARDS: ";
+	for (auto* card : cards)
+	{
+		to_string += card->to_string() + " ";
+	}
+	to_string += "\n";
 	to_string += "HERO: " + hero->hand->to_string() + "\n";
-	to_string += "CURRENT PLAYERS CNT: " + std::to_string(current_hand_players.size());
+	to_string += "CURRENT PLAYERS CNT: " + std::to_string(current_hand_players.size()) + "\n";
+	to_string += "POT: " + std::to_string(pot);
 	return to_string;
 }

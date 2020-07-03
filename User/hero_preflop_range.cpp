@@ -351,5 +351,3 @@ get_range_from_csv(const std::string& file_name)
 	fclose(csv);
 	return hero_preflop_range;
 }
-
-

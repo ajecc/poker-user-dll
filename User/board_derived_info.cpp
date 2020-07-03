@@ -134,7 +134,7 @@ get_villains_info(player_t* hero, board_t* board, board_derived_info_t* board_de
 	float current_bet = 0;
 	for (auto* villain : board->current_hand_players)
 	{
-		if (villain->label == hero->label)
+		if (villain->is_hero)
 		{
 			after_hero = true;
 			continue;

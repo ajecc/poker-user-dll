@@ -87,8 +87,9 @@ take_decision_preflop(player_t* hero, board_t* board)
 decision_t 
 take_decision_postflop(player_t* hero, board_t* board)
 {
-	LOG_F(INFO, "started taking POSTFLOP decision");
 	// TODO: add implied odds into consideration 
+	// TODO: find appropriate calling rate values
+	LOG_F(INFO, "started taking POSTFLOP decision");
 	auto* board_derived_info = board->board_derived_info;
 	float prwin = 1;
 	float calling_rate = 0;
@@ -104,19 +105,45 @@ take_decision_postflop(player_t* hero, board_t* board)
 	}
 	assert(board->current_hand_players.size() >= 2);
 	calling_rate /= (float)(board->current_hand_players.size() - 1);
-	calling_rate *= (1 + prwin);
-	const float BET_SIZE = board->pot * std::min(0.8f, calling_rate);
+	const float BET_SIZE = board->pot * std::min(0.8f, std::max(0.5f, calling_rate));
 	LOG_F(INFO, "prwin = %f", prwin);
 	LOG_F(INFO, "calling_rate = %f", calling_rate);
 	// NOTE: the first member of the addition gurantees that we have better pot odds than the villains
 	// the second part => profit taking and rake beating
 	float raise_size = board->big_blind_sum;
 	float pot_odds = calc_pot_odds(board->pot, board_derived_info->call_ammount);
+	if (pot_odds < 0)
+	{
+		__debugbreak();
+	}
 	LOG_F(INFO, "pot_odds = %f", pot_odds);
 	if (board_derived_info->bet_type == OPEN)
 	{
-		if (calling_rate < 0.4f)
+		if (calling_rate < 0.2f)
 		{
+			if (board->stage == FLOP && board->current_hand_players.size() == 2)
+			{
+				if (!is_board_wet_flop(board))
+				{
+					if (hero->is_in_position && generate_random() > 0.7f)
+					{
+						return { RAISE, 0.4f * board->pot };
+					}
+					if (!hero->is_in_position && generate_random() > 0.2f)
+					{
+						return { RAISE, 0.4f * board->pot };
+					}
+				}
+				else if(hero->is_in_position && generate_random() > 0.4f)
+				{
+					return { RAISE, 0.4f * board->pot };
+				}
+			}
+			else if (board->stage == TURN && board->current_hand_players.size() == 3 &&
+				board->last_decision->action == CHECK && generate_random() > 0.7f)
+			{
+				return { RAISE, 0.4f * board->pot };
+			}
 			return { CHECK, 0 };
 		}
 		else
@@ -151,8 +178,7 @@ take_decision_postflop(player_t* hero, board_t* board)
 	else if (board_derived_info->bet_type == FACING_3BET ||
 		board_derived_info->bet_type == FACING_4BET)
 	{
-		// TODO: this seems somewhat wrong. check it
-		if (calling_rate > 0.6f)
+		if (calling_rate > 0.5f)
 		{
 			return { RAISE, hero->balance };
 		}
@@ -187,6 +213,7 @@ take_decision(player_t* hero, board_t* board)
 	{
 		board->stage = INVALID_BOARD_STAGE;
 	}
+	*board->last_decision = decision;
 	return decision;
 }
 
