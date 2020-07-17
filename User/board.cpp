@@ -571,7 +571,7 @@ update_players_current_bet(board_t* board)
 		if (!player->is_hero)
 		{
 			float max_bet = board->hero->balance + board->hero->current_bet;
-			if (max_bet > player->current_bet)
+			if (max_bet < player->current_bet)
 			{
 				board->pot -= player->current_bet;
 				player->current_bet = max_bet;

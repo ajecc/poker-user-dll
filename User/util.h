@@ -80,7 +80,7 @@ generate_random(float lower_bound = 0, float upper_bound = 1)
 
 
 template<typename T1, typename T2> inline bool 
-contains(T1 container, T2 elem)
+contains(const T1& container, T2 elem)
 {
 	return std::find(all(container), elem) != container.end();
 }

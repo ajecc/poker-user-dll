@@ -174,7 +174,7 @@ calc_hand_board_result(const hand_t* hand, const board_t* board)
 	// TODO: maybe calculate results with a board that is not full as well
 	assert(board->cards.size() == 5);
 	card_t cards[7];
-	for(int i = 0; i < (int)board->cards.size(); i++)
+	for(int i = 0; i < (int)board->cards.size(); i++) 
 	{
 		cards[i] = *board->cards[i];
 	}
@@ -516,7 +516,11 @@ calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
 			return lhs->color < rhs->color;
 		});
 	int consec = 1;
-	const card_t* kicker = nullptr;
+	const card_t* kicker_0 = nullptr;
+	const card_t* kicker_1 = nullptr;
+	const card_t* kicker_2 = nullptr;
+	const card_t* kicker_3 = nullptr;
+	const card_t* kicker_4 = nullptr;
 	bool have_result = false;
 	for (int i = (int)cards.size() - 2; i >= 0; i--)
 	{
@@ -530,14 +534,22 @@ calc_flush(std::vector<const card_t*> cards, hand_board_result_t* result)
 		}
 		if (consec >= 5)
 		{
-			kicker = cards[i];
+			kicker_0 = cards[i];
+			kicker_1 = cards[(int64_t)i + 1];
+			kicker_2 = cards[(int64_t)i + 2];
+			kicker_3 = cards[(int64_t)i + 3];
+			kicker_4 = cards[(int64_t)i + 4];
 			have_result = true;
 		}
 	}
-	if (have_result && kicker != nullptr)
+	if (have_result && kicker_0 != nullptr)
 	{
 		result->strength = FLUSH;
-		result->kicker_0 = kicker->rank;
+		result->kicker_0 = kicker_0->rank;
+		result->kicker_1 = kicker_1->rank;
+		result->kicker_2 = kicker_2->rank;
+		result->kicker_3 = kicker_3->rank;
+		result->kicker_4 = kicker_4->rank;
 	}
 	return have_result;
 }

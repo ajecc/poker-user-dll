@@ -160,8 +160,7 @@ calc_calling_rate_vs_villain_range(const hand_t* hero, const villain_range_t* vi
 	{
 		float calling_rate_local = calc_hand_calling_rate(hand, board, bet_type);
 		float prwin = calc_prwin_vs_hand(hero, hand, board);
-		// TODO: this is 100% wrong. correct it
-		calling_rate += std::pow(calling_rate_local, 1 - prwin);
+		calling_rate += calling_rate_local * prwin;
 	}
 	return calling_rate / (float)villain_range->villain_range.size();
 }
