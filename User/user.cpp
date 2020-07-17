@@ -173,7 +173,7 @@ void save_state()
 		std::ofstream::app | std::ofstream::binary);
 	prwin_results.write((char*)&results[0], sizeof(float) * results.size());
 	std::cout << "successfully saved state...\n";
-	prwin_results.clear();
+	results.clear();
 }
 
 
@@ -187,6 +187,8 @@ BOOL WINAPI HandlerRoutine(DWORD dwCtrlType)
 
 int main()
 {
+	int save_progress = 0;
+	int results_size = 0;
 	auto file_size = (float)std::filesystem::file_size(
 					"prwin_results_any_hand.cache"); 
 	SetConsoleCtrlHandler(HandlerRoutine, TRUE);
@@ -236,6 +238,7 @@ int main()
 						board_t board;
 						board.cards = { g_all_cards[k], g_all_cards[l], g_all_cards[m] };
 						results.push_back(calc_prwin_vs_any_hand(hero_hand, &board));
+						results_size++;
 						if (done)
 						{
 							save_state();
@@ -243,13 +246,20 @@ int main()
 							Sleep(50000);
 							exit(0);
 						}
+						save_progress++;
+						if (save_progress == (int)5e5)
+						{
+							save_state();
+							save_progress = 0;
+						}
 					}
 				}
 			}
-			float progress = (file_size + results.size() * sizeof(float)) / 1039584;
+			float progress = (file_size + results_size * sizeof(float)) / 1039584;
 			std::cout << "[#] Done: " << progress << "%\n";
 		}
 	}
+	save_state();
 	std::cout << "done!\n";
 }
 #endif
