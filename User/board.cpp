@@ -393,7 +393,7 @@ update_current_hand_players(board_t* board)
 static void 
 update_big_blind_sum(board_t* board)
 {
-	board->big_blind_sum = (float)GetSymbol("bblind");
+	board->big_blind_sum = scrape_table_map_region_numeric("bblind");
 }
 
 

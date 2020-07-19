@@ -24,19 +24,19 @@ init_log(FILE** conout)
 	argv[1] = nullptr;
 	loguru::init(argc, argv);
 
-	AllocConsole();
-	freopen_s(conout, "CONOUT$", "w", stdout);
-	bool bError = 
-		loguru::add_file("user_dll_debug.log", loguru::Append, loguru::Verbosity_MAX);
-	if (bError == false)
-	{
-		exit(-1);
-	}
-	bError = loguru::add_file("CONOUT$", loguru::Truncate, loguru::Verbosity_MAX);
-	if (bError == false)
-	{
-		exit(-1);
-	}
+	//AllocConsole();
+	//freopen_s(conout, "CONOUT$", "w", stdout);
+	//bool bError = 
+	//	loguru::add_file("user_dll_debug.log", loguru::Append, loguru::Verbosity_MAX);
+	//if (bError == false)
+	//{
+	//	exit(-1);
+	//}
+	//bError = loguru::add_file("CONOUT$", loguru::Truncate, loguru::Verbosity_MAX);
+	//if (bError == false)
+	//{
+	//	exit(-1);
+	//}
 	DLOG(INFO, "Console is open");
 }
 
@@ -44,11 +44,11 @@ init_log(FILE** conout)
 inline void 
 uninit_log(FILE* conout)
 {
-	FreeConsole();
-	if (conout != nullptr)
-	{
-		fclose(conout);
-	}
+	//FreeConsole();
+	//if (conout != nullptr)
+	//{
+	//	fclose(conout);
+	//}
 }
 
 #else

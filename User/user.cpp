@@ -1,14 +1,11 @@
-// NOTE: Required OpenHoldem version: 12.1.6 
-
-// NOTE: this needs to be at the top
-#define USER_DLL 
-
 #include "clean_windows.h"
 #include <conio.h>
 #include <cstdio>
 #include <chrono>
 #include <random>
 #include <excpt.h>
+#include <map>
+#include <sstream>
 #include "loguru.h"
 #include "user.h"
 #include "open_holdem_functions.h"
@@ -22,26 +19,10 @@
 #include "prwin_calc.h"
 #include "villain_range.h"
 
-void __stdcall
-DLLUpdateOnNewFormula() {}
-
-void __stdcall
-DLLUpdateOnConnection() {}
-
-void __stdcall
-DLLUpdateOnHandreset() {}
-
-void __stdcall
-DLLUpdateOnNewRound() {}
-
-void __stdcall
-DLLUpdateOnMyTurn() {}
-
-void __stdcall
-DLLUpdateOnHeartbeat() {}
-
 
 // GLOBALS
+std::map<std::string, std::string> g_symbols;
+
 board_t* g_board;
 
 std::vector<const card_t*> g_all_cards;
@@ -86,9 +67,26 @@ create_globals()
 }
 
 
-// Handling the lookup of dll$symbols
-DLL_IMPLEMENTS double __stdcall
-ProcessQuery(const char* pquery)
+extern "C" __declspec(dllexport) int __stdcall
+update_symbols(const char* psymbols)
+{
+	if (psymbols == nullptr)
+	{
+		return -1;
+	}
+	std::string symbols = std::string(psymbols);
+	std::string key, val;
+	std::istringstream iss(symbols);
+	while (std::getline(std::getline(iss, key, ':') >> std::ws, val))
+	{
+		g_symbols[key] = val;
+	}
+	return 0;
+}
+
+
+extern "C" __declspec(dllexport) double __stdcall
+process_query(const char* pquery)
 {
 	if (pquery == nullptr)
 	{
@@ -161,7 +159,6 @@ DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 	FILE* conout = nullptr;
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
-		InitializeOpenHoldemFunctionInterface();
 		init_log(&conout);
 		create_globals();
 #ifdef _DEBUG

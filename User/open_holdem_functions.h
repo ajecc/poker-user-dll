@@ -1,41 +1,10 @@
 #pragma once
 
-#include "user.h"
 #include <string>
 
 
-/*
-OpenHoldem functions.
-*/
-double __stdcall
-GetSymbol(const char* name_of_single_symbol__not_expression);
-
-void* __stdcall
-GetPrw1326();
-
-char* __stdcall 
-GetHandnumber();
-
-char* __stdcall 
-GetPlayerName(int chair);
-
-char* __stdcall
-GetTableTitle();
-
-void  __stdcall 
-ParseHandList(const char* name_of_list, const char* list_body);
-
-char* __stdcall
-ScrapeTableMapRegion(const char* p_region, int& p_returned_lengh);
-
-void  __stdcall 
-SendChatMessage(char *message);
-
-void
-WriteLog(char* format, ...);
-
-void
-InitializeOpenHoldemFunctionInterface();
+const char*
+get_symbol(const char* symbol);
 
 
 /*
