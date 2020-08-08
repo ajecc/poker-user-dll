@@ -196,7 +196,7 @@ update_cards(board_t* board)
 	{
 		cards_query_string[cards_query_string.size() - 1] = (char)(i + '0');
 		std::string card_str = scrape_table_map_region(cards_query_string);
-		if (card_str.empty())
+		if (card_str.empty() || card_str == "nocard")
 		{
 			break;
 		}
@@ -256,7 +256,7 @@ update_player_positions(board_t* board)
 		dealer_label[1] = i;
 		std::string query = dealer_label + "dealer";
 		std::string query_response = scrape_table_map_region(query);
-		if (query_response == "true")
+		if (query_response == "true" || query_response == "1")
 		{
 			dealer = get_player_by_label(board, dealer_label);
 			dealer->is_dealer = true;

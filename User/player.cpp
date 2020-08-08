@@ -35,7 +35,7 @@ update_player(player_t* player)
 	}
 	update_player_is_in_game(player);
 	update_player_is_in_hand(player);
-	if (!player->is_in_game)
+	if (!player->is_in_hand)
 	{
 		return;
 	}
@@ -58,7 +58,7 @@ update_player_is_in_game(player_t* player)
 	}
 	std::string query = player->label + "seated";
 	std::string query_response = scrape_table_map_region(query);
-	if (query_response == "true")
+	if (query_response == "true" || query_response == "1")
 	{
 		player->is_in_game = true;
 	}
@@ -114,10 +114,11 @@ update_player_is_in_hand(player_t* player)
 		throw poker_exception_t("Player should never be nullptr");
 	}
 	player->is_in_hand = false;
-	std::string query = player->label + "cardback";
+	std::string query = player->label + "active";
 	std::string query_response = scrape_table_map_region(query);
 	// NOTE: p2 = hero's label
-	if (query_response == "true" || player->label == "p2")
+	if (query_response == "true" || query_response == "1" ||
+		player->label == "p2")
 	{
 		player->is_in_hand = true;
 	}
@@ -133,10 +134,6 @@ update_player_cards(player_t* player)
 	query = player->label + "cardface1";
 	query_response = scrape_table_map_region(query);
 	const card_t* card_1 = get_card(query_response);
-	if (card_0 == nullptr || card_1 == nullptr)
-	{
-		return;
-	}
 	if (*card_0 > *card_1)
 	{
 		std::swap(card_0, card_1);
@@ -194,7 +191,18 @@ player_t::to_string() const
 	}
 	if (is_in_hand && !is_hero)
 	{
-		to_string += "villain_range = " + villain_range->to_string() + "\n";
+		std::string villain_range_string = "[...]";
+		if (villain_range->villain_range.size() <= 16)
+		{
+			villain_range_string = villain_range->to_string();
+		}
+		to_string += "villain_range = " + villain_range_string + "\n";
+	}
+	if (is_in_hand)
+	{
+		to_string += "current_bet = ";
+		to_string += std::to_string(current_bet);
+		to_string += "\n";
 	}
 	return to_string;
 }

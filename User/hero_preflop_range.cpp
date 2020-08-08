@@ -201,7 +201,7 @@ create_facing_4bet_hero_preflop_ranges()
 hero_preflop_range_t*
 get_hero_preflop_range(position_t hero_position, position_t villain_position, bet_type_t bet_type)
 {
-	DLOG(INFO, ("getting range for: hero=" + std::to_string(hero_position) + 
+	LOG_F(INFO, ("getting range for: hero=" + std::to_string(hero_position) + 
 		" villain=" + std::to_string(villain_position) +
 		" bet_type=" + std::to_string(bet_type)).c_str());
 	const hero_preflop_range_t* hero_preflop_range = nullptr;
@@ -248,14 +248,14 @@ get_hero_preflop_range(position_t hero_position, position_t villain_position, be
 }
 
 
-const hero_preflop_range_t*
+static const hero_preflop_range_t*
 get_open_hero_preflop_range(position_t hero_position)
 {
 	return g_open_hero_preflop_ranges[hero_position];
 }
 
 
-const hero_preflop_range_t*
+static const hero_preflop_range_t*
 get_facing_raise_hero_preflop_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;
@@ -267,7 +267,7 @@ get_facing_raise_hero_preflop_range(position_t hero_position, position_t villain
 }
 
 
-const hero_preflop_range_t*
+static const hero_preflop_range_t*
 get_facing_3bet_hero_preflop_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;
@@ -283,7 +283,7 @@ get_facing_3bet_hero_preflop_range(position_t hero_position, position_t villain_
 }
 
 
-const hero_preflop_range_t*
+static const hero_preflop_range_t*
 get_facing_4bet_hero_preflop_range(position_t hero_position, position_t villain_position)
 {
 	int hero_position_int = (int)hero_position;

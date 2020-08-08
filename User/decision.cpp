@@ -50,7 +50,8 @@ take_decision_preflop(player_t* hero, board_t* board)
 {
 	LOG_F(INFO, "started taking PREFLOP decision");
 	auto* board_derived_info = board->board_derived_info;
-	if (board->board_derived_info->call_ammount >= board->big_blind_sum * 20)
+	if (board->board_derived_info->bet_type == FACING_4BET ||
+		board->board_derived_info->call_ammount > 10 * board->big_blind_sum)
 	{
 		std::vector<const hand_t*> to_call = {
 			get_hand(get_card("Ah"), get_card("Ad")),
@@ -67,6 +68,13 @@ take_decision_preflop(player_t* hero, board_t* board)
 			get_hand(get_card("Kd"), get_card("Ks")),
 			get_hand(get_card("Kc"), get_card("Ks")),
 
+			get_hand(get_card("Qh"), get_card("Qd")),
+			get_hand(get_card("Qh"), get_card("Qc")),
+			get_hand(get_card("Qh"), get_card("Qs")),
+			get_hand(get_card("Qd"), get_card("Qc")),
+			get_hand(get_card("Qd"), get_card("Qs")),
+			get_hand(get_card("Qc"), get_card("Qs")),
+
 			get_hand(get_card("Kh"), get_card("Ah")),
 			get_hand(get_card("Kd"), get_card("Ad")),
 			get_hand(get_card("Ks"), get_card("As")),
@@ -80,7 +88,7 @@ take_decision_preflop(player_t* hero, board_t* board)
 	}
 	hero->hero_preflop_range = get_hero_preflop_range(
 		hero->position,
-		board_derived_info->main_villain->position,
+		board_derived_info->main_villain == nullptr ? BB :	board_derived_info->main_villain->position,
 		board_derived_info->bet_type
 	);
 	LOG_F(INFO, "got range");
@@ -105,7 +113,7 @@ take_decision_preflop(player_t* hero, board_t* board)
 		}
 		else
 		{
-			to_raise_sum = 1.2f * board->pot; 
+			to_raise_sum = 2.0f * board->pot; 
 		}
 	}
 	return { range_hand.hand_action, to_raise_sum };
@@ -131,6 +139,7 @@ take_decision_postflop(player_t* hero, board_t* board)
 		calling_rate += calc_calling_rate_vs_villain_range(hero->hand, villain->villain_range,
 			board, board_derived_info->bet_type);
 	}
+	float prwin_raw = calc_prwin_vs_any_hand(hero->hand, board);
 	assert(board->current_hand_players.size() >= 2);
 	calling_rate /= (float)(board->current_hand_players.size() - 1);
 	const float BET_SIZE = board->pot * std::min(0.8f, std::max(0.5f, calling_rate));
@@ -148,7 +157,7 @@ take_decision_postflop(player_t* hero, board_t* board)
 	LOG_F(INFO, "pot_odds = %f", pot_odds);
 	if (board_derived_info->bet_type == OPEN)
 	{
-		if (calling_rate < 0.1f || prwin < 0.5f)
+		if (calling_rate < 0.1f && prwin < 0.5f)
 		{
 			if (FP_ARE_EQUAL(prwin, 1))
 			{
@@ -158,28 +167,31 @@ take_decision_postflop(player_t* hero, board_t* board)
 			{
 				if (!is_board_wet_flop(board))
 				{
-					if (hero->is_in_position && generate_random() > 0.7f)
+					if (hero->is_in_position && generate_random() < 0.4f)
 					{
 						return { RAISE, 0.4f * board->pot };
 					}
-					if (!hero->is_in_position && generate_random() > 0.2f)
+					if (!hero->is_in_position && generate_random() < 0.2f)
 					{
 						return { RAISE, 0.4f * board->pot };
 					}
 				}
-				else if(hero->is_in_position && generate_random() > 0.4f)
+				else if(hero->is_in_position && generate_random() < 0.4f)
 				{
 					return { RAISE, 0.4f * board->pot };
 				}
 			}
-			else if (board->stage == TURN && board->current_hand_players.size() == 3 &&
-				board->last_decision->action == CHECK && generate_random() > 0.7f)
+			else if (board->stage == TURN && board->current_hand_players.size() <= 3 &&
+				board->last_decision->action == CHECK &&
+				generate_random() < 1.1f / board->current_hand_players.size())
 			{
 				return { RAISE, 0.4f * board->pot };
 			}
 			return { CHECK, 0 };
 		}
-		else
+		else if(
+			((calling_rate > 0.2f || (board->stage == RIVER && calling_rate > 0.1f)) && prwin > 0.4f)
+			|| (prwin > 0.8 || prwin_raw > 0.97f))
 		{
 			// TODO: add something for TURN as well
 			if ((board->stage == FLOP || board->stage == TURN) && is_board_wet_flop(board))
@@ -192,14 +204,18 @@ take_decision_postflop(player_t* hero, board_t* board)
 			}
 			return { RAISE, raise_size };
 		}
+		else
+		{
+			return { CHECK, 0 };
+		}
 	}
 	else if (board_derived_info->bet_type == FACING_RAISE)
 	{
-		if (prwin > 0.93f)
+		if (prwin_raw > 0.97f || prwin > 0.8f)
 		{
-			return { RAISE, BET_SIZE };
+			return { RAISE, 0.8f * board->pot };
 		}
-		else if (prwin > pot_odds - 0.1f)  // take some pure bluffs into consideration
+		else if (prwin > pot_odds)  // take some pure bluffs into consideration
 		{
 			return { CALL, 0 };
 		}
@@ -211,11 +227,11 @@ take_decision_postflop(player_t* hero, board_t* board)
 	else if (board_derived_info->bet_type == FACING_3BET ||
 		board_derived_info->bet_type == FACING_4BET)
 	{
-		if (prwin > 0.93f)
+		if (prwin_raw > 0.97f || prwin > 0.8f)
 		{
 			return { RAISE, hero->balance };
 		}
-		if (prwin > pot_odds)
+		else if (prwin > pot_odds)
 		{
 			return { CALL, 0 };
 		}

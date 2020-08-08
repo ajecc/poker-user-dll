@@ -20,9 +20,6 @@ static std::vector<std::string>
 get_position_map();
 
 
-
-
-
 void
 villain_range_t::add(const hand_t* hand)
 {
@@ -62,7 +59,6 @@ villain_range_t::remove_containg_card(const card_t* card)
 bool
 villain_range_t::contains_at_least_one(const std::vector<const hand_t*>& hands) const
 {
-	assert(!villain_range.empty());
 	for (const auto* hand : hands)
 	{
 		if (villain_range.count(hand))
@@ -77,7 +73,10 @@ villain_range_t::contains_at_least_one(const std::vector<const hand_t*>& hands) 
 std::string
 villain_range_t::to_string() const
 {
-	assert(!villain_range.empty());
+	if (villain_range.empty())
+	{
+		return "[]";
+	}
 	std::string ret = "[";
 	int cnt = 0;
 	auto it = villain_range.end();
@@ -206,17 +205,14 @@ update_player_villain_range(player_t* player, const board_t* board)
 			else if (player->villain_action == VILLAIN_ACTION_OPEN
 				|| player->villain_action == VILLAIN_ACTION_LIMP)
 			{
-				if (!player->is_in_position)
+				// TODO: this might not be accurate
+				for (const auto* hand : player->villain_range->villain_range)
 				{
-					// TODO: this might not be accurate
-					for (const auto* hand : player->villain_range->villain_range)
+					if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.6f &&
+						!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
+							has_open_ender(hand, board)))
 					{
-						if (normalize_prwin(calc_prwin_vs_any_hand(hand, board)) < 0.44f &&
-							!(has_flush_draw(hand, board) || has_gutshot(hand, board) || 
-								has_open_ender(hand, board)))
-						{
-							hands_to_remove.push_back(hand);
-						}
+						hands_to_remove.push_back(hand);
 					}
 				}
 			}

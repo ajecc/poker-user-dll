@@ -219,7 +219,6 @@
     <ClInclude Include="position.h" />
     <ClInclude Include="prwin_calc.h" />
     <ClInclude Include="hero_preflop_range.h" />
-    <ClInclude Include="user.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="villain_range.h" />
   </ItemGroup>

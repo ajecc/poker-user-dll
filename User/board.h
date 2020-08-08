@@ -26,7 +26,7 @@ struct board_t
 	float pot = 0;
 	float big_blind_sum = 0;
 	board_derived_info_t* board_derived_info = nullptr;
-	decision_t* last_decision;
+	decision_t* last_decision = nullptr;
 
 	std::string
 	to_string() const;

@@ -148,7 +148,7 @@ get_card(const std::string& str)
 {
 	if (str.size() != 2)
 	{
-		throw poker_exception_t("get_card_from_string: invalid string (" + str + ")");
+		throw poker_exception_t("get_card: invalid string (" + str + ")");
 	}
 	card_t card;
 	char card_rank = str[0];

@@ -7,7 +7,6 @@
 #include <map>
 #include <sstream>
 #include "loguru.h"
-#include "user.h"
 #include "open_holdem_functions.h"
 #include "debug.h"
 #include "board.h"
@@ -74,6 +73,7 @@ update_symbols(const char* psymbols)
 	{
 		return -1;
 	}
+	LOG_F(INFO, psymbols);
 	std::string symbols = std::string(psymbols);
 	std::string key, val;
 	std::istringstream iss(symbols);

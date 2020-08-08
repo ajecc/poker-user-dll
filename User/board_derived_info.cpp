@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "prwin_calc.h"
 #include <set>
+#include <cassert>
 
 #define STRONG_DRAW_PRWIN (90.0f)
 #define STRONG_DRAW_PRWIN_DIFF (20.0f)
@@ -36,24 +37,38 @@ operator++(bet_type_t& bet_type)
 board_derived_info_t 
 get_board_derived_info(player_t* hero, board_t* board)
 {
+	assert(board != nullptr);
 	board_derived_info_t board_derived_info;
 	get_villains_info(hero, board, &board_derived_info);
 	board_derived_info.call_ammount =
 		board_derived_info.current_bet - board->hero->current_bet;
-	if (board->board_derived_info != nullptr &&
-		board->board_derived_info->bet_type >= FACING_RAISE &&
-		board_derived_info.bet_type >= FACING_RAISE)
+	// bet type
+	std::set<float> current_bets;
+	for (const auto* player : board->current_hand_players)
 	{
-		if (contains(board_derived_info.villains_before_hero,
-			board_derived_info.main_villain))
+		if (player->current_bet > board->big_blind_sum)
 		{
-			board->board_derived_info->bet_type = FACING_3BET;
-		}
-		else
-		{
-			board->board_derived_info->bet_type = FACING_4BET;
+			current_bets.insert(player->current_bet);
 		}
 	}
+	if (current_bets.size() == 1)
+	{
+		board_derived_info.bet_type = FACING_RAISE;
+	}
+	else if (current_bets.size() == 2)
+	{
+		board_derived_info.bet_type = FACING_3BET;
+	}
+	else if(current_bets.size() >= 3)
+	{
+		board_derived_info.bet_type = FACING_4BET;
+	}
+	if (board->board_derived_info != nullptr && 
+		board->board_derived_info->bet_type >= FACING_RAISE)
+	{
+		board_derived_info.bet_type = FACING_4BET;
+	}
+
 	// draws
 	if (board->stage == TURN && board->board_derived_info != nullptr)
 	{
@@ -429,5 +444,7 @@ board_derived_info_t::to_string()
 	{
 		res += card->to_string() + ", ";
 	}
+	res += "\n";
+	res += "call_ammount = " + std::to_string(call_ammount);
 	return res;
 }

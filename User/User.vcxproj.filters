@@ -70,9 +70,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="user.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="open_holdem_functions.h">
       <Filter>headers</Filter>
     </ClInclude>
