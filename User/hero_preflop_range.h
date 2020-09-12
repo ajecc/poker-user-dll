@@ -22,7 +22,12 @@ struct hero_preflop_range_hand_t
 	}
 };
 
+/*
+Applies the raise probability found in a hero_preflop_range_hand_t.
+The hand action will change to RAISE, based on raise_prob.
 
+Parameters: OUT hero_preflop_range_hand_t*
+*/
 void 
 apply_raise_prob(hero_preflop_range_hand_t* range_hand);
 

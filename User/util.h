@@ -41,7 +41,7 @@ insertion_sort(T* to_sort, const size_t& to_sort_size, F cmp_func)
 
 
 /*
-Generates at compile time combinations up to comb(N, K).
+Generates, at compile time, combinations up to comb(N, K).
 Simply instantiate this structure, and the comb field returns
 the combinations.
 */
@@ -68,6 +68,14 @@ struct comb_t
 };
 
 
+/*
+Generates a random float in the range [lower_bound, upper_bound]
+
+Parameters: IN float lower_bound - the lower bound of the range
+			IN float upper_bound - the upper bound of the range
+
+Returns: float - the random number in range [lower_bound, upper_bound]
+*/
 inline float
 generate_random(float lower_bound = 0, float upper_bound = 1)
 {
@@ -78,14 +86,30 @@ generate_random(float lower_bound = 0, float upper_bound = 1)
 		(lower_bound, upper_bound)(rng_generator);
 }
 
+/*
+Checks if an element is contained in a container.
+The container needs to have an iterator defined.
+Works for STL containers out of the box.
 
+Parameters: IN T1 container - the container
+			IN T2 elem - the element to be checked
+
+Returns: bool - true if elem is in container and false otherwise
+*/
 template<typename T1, typename T2> inline bool 
 contains(const T1& container, T2 elem)
 {
 	return std::find(all(container), elem) != container.end();
 }
 
+/*
+Concatenates two std::vectors.
 
+Parameters: IN std::vector<T> lhs - the first vector
+			IN std::vector<T> rhs - the second vector
+
+Returns: std::vector<T> - the (lhs + rhs) vector
+*/
 template<typename T> inline std::vector<T>
 concat(const std::vector<T>& lhs, const std::vector<T>& rhs)
 {
@@ -95,6 +119,17 @@ concat(const std::vector<T>& lhs, const std::vector<T>& rhs)
 }
 
 
+/*
+Opens (or creates) a cache. The cache is basically a memory mapped file.
+Note that the cache is in a shared memory region - it wont be loaded more
+than once if multiple processes want to use this cache.
+
+Parameters: IN std::string cache_name - the name of the file to be loaded in memory
+			IN std::string shared_cache_name - the name of the shared memory region
+						make sure this is unique (one can generate a GUID for this)
+
+Returns: void* - the pointer to the cache
+*/
 inline const void* 
 open_cache(const std::string& cache_name, const std::string& shared_cache_name)
 {
@@ -163,4 +198,3 @@ open_cache(const std::string& cache_name, const std::string& shared_cache_name)
 	LOG_F(INFO, "Successfully opened shared memory region: %s", cache_name.c_str());
 	return cache;
 }
-

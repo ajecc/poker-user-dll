@@ -43,10 +43,26 @@ struct hand_t
 };
 
 
+/*
+Gets the index of the hand, as it is found in g_all_hands.
+The hand is defined by two cards
+
+Parameters: IN card_t* - the first card in the hand
+			IN card_t* - the second card in the hand
+
+Returns: size_t - the index of hand, as found in g_all_hands
+*/
 size_t
 get_hand_index(const card_t* card_0, const card_t* card_1);
 
 
+/*
+Gets the index of the hand, as it is found in g_all_hands
+
+Parameters: IN hand_t* - the hand
+
+Returns: size_t - the index of hand, as found in g_all_hands
+*/
 size_t
 get_hand_index(const hand_t* hand);
 
@@ -54,8 +70,8 @@ get_hand_index(const hand_t* hand);
 /*
 Gets a pointer to the hand that contains the 2 cards given.
 
-Parameters: IN card_t* card_1
-			IN card_t* card_2
+Parameters: IN card_t* card_0
+			IN card_t* card_1
 
 Returns: hand_t* -- pointer to the hand that contains the cards, fetched from 
 					g_all_hands. Should not be freed.

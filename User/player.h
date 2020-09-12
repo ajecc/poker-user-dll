@@ -115,8 +115,6 @@ struct player_t
 Updates the player given, using the api exposed by OpenHoldem.
 
 Parameters: OUT player_t* player -- the player to update
-
-Returns: none 
 */
 void
 update_player(player_t* player);

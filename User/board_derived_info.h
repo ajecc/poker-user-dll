@@ -35,9 +35,28 @@ struct board_derived_info_t
 };
 
 
+/*
+Finds the remaining cards, excluding the ones held by the hero,
+a villain and the ones found on the board
+
+Parameters: IN hand_t* - the hand held by the hero. can be nullptr
+			IN hand_t* - the hand held by the villain. can be nullptr
+			IN board_t* - the board. CAN NOT be nullptr
+
+Returns: std::vector<const card_t*> - the remaining cards 
+*/
 std::vector<const card_t*> 
 find_remaining_cards(const hand_t* hero, const hand_t* villain, const board_t* board);
 
 
+/*
+Fills a board_derived_info_t with the appropriate information 
+and returns it.
+
+Parameters: player_t* - the hero
+			board_t* - the board
+
+Returns: board_derived_info_t - the appropriate information derived from the board
+*/
 board_derived_info_t
 get_board_derived_info(player_t* hero, board_t* board);

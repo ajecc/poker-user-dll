@@ -154,7 +154,7 @@ get_next_player_in_game(board_t* board, player_t* player)
 
 
 bool
-is_board_wet_flop(board_t* board)
+is_board_wet_flop(const board_t* board)
 {
 	// TODO: give a better definition of a wet board
 	return board->board_derived_info->villain_draws_flop.size() > 7;

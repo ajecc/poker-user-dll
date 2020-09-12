@@ -93,8 +93,15 @@ player_t*
 get_next_player_in_hand(board_t* board, player_t* player);
 
 
+/*
+Checks if the board has a wet flop.
+
+Parameters: IN board_t* board - the board to be checked for a wet flop
+
+Returns: bool - true if the board has a wet flop and false otherwise
+*/
 bool
-is_board_wet_flop(board_t* board);
+is_board_wet_flop(const board_t* board);
 
 
 /*

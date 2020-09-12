@@ -64,12 +64,20 @@ struct card_t
 card_t&
 operator++(card_t& card);
 
+
+/*
+A function used for sorting a container for card_t pointers.
+
+Parameters: IN card_t* lhs - the left side operator 
+			IN card_t* rhs - the right side operator
+
+Returns: bool - true if *lhs < *rhs and false otherwise
+*/
 inline bool
 card_ptr_cmp(const card_t* lhs, const card_t* rhs)
 {
 	return *lhs < *rhs;
 }
-
 
 
 /*

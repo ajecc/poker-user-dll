@@ -3,8 +3,16 @@
 #include <string>
 
 
+/*
+Gets the value of the symbol passed.
+The symbol has to exist in g_symbols.
+
+Paramets: IN char* - the symbol
+
+Returns: cosnt char* - the value of the symbol, as found in g_symbols.
+*/
 const char*
-get_symbol(const char* symbol);
+get_symbol_value(const char* symbol);
 
 
 /*

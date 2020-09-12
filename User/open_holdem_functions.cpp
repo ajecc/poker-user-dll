@@ -10,7 +10,7 @@ extern std::map<std::string, std::string> g_symbols;
 
 
 const char*
-get_symbol(const char* symbol)
+get_symbol_value(const char* symbol)
 {
 	return g_symbols[std::string(symbol)].c_str();
 }
@@ -20,7 +20,7 @@ std::string
 scrape_table_map_region(const std::string& region)
 {
 	DLOG(INFO, "region = %s", region.c_str());
-	const char* response = get_symbol(region.c_str());
+	const char* response = get_symbol_value(region.c_str());
 	if (response == nullptr)
 	{
 		DLOG(INFO, "response = NULL");

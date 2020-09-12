@@ -67,13 +67,43 @@ float
 calc_prwin_vs_any_hand_with_draws(const hand_t* hero, const board_t* board,
 									const std::vector<const card_t*>& draws);
 
+/*
+Calculates the probability for the hero to win vs
+a villain's range, for a certain board
 
+Parameters: IN hand_t* - hero's hand
+			IN villain_range_t* - villain's range
+			IN board_t* - the board
+
+Returns: float - the probability that the hero beats a villain's range
+*/
 float
 calc_prwin_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range, const board_t* board);
 
+/*
+Calculates the rate for which the villain would call a hero
+bet, for a certain range. The calling rate is normalized,
+using the probability for the hero to win vs a hand.
+
+Parameters: IN hand_t* - hero's hand
+			IN villain_range_t* - villain's range
+			IN board_t* - the board
+			IN bet_type_t - the bet type the hero induces
+
+Returns: float - the calling rate
+*/
 float
 calc_calling_rate_vs_villain_range(const hand_t* hero, const villain_range_t* villain_range,
 	const board_t* board, const bet_type_t& bet_type);
 
+/*
+Creates the g_all_prwin_vs_any_hand global.
+This variable is used to calculate some probabilities fast.
+It should not be used directly.
+
+Parameters: none
+
+Returns: std::vector<float> - g_all_prwin_vs_any_hand
+*/
 std::vector<float>
 create_all_prwin_vs_any_hand_flop();
