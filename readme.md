@@ -1,15 +1,14 @@
 # Poker User DLL
 
-`Poker User DLL` is a DLL used to take a decision for 6-max Holdem Poker, in a timely manner. The decisions it takes are based on GTO theory and personal poker experience. At the moment, it can only be used for cash games. Multiple tables are supported.
+`Poker User DLL` is a DLL used to take a decision for 6-max Hold'em Poker, in a timely manner. The decisions it takes are based on GTO theory and personal poker experience. At the moment, it can only be used for cash games. Multiple tables are supported.
 
 ---
 
 ## How to use
 
-`User.dll` exposes 2 functions that make decision making possible:
+`User.dll` exposes 2 functions that make decision-making possible:
 ```C
 int update_symbols(const char* psymbols);
-
 double process_query(const char* pquery);
 ```
 
@@ -19,7 +18,7 @@ These functions are used by [ajecc/poker-table-controller](https://github.com/aj
 
 ### Update Symbols 
 
-`update_symbols` takes as input the symbols that define the table's state. Each symbol must lie on its own line. The name of the symbol and its value must be separated by `:`. An example on how `psymbols` should look like, as well as all the symbols requiered, can be found below:
+`update_symbols` takes as input the symbols that define the table's state. Each symbol must lie on its own line. The name of the symbol and its value must be separated by `:`. An example on how `psymbols` should look like, as well as all the symbols required, can be found below:
 <details>
     <summary>Symbols</summary>
 
@@ -106,7 +105,7 @@ The decision taken by the DLL is based on 2 main factors:
     - if the hero is in a defending position, it will call/raise based on the pot odds and implied odds derived from the range of the opponent
     - the logic for this can be found in `decision.h` 
 
-The probabilities needed to take a decision are partly precalculated. The ones that are not are easy to calculate. `hand_board_result.h` is responsible for these calculations.
+The probabilities needed to take a decision are partly precalculated. `hand_board_result.h` is responsible for these calculations.
 
 The other headers implemented are to support the above headers and should not need changing.
 
